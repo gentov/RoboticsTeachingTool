@@ -1,14 +1,82 @@
-import tkinter as tk
+from tkinter import *
+from tkinter import simpledialog
 from Module import *
 class GUI():
     def __init__(self):
-        self.window = tk.Tk()
-        self.moduleList = {}
-        # Ideally this module will be in the module list
-        m = Module(gui=self, title="test")
+        self.win = Tk()
+        self.win.title("Robotics Teaching Tool")
+        # self.win.attributes("-fullscreen", True)
+        #self.win.geometry('1000x1000')
+        self.moduleDict = {
+            "PID": Module(gui = self, title="PID"),
+            "FK/IK": Module(gui=self, title="FK/IK"),
+            "Filters": Module(gui=self, title="Filters"),
+            "Computer Vision": Module(gui=self, title="Computer Vision")
+        }
+        self.moduleDict["PID"].completed = True
+        # self.moduleDict["FK/IK"].completed = True
+        # self.moduleDict["Filters"].completed = True
+        # self.moduleDict["Computer Vision"].completed = True
+
+    #m = Module(gui=self, title="test")
+
+    def HomePage(self):
+        self.win.configure(background="grey")
+        self.canvas = Canvas(self.win, width=700, height=800, bg="grey", highlightthickness=0)
+        # I want four different frames for buttons and widgets, in each of the corners
+        # @TODO: Replace with frames
+        finishedTopicsFrame = Frame(self.win, bg="green", width=500, height=250)
+        finishedTopicsFrame.grid(row = 0, column = 0)
+        additionalResourcesFrame = Canvas(self.win, bg="blue", width=500, height=250)
+        additionalResourcesFrame.grid(row=1, column=0)
+        recommendedTopicsFrame = Frame(self.win, bg="yellow", width=500, height=500)
+        recommendedTopicsFrame.grid(row=0, column=1, rowspan = 2)
+
+        # POPULATE RECOMMENDED FRAME AND FINISHED FRAME
+        # make a button for each module
+        # clicking on the button takes you to the module's panes
+        buttonNum = 0
+        completedAtLeastOneModule = False
+        completedAllTopics = True
+        for module in self.moduleDict.values():
+            # @TODO: These modules need a callback! have them call the  module.run() method or something
+            if(module.completed):
+                completedAtLeastOneModule = True
+                moduleButton = Button(finishedTopicsFrame, height=2, text=module.title,
+                                       font=('Comic Sans MS', 10, 'bold italic'), bg="white")
+                moduleButton.place(relx=.5, rely=.2 + (.21 * buttonNum), anchor=CENTER)
+            else:
+                completedAllTopics = False
+                moduleButton = Button(recommendedTopicsFrame, height=2,text = module.title,font=('Comic Sans MS', 10, 'bold italic'), bg="white")
+                moduleButton.place(relx=.5, rely=.5+(.12*buttonNum), anchor = CENTER)
+            buttonNum+=1
+
+        # Labels for finished and unfinished courses
+        if(completedAllTopics):
+            recommendedTopicsLabel = Label(recommendedTopicsFrame, text="You've learned all the topics! Great Job!!",
+                                       font=('Comic Sans MS', 15, 'bold italic'), bg="yellow")
+            recommendedTopicsLabel.place(relx=.5, rely=.5, anchor=CENTER)
+        else:
+            recommendedTopicsLabel = Label(recommendedTopicsFrame, text="Soak up the skills! Topics left:",
+                                       font=('Comic Sans MS', 15, 'bold italic'), bg="yellow")
+            recommendedTopicsLabel.place(relx=.5, rely=.2, anchor=CENTER)
+
+        #  Finished label
+        if(not completedAtLeastOneModule):
+            finishedTopicLabel = Label(finishedTopicsFrame, text = "You haven't finished any topics!!",
+                                       font=('Comic Sans MS', 15, 'bold italic'), bg = "green")
+            finishedTopicLabel.place(relx=.5, rely=.5, anchor=CENTER)
+        else:
+            finishedTopicLabel = Label(finishedTopicsFrame, text="You're a rockstar! Here's what you've learned:",
+                                       font=('Comic Sans MS', 12, 'bold italic'), bg="green")
+            finishedTopicLabel.place(relx=.4, rely=.1, anchor=CENTER)
+
+        # POPULATE ADDITIONAL RESOURCES FRAME
+
 
     def addModule(self, module):
         self.moduleList[module.title] = module
 
 g = GUI()
-g.window.mainloop()
+g.HomePage()
+g.win.mainloop()
