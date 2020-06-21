@@ -43,11 +43,11 @@ class GUI():
             if(module.completed):
                 completedAtLeastOneModule = True
                 moduleButton = Button(finishedTopicsFrame, height=2, text=module.title,
-                                       font=('Comic Sans MS', 10, 'bold italic'), bg="white")
+                                       font=('Comic Sans MS', 10, 'bold italic'), bg="white", command=module.runModule)
                 moduleButton.place(relx=.5, rely=.2 + (.21 * buttonNum), anchor=CENTER)
             else:
                 completedAllTopics = False
-                moduleButton = Button(recommendedTopicsFrame, height=2,text = module.title,font=('Comic Sans MS', 10, 'bold italic'), bg="white")
+                moduleButton = Button(recommendedTopicsFrame, height=2,text = module.title,font=('Comic Sans MS', 10, 'bold italic'), bg="white", command=module.runModule)
                 moduleButton.place(relx=.5, rely=.5+(.12*buttonNum), anchor = CENTER)
             buttonNum+=1
 
