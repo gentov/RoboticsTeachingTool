@@ -1,6 +1,8 @@
+#@TODO: Use grids instead of "place relx rely"
 from tkinter import *
 from tkinter import simpledialog
 from Module import *
+from FilterModule import *
 class GUI():
     def __init__(self):
         self.win = Tk()
@@ -10,7 +12,7 @@ class GUI():
         self.moduleDict = {
             "PID": Module(gui = self, title="PID"),
             "FK/IK": Module(gui=self, title="FK/IK"),
-            "Filters": Module(gui=self, title="Filters"),
+            "Filters": FilterModule(gui = self, title = "Filters"),
             "Computer Vision": Module(gui=self, title="Computer Vision")
         }
         self.moduleDict["PID"].completed = True
@@ -21,6 +23,7 @@ class GUI():
     #m = Module(gui=self, title="test")
 
     def HomePage(self):
+        self.clearScreen()
         self.win.configure(background="grey")
         self.canvas = Canvas(self.win, width=700, height=800, bg="grey", highlightthickness=0)
         # I want four different frames for buttons and widgets, in each of the corners
@@ -39,7 +42,6 @@ class GUI():
         completedAtLeastOneModule = False
         completedAllTopics = True
         for module in self.moduleDict.values():
-            # @TODO: These modules need a callback! have them call the  module.run() method or something
             if(module.completed):
                 completedAtLeastOneModule = True
                 moduleButton = Button(finishedTopicsFrame, height=2, text=module.title,
@@ -73,6 +75,9 @@ class GUI():
 
         # POPULATE ADDITIONAL RESOURCES FRAME
 
+    def clearScreen(self):
+        for widget in self.win.winfo_children():
+            widget.destroy()
 
     def addModule(self, module):
         self.moduleList[module.title] = module
