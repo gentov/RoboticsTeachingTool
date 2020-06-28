@@ -22,12 +22,7 @@ class Module():
 
     def runModule(self):
         self.gui.clearScreen()
-        self.interactivePane = tk.Canvas(self.gui.win, width = 500, height = 500, bg = 'grey')
-        self.visualizingPane = tk.Canvas(self.gui.win, width = 500, height = 500, bg = 'white')
-        self.interactivePane.grid(row=0, column=0)
-        self.visualizingPane.grid(row=0, column=1)
-        self.interactivePane.create_text(150, 100, text = "INTERACTIVE COMPONENTS HERE")
-        self.visualizingPane.create_text(150, 100, text = "VISUALIZING COMPONENTS HERE")
+        self.makePanes()
 
     # Can we make this non-blocking? Probably not critical...
     def animateText(self, text, canvasOfText, font):
@@ -44,6 +39,11 @@ class Module():
             self.gui.win.update()
             time.sleep(.003)
 
+    def makePanes(self):
+        self.interactivePane = tk.Canvas(self.gui.win, width=500, height=500, bg='grey')
+        self.visualizingPane = tk.Canvas(self.gui.win, width=500, height=500, bg='white')
+        self.interactivePane.grid(row=0, column=0)
+        self.visualizingPane.grid(row=0, column=1)
     """
     Places the button to go to the next page.
     x: relative location in pane where you want it (from 0 to 1)
