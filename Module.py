@@ -25,16 +25,16 @@ class Module():
         self.makePanes()
 
     # Can we make this non-blocking? Probably not critical...
-    def animateText(self, text, canvasOfText, font):
+    def animateText(self, x, y, text, canvasOfText, font):
         characterArray = list(text)
-        canvasOfText.create_text(300,150 , text="",
+        canvasOfText.create_text(x,y , text="",
                                          font=font)
         animatedText = ""
         self.gui.win.update()
         for char in characterArray:
             animatedText += char
-            self.interactivePane.delete(tk.ALL)
-            self.interactivePane.create_text(275, 150, text=animatedText,
+            canvasOfText.delete(tk.ALL)
+            canvasOfText.create_text(x, y, text=animatedText,
                                              font=font)
             self.gui.win.update()
             time.sleep(.003)
@@ -53,7 +53,7 @@ class Module():
     font: the font you want
     """
     def placeNextButton(self, x,y,pane, text = None,command = None, font = None):
-        nextButton = tk.Button(pane, bg='grey', relief=tk.FLAT, command=command)
+        nextButton = tk.Button(pane, bg=pane["background"], relief=tk.FLAT, command=command)
         self.nextButtonImage = tk.PhotoImage(file="next.png")
         nextButton.config(image=self.nextButtonImage, compound='center', text=text, font=font)
         nextButton.place(relx=x, rely=y)
@@ -67,7 +67,7 @@ class Module():
     font: the font you want
     """
     def placeBackButton(self, x,y,pane, text = None,command = None, font = None):
-        backButton = tk.Button(pane, bg='grey', relief=tk.FLAT, command=command)
+        backButton = tk.Button(pane, bg=pane["background"], relief=tk.FLAT, command=command)
         self.backButtonImage = tk.PhotoImage(file="back.png")
         backButton.config(image=self.backButtonImage, compound='center', text=text, font=font)
         backButton.place(relx=x, rely=y)
