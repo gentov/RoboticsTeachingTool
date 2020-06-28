@@ -18,7 +18,7 @@ class FilterModule(Module):
                     "sensors."
         font = ('Comic Sans MS', 11, 'bold italic')
         self.visualizingPane.create_image(300,250,image = self.noisyImage, anchor = tk.CENTER)
-        self.animateText(paragraph,self.interactivePane, font)
+        self.animateText(275, 150, paragraph,self.interactivePane, font)
         self.placeNextButton(.7, .7, pane = self.interactivePane,
                              text = "Let's go!", font = font, command = self.movingAverage)
         self.placeBackButton(.1, .7, pane=self.interactivePane, command=self.gui.HomePage,

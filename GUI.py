@@ -3,6 +3,7 @@ from tkinter import *
 from tkinter import simpledialog
 from Module import *
 from FilterModule import *
+from KinModule import *
 class GUI():
     def __init__(self):
         self.win = Tk()
@@ -11,7 +12,7 @@ class GUI():
         #self.win.geometry('1000x1000')
         self.moduleDict = {
             "PID": Module(gui = self, title="PID"),
-            "FK/IK": Module(gui=self, title="FK/IK"),
+            "FK/IK": KinModule(gui=self),
             "Filters": FilterModule(gui = self, title = "Filters"),
             "Computer Vision": Module(gui=self, title="Computer Vision")
         }

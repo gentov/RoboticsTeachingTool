@@ -19,11 +19,12 @@ class KinModule(Mod):
 
         super().__init__(gui, "Robot Kinematics", description)
         self.XPAD = 20
-        self.updatePanes()
 
 
 
-    def updatePanes(self):
+    def runModule(self):
+        self.gui.clearScreen()
+        self.makePanes()
         self.interactivePane.config(bg="red")
 
         title = self.visualizingPane.create_text(self.XPAD, 20, anchor="nw", font=("Purisa", 20), text="Forward Kinematics")
@@ -31,4 +32,8 @@ class KinModule(Mod):
         self.visualizingPane.create_text(self.XPAD, 60, anchor="nw", font=("Purisa", 11), text=self.description,
                                          fill="sky blue")
         self.visualizingPane.create_text(self.XPAD, 110, anchor="nw", font=("Purisa", 16), text="Frame Transformations")
+
+        self.placeBackButton(.1, .1, self.interactivePane, command=self.gui.HomePage)
+
+        self.animateText(275, 25, "hello world asdfasdgdfgnaodfnfv goa dejgofhgoah dfnjoiganfg nf", self.interactivePane, font=None)
         #self.visualizingPane.create
