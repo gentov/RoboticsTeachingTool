@@ -12,6 +12,7 @@ class Module():
         self.visualizingPane = tk.Canvas()
         self.nextButtonImage = None
         self.backButtonImage = None
+        self.mainMenuButtonImage = None
 
     def getCompleted(self):
         return self.completed
@@ -61,6 +62,12 @@ class Module():
         self.nextButtonImage = tk.PhotoImage(file="next.png")
         nextButton.config(image=self.nextButtonImage, compound='center', text=text, font=font)
         nextButton.place(relx=x, rely=y)
+
+    def placeBackToMenuButton(self, pane):
+        mainMenuButton = tk.Button(pane, bg=pane["background"], relief=tk.FLAT, command=self.gui.HomePage)
+        self.mainMenuButtonImage = tk.PhotoImage(file="mainMenu.png")
+        mainMenuButton.config(image=self.mainMenuButtonImage, compound='center')
+        mainMenuButton.place(relx=.87, rely=.025) # I figured the top right corner was ok, but maybe we want params
 
     """
     Places the button to go to the previous page.
