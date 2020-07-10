@@ -3,6 +3,7 @@ import tkinter as tk
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 import matplotlib.animation as animation
+from statistics import mean
 
 class FilterModule(Module):
     def __init__(self, gui = None, title = None):
@@ -10,8 +11,10 @@ class FilterModule(Module):
         self.noisyImage = tk.PhotoImage(file = "noisy_data.png")
         self.font = ('Comic Sans MS', 11, 'bold italic')
         self.axis = None
-        self.yData = [5.5, 6.25, 5.25, 5.5, 5.75, 4.75, 5.25, 5.75]
         self.xData = [1, 2, 3, 4, 5, 6, 7, 8]
+        self.xMovingAvgData = []
+        self.yMovingAvgData = []
+        self.yData = [5.5, 6.25, 5.25, 5.5, 5.75, 4.75, 5.25, 5.75]
         self.plotIterator = 0
 
     def introPage(self):
@@ -55,7 +58,7 @@ class FilterModule(Module):
                     "Go ahead and change the history and run the filter again."
         self.gui.clearScreen()
         self.makePanes()
-        self.interactivePane.create_text(275,150, text = aboutMovingAvg, font = self.font)
+        self.interactivePane.create_text(260,150, text = aboutMovingAvg, font = self.font)
         self.placeBackToMenuButton(self.interactivePane)
         # create Matplotlib figure
         f = Figure(figsize=(5, 5), dpi=100)
@@ -64,25 +67,49 @@ class FilterModule(Module):
         self.axis.set_xlim([0, len(self.xData) + 1])
         figureCanvas = FigureCanvasTkAgg(f, master=self.visualizingPane)
         figureCanvas.get_tk_widget().grid(row=0, column=0)
-        # animate it giving data
-        self.ani = animation.FuncAnimation(f, self.animateMovingAvg, interval=500)
-        tryNewHistory = tk.Button(self.interactivePane, relief=tk.RAISED, command=self.rePlot, text =  "Plot!")
-        tryNewHistory.place(relx = .5, rely = .75)
 
-        # MATPLOTLIB GRAPH
+        history = tk.Entry(self.interactivePane)
+        history.place(relx = .5, rely = .7, anchor = tk.CENTER)
+        historyLabel = tk.Label(self.interactivePane, text = "History:", bg = 'grey')
+        historyLabel.place(relx = .5, rely = .65, anchor = tk.CENTER)
+        tryNewHistory = tk.Button(self.interactivePane, relief=tk.RAISED, command=lambda: self.rePlot(history.get()),
+                                  text =  "Plot!")
+        tryNewHistory.place(relx = .5, rely = .75, anchor = tk.CENTER)
+        self.axis.plot(self.xData, self.yData, marker='o', markersize=10.0, linestyle='None', color='g')
 
-    def animateMovingAvg(self, event):
-        if(self.plotIterator < len(self.xData)):
-            self.axis.plot(self.xData[0:self.plotIterator], self.yData[0:self.plotIterator],
-                           marker = 'o', markersize = 10.0, linestyle = 'None', color = 'g')
-            self.plotIterator = self.plotIterator + 1
+    def animateMovingAvg(self, event, history = None):
+        # plot the raw data here
+        self.axis.plot(self.xData[0:self.plotIterator], self.yData[0:self.plotIterator],
+                       marker = 'o', markersize = 10.0, linestyle = 'None', color = 'g')
+        # plot the moving average here, x stays the same
+        if(self.plotIterator >= int(history)):
+            self.yMovingAvgData.append(mean(self.yData[self.plotIterator - int(history):self.plotIterator]))
+            self.xMovingAvgData.append(self.xData[self.plotIterator - 1])
+            self.axis.plot(self.xMovingAvgData, self.yMovingAvgData,
+                        marker='o', markersize=10.0, linestyle='None', color='b')
+        self.plotIterator = self.plotIterator + 1
+        if(self.plotIterator >= len(self.xData)):
+            self.ani.event_source.stop()
 
 
-    def rePlot(self):
+
+    def rePlot(self, history):
         self.axis.clear()
         self.axis.set_ylim([0, 10])
         self.axis.set_xlim([0, len(self.xData) + 1])
         self.plotIterator = 0
+        # create Matplotlib figure
+        f = Figure(figsize=(5, 5), dpi=100)
+        self.axis = f.add_subplot(111)
+        self.axis.set_ylim([0, 10])
+        del self.yMovingAvgData[:]
+        del self.xMovingAvgData[:]
+        self.axis.set_xlim([0, len(self.xData) + 1])
+        figureCanvas = FigureCanvasTkAgg(f, master=self.visualizingPane)
+        figureCanvas.get_tk_widget().grid(row=0, column=0)
+        self.ani = animation.FuncAnimation(f, self.animateMovingAvg,fargs = (history,), interval=500)
+
+
 
     def particleFilter(self):
         pass
