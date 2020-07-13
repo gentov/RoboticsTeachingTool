@@ -13,16 +13,13 @@ class CVModule(Module):
         # self.tk.Frame.master.bind('<Configure>', self.resize_image)
 
     def introPage(self):
-        paragraph = "Now, we are going to introduce you to computer vision!" \
-                    "Computer vision is a burgeoning field in the robotics"\
-                    "community because it allows more sensing information." \
-                    "Traditional sensing methods, like LIDAR, only tell a " \
-                    "portion of the story. Using RGBD cameras with CV allow" \
-                    "for knowlege of the distance of the object, and in-depth " \
-                    "procesing of the image that allows for the robot to recognize" \
-                    "the object."
+        self.gui.clearScreen()
+        self.makePanes()
+        with open('cv_intro.txt', 'r') as file:
+            data = file.read().replace('\n', '')
+            paragraph = data
         font = ('Comic Sans MS', 11, 'bold italic')
-        self.visualizingPane.create_image(300,250,image = self.cv_overview, anchor = tk.CENTER)
+        self.visualizingPane.create_image(300, 250,image = self.cv_overview, anchor = tk.CENTER)
         self.showText(275, 150, paragraph,self.interactivePane, font)
         self.placeNextButton(.7, .7, pane = self.interactivePane,
                              text = "Let's go!", font = font, command = self.connection)
@@ -38,36 +35,45 @@ class CVModule(Module):
     def connection(self):
         self.gui.clearScreen()
         self.makePanes()
+        with open('connections.txt', 'r') as file:
+            data = file.read().replace('\n', '')
+            paragraph = data
+        font = ('Comic Sans MS', 11, 'bold italic')
+        self.showText(275, 150, paragraph,self.interactivePane, font)
+        w = self.visualizingPane.winfo_width()
+        h = self.visualizingPane.winfo_height()
+        # img = Image.open("Computer-vision-apply-for-medical-image-processing.png")  # PIL solution
+        # img = img.resize((300, 250), Image.BOX)  # The (250, 250) is (height, width)
+        # img = ImageTk.PhotoImage(img)  # convert to PhotoImage
 
+        im_temp = Image.open("Computer-vision-apply-for-medical-image-processing.png")
+        im_temp = im_temp.resize((300, 250), Image.ANTIALIAS)
+        im_temp.save("test.png", "png")
+
+        #int(300 * float(w / 2)),int(300 * float(h / 2))
+        self.visualizingPane.create_image(int(300 * float(w / 2)),int(300 * float(h / 2)), image=tk.PhotoImage(file = "test.png"), anchor=tk.CENTER)
+
+        self.placeNextButton(.7, .7, pane=self.interactivePane,
+                             text="Edge \n Detection", font=font, command=self.edge_detection)
+        self.placeBackButton(.1, .7, pane=self.interactivePane, command=self.introPage,
+                             text="Overview", font=font)
+
+    def edge_detection(self):
+        self.gui.clearScreen()
+        self.makePanes()
+        with open('edge_detection.txt', 'r') as file:
+            data = file.read().replace('\n', '')
+            paragraph = data
+        font = ('Comic Sans MS', 11, 'bold italic')
+        self.showText(275, 150, paragraph,self.interactivePane, font)
         self.visualizingPane.create_image(300, 250, image=self.edge_detect, anchor=tk.CENTER)
-
-    # def resize_image(self):
-    #     new_width = self.master.winfo_width()
-    #     new_height = self.master.winfo_height()
-    #
-    #     self.image = self.img_copy.resize((new_width, new_height))
-    #
-    #     self.background_image = ImageTk.PhotoImage(self.image)
-    #     self.background.configure(image=self.background_image)
-
-    # def movingAverage(self):
-    #     """
-    #     The idea here is to explain the disadvantages of the moving average
-    #     Visualizing pane: matplotlib of moving avg
-    #     interactive pane: how much history we care about (sliding thing maybe)
-    #
-    #     Explain:
-    #     + The moving avg is fine for short history or very noisy data
-    #     - However on moving object, we can't use it to localize a robot
-    #     """
-    #     self.gui.clearScreen()
-    #     self.makePanes()
-    #     # MATPLOTLIB GRAPH
-    #     f = Figure(figsize=(5,5), dpi = 100)
-    #     a = f.add_subplot(111)
-    #     a.plot([1,2,3,4,5,6,7,8],[5,6,1,3,8,9,3,5])
-    #     canvas = FigureCanvasTkAgg(f, master = self.visualizingPane)
-    #     canvas.get_tk_widget().grid(row=0, column=0)
+        # self.placeNextButton(.7, .7, pane=self.interactivePane,
+        #                      text="Let's go!", font=font, command=self.edge_detection)
+        self.placeBackButton(.1, .7, pane=self.interactivePane, command=self.connection,
+                             text="CV vs ML", font=font)
+        self.placeNextButton(.7, .7, pane=self.interactivePane,
+                             text="Main Menu", font=font, command=self.gui.HomePage)
+        self.gui.moduleDict["Computer Vision"].completed = True
 
     def runModule(self):
         self.gui.clearScreen()

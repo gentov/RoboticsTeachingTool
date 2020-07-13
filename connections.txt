@@ -1,0 +1,5 @@
+It is important to understand the difference between computer vision and machine learning, as they often go hand-in-hand.  Machine learning can use computer vision, as essentially machine learning can help the computer understand what it is seeing.  Computer vision is more than just applied machine learning, as it can involve 3D scene modeeling, structure-from-motion, point cloud processing, motion estimation, and more.
+
+"Machine learning is the study of algorithms and statistical models, which is a subset of artificial intelligence. Systems use it to perform a task without explicit instructions and instead rely on patterns and inference. Thus, it applies to computer vision, software engineering, and pattern recognition."
+
+In the next section, we will go into the various filtering techniques that are used for image processing.
