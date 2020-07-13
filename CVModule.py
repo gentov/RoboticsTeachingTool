@@ -13,17 +13,17 @@ class CVModule(Module):
         # self.tk.Frame.master.bind('<Configure>', self.resize_image)
 
     def introPage(self):
-        paragraph = "Now, we are going to introduce you to computer vision!\n" \
-                    "Computer vision is a burgeoning field in the robotics\n"\
-                    "community because it allows more sensing information.\n" \
-                    "Traditional sensing methods, like LIDAR, only tell a \n" \
-                    "portion of the story. Using RGBD cameras with CV allow\n" \
-                    "for knowlege of the distance of the object, and in-depth \n" \
-                    "procesing of the image that allows for the robot to recognize \n" \
+        paragraph = "Now, we are going to introduce you to computer vision!" \
+                    "Computer vision is a burgeoning field in the robotics"\
+                    "community because it allows more sensing information." \
+                    "Traditional sensing methods, like LIDAR, only tell a " \
+                    "portion of the story. Using RGBD cameras with CV allow" \
+                    "for knowlege of the distance of the object, and in-depth " \
+                    "procesing of the image that allows for the robot to recognize" \
                     "the object."
         font = ('Comic Sans MS', 11, 'bold italic')
         self.visualizingPane.create_image(300,250,image = self.cv_overview, anchor = tk.CENTER)
-        self.animateText(275, 150, paragraph,self.interactivePane, font)
+        self.showText(275, 150, paragraph,self.interactivePane, font)
         self.placeNextButton(.7, .7, pane = self.interactivePane,
                              text = "Let's go!", font = font, command = self.connection)
         self.placeBackButton(.1, .7, pane=self.interactivePane, command=self.gui.HomePage,

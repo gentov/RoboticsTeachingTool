@@ -39,6 +39,10 @@ class Module():
             self.gui.win.update()
             time.sleep(.003)
 
+    def showText(self, x, y, text, canvasOfText, font):
+        canvasOfText.create_text(x, y, text=text, font=font, width = 400)
+        self.gui.win.update()
+
     def makePanes(self):
         self.interactivePane = tk.Canvas(self.gui.win, width=500, height=500, bg='grey')
         self.visualizingPane = tk.Canvas(self.gui.win, width=500, height=500, bg='white')
