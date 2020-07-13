@@ -10,8 +10,6 @@ class GUI():
     def __init__(self):
         self.win = Tk()
         self.win.title("Robotics Teaching Tool")
-        # self.win.attributes("-fullscreen", True)
-        #self.win.geometry('1000x1000')
         self.moduleDict = {
             "PID": PIDModule(gui = self, title="PID"),
             "FK/IK": KinModule(gui=self),
@@ -19,16 +17,13 @@ class GUI():
             "Computer Vision": CVModule(gui=self, title="Computer Vision")
         }
         self.moduleDict["PID"].completed = True
-        # self.moduleDict["FK/IK"].completed = True
-        # self.moduleDict["Filters"].completed = True
-        # self.moduleDict["Computer Vision"].completed = True
 
     #m = Module(gui=self, title="test")
 
     def HomePage(self):
         self.clearScreen()
         self.win.configure(background="grey")
-        self.canvas = Canvas(self.win, width=700, height=800, bg="grey", highlightthickness=0)
+        #self.canvas = Canvas(self.win, width=700, height=800, bg="grey", highlightthickness=0)
         # I want four different frames for buttons and widgets, in each of the corners
         # @TODO: Replace with frames
         finishedTopicsFrame = Frame(self.win, bg="green", width=500, height=250)

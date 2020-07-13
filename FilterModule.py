@@ -10,14 +10,18 @@ class FilterModule(Module):
         super(FilterModule, self).__init__(gui = gui, title = title)
         self.noisyImage = tk.PhotoImage(file = "noisy_data.png")
         self.quizQuestionMark = tk.PhotoImage(file = "quizQuestionMark.png")
+        self.quizPassedImage = tk.PhotoImage(file="passedQuiz.png")
+        self.quizFailedImage = tk.PhotoImage(file="failedQuiz.png")
         self.font = ('Comic Sans MS', 11, 'bold italic')
+        self.quizResultFont = ('Comic Sans MS', 15, 'bold italic')
         self.axis = None
         self.xData = [1, 2, 3, 4, 5, 6, 7, 8]
         self.xMovingAvgData = []
         self.yMovingAvgData = []
         self.yData = [5.5, 6.25, 5.25, 5.5, 5.75, 4.75, 5.25, 5.75]
         self.plotIterator = 0
-        self.radioVar = None # IDK WHY I NEED THIS HERE BUT I DO.... NEED TO LEARN WHAT INTVAR IS
+        self.radioVarMovingAvgQ1 = tk.StringVar()
+        self.radioVarMovingAvgQ2 = tk.StringVar()
 
     def introPage(self):
         self.gui.clearScreen()
@@ -95,24 +99,24 @@ class FilterModule(Module):
                     "moving average values are we going to have, and what are they?\n"
         self.gui.clearScreen()
         self.makePanes()
-        self.radioVar = tk.IntVar()
-        self.radioVar.set(-1) # I think this makes it so that none are selected. Nice.
+        self.radioVarMovingAvgQ1.set(-1) # I think this makes it so that none are selected. Nice.
+        self.radioVarMovingAvgQ2.set(-1) # I think this makes it so that none are selected. Nice.
         self.interactivePane.create_text(260, 50, text = quizPrompt, font = self.font)
 
         # QUESTION 1
         self.interactivePane.create_text(200, 90, text=question1, font=self.font)
         self.visualizingPane.create_image(250, 250, image=self.quizQuestionMark, anchor=tk.CENTER)
         A1 = tk.Radiobutton(self.interactivePane, text="A) To make the sensors more power efficient",
-                            padx=20, value = 1, bg = "grey", variable = self.radioVar)
+                            padx=20, value = "A1", bg = "grey", variable = self.radioVarMovingAvgQ1)
         A1.place(relx = .1, rely = .2)
         B1 = tk.Radiobutton(self.interactivePane, text="B) To bias the sensor data into something desirable ",
-                            padx=20, value = 2, bg="grey",variable = self.radioVar)
+                            padx=20, value = "B1", bg="grey",variable = self.radioVarMovingAvgQ1)
         B1.place(relx=.1, rely=.25)
         C1 = tk.Radiobutton(self.interactivePane, text="C) To remove some noise and outliers from the sensor data",
-                            padx=20, value = 3, bg="grey", variable = self.radioVar)
+                            padx=20, value = "C1", bg="grey", variable = self.radioVarMovingAvgQ1)
         C1.place(relx=.1, rely=.3)
         D1 = tk.Radiobutton(self.interactivePane, text="D) None of the above",
-                            padx=20, value = 4, bg="grey", variable = self.radioVar)
+                            padx=20, value = "D1", bg="grey", variable = self.radioVarMovingAvgQ1)
         D1.place(relx=.1, rely=.35)
 
         # QUESTION 2
@@ -120,20 +124,21 @@ class FilterModule(Module):
         self.interactivePane.create_text(190, 255, text="Data: [5, 5.25, 4.75, 4.8, 5.2, 5.5, 5, 4.75]",
                                          font=self.font)
         A2 = tk.Radiobutton(self.interactivePane, text="A) 6, Values: [5, 4.93, 4.91, 5.16, 5.23, 5.08]",
-                            padx=20, value=5, bg="grey", variable=self.radioVar)
+                            padx=20, value="A2", bg="grey", variable=self.radioVarMovingAvgQ2)
         A2.place(relx=.1, rely=.525)
         B2 = tk.Radiobutton(self.interactivePane, text="B) 6, Values: [5, 5, 4.91, 5.26, 5, 5.15]",
-                            padx=20, value=6, bg="grey", variable=self.radioVar)
+                            padx=20, value="B2", bg="grey", variable=self.radioVarMovingAvgQ2)
         B2.place(relx=.1, rely=.575)
         C2 = tk.Radiobutton(self.interactivePane, text="C) 5, Values: [5, 4.93, 4.91, 5.23, 5.08]",
-                            padx=20, value=7, bg="grey", variable=self.radioVar)
+                            padx=20, value="C2", bg="grey", variable=self.radioVarMovingAvgQ2)
         C2.place(relx=.1, rely=.625)
         D2 = tk.Radiobutton(self.interactivePane, text="D) 3, Values: [4.93, 5.16, 5.08]",
-                            padx=20, value=8, bg="grey", variable=self.radioVar)
+                            padx=20, value="D2", bg="grey", variable=self.radioVarMovingAvgQ2)
         D2.place(relx=.1, rely=.675)
+        correctAnswers = [[self.radioVarMovingAvgQ1, "C1"],[self.radioVarMovingAvgQ2, "A2"]]
         self.placeBackToMenuButton(self.visualizingPane)
         self.placeNextButton(.675, .75, pane=self.interactivePane,
-                             text="Submit Quiz", font=self.font, command=lambda: self.checkTest)
+                             text="Submit Quiz", font=self.font, command=lambda: self.checkTest(correctAnswers))
         self.placeBackButton(.075, .75, pane=self.interactivePane, command=self.movingAverage,
                              text="", font=self.font)
         pass
@@ -152,8 +157,8 @@ class FilterModule(Module):
     def runModule(self):
         self.gui.clearScreen()
         self.makePanes()
-        self.movingAvgQuiz()
-        #self.movingAverage()
+        #self.movingAvgQuiz()
+        self.introPage()
 
 
 ################################# MISC FUNCTIONS
@@ -187,5 +192,38 @@ class FilterModule(Module):
         figureCanvas.get_tk_widget().grid(row=0, column=0)
         self.ani = animation.FuncAnimation(f, self.animateMovingAvg, fargs=(history,), interval=500)
 
-    def checkTest(self):
+    # Pass the list containing the correct answer objects (multiple choice)
+    def checkTest(self, correctAnswers):
+        for answer in correctAnswers:
+            if(answer[0].get() == answer[1]):
+                pass
+            else:
+                print("Quiz Failed.")
+                self.quizFailed(self.movingAvgQuiz)
+                return
+        print("Quiz Passed.")
+        self.quizPassed(self.introToKalmanFilter)
         pass
+
+    def quizPassed(self, nextPage):
+        self.gui.clearScreen()
+        canvas = tk.Canvas(self.gui.win, width = 1000, height = 500, bg = 'grey')
+        canvas.grid(row = 0, column = 0)
+        canvas.create_image(500, 250, image=self.quizPassedImage, anchor=tk.CENTER)
+        canvas.create_text(500, 50, text = "Quiz Passed!", font = self.quizResultFont)
+        self.placeBackToMenuButton(canvas)
+        self.placeNextButton(.7, .7, pane=canvas, command=nextPage, text = "Next Topic!",
+                             font=self.font)
+
+
+    def quizFailed(self, previousPage):
+        self.gui.clearScreen()
+        canvas = tk.Canvas(self.gui.win, width = 1000, height = 500, bg = 'grey')
+        canvas.grid(row = 0, column = 0)
+        canvas.create_image(500, 250, image=self.quizFailedImage, anchor=tk.CENTER)
+        canvas.create_text(500, 50, text="Quiz Failed!", font=self.quizResultFont)
+        self.placeBackToMenuButton(canvas)
+        self.placeBackButton(.1, .7, pane = canvas, command = previousPage, text = "To Quiz",
+                              font = self.font)
+
+
