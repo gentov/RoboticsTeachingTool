@@ -3,7 +3,7 @@ import tkinter as tk
 from PIL import Image, ImageTk
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
-class CVModule(Module, tk.Frame):
+class CVModule(Module):
     def __init__(self, gui = None, title = None):
         super(CVModule, self).__init__(gui = gui, title = title)
         self.cv_overview = tk.PhotoImage(file = "cv_home_example.png")

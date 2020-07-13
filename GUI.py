@@ -5,6 +5,7 @@ from Module import *
 from FilterModule import *
 from KinModule import *
 from PIDModule import *
+from CVModule import *
 class GUI():
     def __init__(self):
         self.win = Tk()
@@ -15,7 +16,7 @@ class GUI():
             "PID": PIDModule(gui = self, title="PID"),
             "FK/IK": KinModule(gui=self),
             "Filters": FilterModule(gui = self, title = "Filters"),
-            "Computer Vision": Module(gui=self, title="Computer Vision")
+            "Computer Vision": CVModule(gui=self, title="Computer Vision")
         }
         self.moduleDict["PID"].completed = True
         # self.moduleDict["FK/IK"].completed = True
