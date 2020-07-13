@@ -17,6 +17,7 @@ class GUI():
             "Computer Vision": Module(gui=self, title="Computer Vision")
         }
         self.moduleDict["PID"].completed = True
+        #self.canvas = None
         # self.moduleDict["FK/IK"].completed = True
         # self.moduleDict["Filters"].completed = True
         # self.moduleDict["Computer Vision"].completed = True
@@ -26,7 +27,7 @@ class GUI():
     def HomePage(self):
         self.clearScreen()
         self.win.configure(background="grey")
-        self.canvas = Canvas(self.win, width=700, height=800, bg="grey", highlightthickness=0)
+        #self.canvas = Canvas(self.win, width=700, height=800, bg="grey", highlightthickness=0)
         # I want four different frames for buttons and widgets, in each of the corners
         # @TODO: Replace with frames
         finishedTopicsFrame = Frame(self.win, bg="green", width=500, height=250)
