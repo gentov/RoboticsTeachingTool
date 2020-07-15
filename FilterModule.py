@@ -157,7 +157,7 @@ class FilterModule(Module):
     def runModule(self):
         self.gui.clearScreen()
         self.makePanes()
-        self.movingAvgQuiz()
+        self.introPage()
         #self.movingAverage()
 
 
