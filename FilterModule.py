@@ -9,9 +9,9 @@ from statistics import mean
 class FilterModule(Module):
     def __init__(self, gui = None, title = None):
         super(FilterModule, self).__init__(gui = gui, title = title)
+        self.movingAverageModule = MovingAverageFilter(gui = gui)
         self.font = ('Comic Sans MS', 11, 'bold italic')
         self.noisyImage = tk.PhotoImage(file = "noisy_data.png")
-        self.movingAverageModule = MovingAverageFilter(gui = gui)
 
     def introPage(self):
         self.gui.clearScreen()
@@ -37,4 +37,5 @@ class FilterModule(Module):
         self.makePanes()
         #self.movingAvgQuiz()
         self.introPage()
+
 
