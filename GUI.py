@@ -17,9 +17,7 @@ class GUI():
             "Computer Vision": CVModule(gui=self, title="Computer Vision")
         }
         self.moduleDict["PID"].completed = True
-
-    #m = Module(gui=self, title="test")
-
+        
     def HomePage(self):
         self.clearScreen()
         self.win.configure(background="grey")
