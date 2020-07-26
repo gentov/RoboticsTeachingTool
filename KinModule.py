@@ -100,8 +100,7 @@ class KinModule(Mod):
                                               "essentially the same as defining a point in a coordinate frame," 
                                               "\nbut rotations, which will be covered in the next section, can\n" 
                                               "get tricky."
-                                              "\n\nTest your understanding of position displacement below!\n"
-                                         ,
+                                              "\n\nTest your understanding of position displacement below!\n",
                                          font=self.font,
                                          anchor='n')
 
