@@ -11,7 +11,7 @@ class CVModule(Module):
         self.cv_overview = tk.PhotoImage(file = "cv_home_example.png")
         self.cv_connections = tk.PhotoImage(file = "Computer-vision-apply-for-medical-image-processing.png")
         self.edge_detect = tk.PhotoImage(file = "edge_pepper_cropped5.png")
-        self.img_for_ed_interactive = tk.PhotoImage("single_rose.png")
+        self.img_for_ed_interactive = tk.PhotoImage(file = "single_rose.png")
         # tk.Frame.__init__(self)
         # self.tk.Frame.master.bind('<Configure>', self.resize_image)
 
@@ -104,9 +104,9 @@ class CVModule(Module):
         self.visualizingPane.create_image(250, 100, image=self.img_for_ed_interactive, anchor=tk.CENTER)
         ed = EdgeDecectionandGaussianBlur().edge_detection()
         im = Image.fromarray(ed)
-        imgtk = ImageTk.PhotoImage(image=im)
+        self.imgtk = ImageTk.PhotoImage(image=im)
 
-        second_visualizingPane.create_image(50, 50, image=imgtk, anchor=tk.NE)
+        second_visualizingPane.create_image(50, 50, image=self.imgtk, anchor=tk.NE)
 
         font = ('Comic Sans MS', 11, 'bold italic')
         self.showText(275, 150, "THIS IS SO DUMB", self.interactivePane, font)
