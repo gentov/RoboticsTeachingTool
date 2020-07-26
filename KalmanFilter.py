@@ -21,7 +21,7 @@ class KalmanFilter(Module):
         self.axis = None
         self.carAxisKF = None
         self.xErrorKF = None
-        self.yErrorKF = None
+        self.vErrorKF = None
         self.xData = [0,1,2,3,4,5]
         self.xMovingAvgData = []
         self.yMovingAvgData = []
@@ -33,7 +33,8 @@ class KalmanFilter(Module):
         self.radioVarMovingAvgQ2 = tk.StringVar()
         self.mainModule = mainModule
         self.car = None
-        self.errorData = None
+        self.xErrorData = None
+        self.vErrorData = None
 
     def introToKalmanFilter(self):
         self.gui.clearScreen()
@@ -191,12 +192,12 @@ class KalmanFilter(Module):
         self.carAxisKF = f.add_subplot(211)
         self.carAxisKF.set_ylim([0, 5])
         self.carAxisKF.set_xlim([0, 50])
-        self.xPosErrorKF = f.add_subplot(212)
+        self.xPosErrorKF = f.add_subplot(223)
         self.xPosErrorKF.set_ylim([-5, 5])
         self.xPosErrorKF.set_xlim([0, 50])
-        # self.vError = f.add_subplot(224)
-        # self.vError.set_ylim([0, 5])
-        # self.vError.set_xlim([0, 50])
+        self.vErrorKF = f.add_subplot(224)
+        self.vErrorKF.set_ylim([-5, 5])
+        self.vErrorKF.set_xlim([0, 50])
         figureCanvas = FigureCanvasTkAgg(f, master=self.visualizingPane)
         figureCanvas.get_tk_widget().grid(row=0, column=0)
 
@@ -358,15 +359,13 @@ class KalmanFilter(Module):
         self.carAxisKF = f.add_subplot(211)
         self.carAxisKF.set_ylim([0, 5])
         self.carAxisKF.set_xlim([0, 100])
-        self.xPosErrorKF = f.add_subplot(212)
-        self.xPosErrorKF.set_ylim([-2, 2])
-        self.xPosErrorKF.set_xlim([0, 50])
-        # self.vError = f.add_subplot(224)
-        # self.vError.set_ylim([0, 5])
-        # self.vError.set_xlim([0, 50])
+        self.xPosErrorKF = f.add_subplot(223)
+        self.xPosErrorKF.set_ylim([-5, 5])
+        self.vErrorKF = f.add_subplot(224)
+        self.vErrorKF.set_ylim([-5, 5])
         figureCanvas = FigureCanvasTkAgg(f, master=self.visualizingPane)
         figureCanvas.get_tk_widget().grid(row=0, column=0)
-        self.errorData = self.makeKalmanFilterToyLists(self.xKalmanToyData, k)
+        self.xErrorData, self.vErrorData = self.makeKalmanFilterToyLists(self.xKalmanToyData, k)
         self.ani = animation.FuncAnimation(f, self.moveCarKalmanGainToy, interval=100)
 
     def moveCarKalmanGainToy(self, event):
@@ -374,14 +373,20 @@ class KalmanFilter(Module):
         self.xPosErrorKF.clear()
         self.carAxisKF.set_ylim([0, 5])
         self.carAxisKF.set_xlim([0, 50])
-        self.xPosErrorKF.set_ylim([-2, 2])
+        self.xPosErrorKF.clear()
+        self.xPosErrorKF.set_ylim([-5, 5])
+        self.vErrorKF.clear()
+        self.vErrorKF.set_ylim([-5, 5])
         # move the car
         self.drawCar(self.xData[self.plotIterator], 1.5, self.carAxisKF)
         # plot the moving average here, y stays the same
         if (self.plotIterator >= 2):
             # plots moving average data
-            self.xPosErrorKF.plot(self.xData[0:self.plotIterator - 1], self.errorData[0:self.plotIterator - 1],
+            self.xPosErrorKF.plot(self.xData[0:self.plotIterator - 1], self.xErrorData[0:self.plotIterator - 1],
                            marker='o', markersize=1.0, color='b')
+            self.vErrorKF.plot(self.xData[0:self.plotIterator - 1], self.vErrorData[0:self.plotIterator - 1],
+                                  marker='o', markersize=1.0, color='b')
+
 
 
         self.plotIterator = self.plotIterator + 1
@@ -392,11 +397,14 @@ class KalmanFilter(Module):
 
     def makeKalmanFilterToyLists(self, measurements, K):
         xError = []
+        vError = []
+        dt = .1
         for i in range(len(measurements)):
             if(i > 0):
-                v = (measurements[i] - measurements[i-1])/(.1)
+                v = (measurements[i] - measurements[i-1])/(dt)
                 self.velKalmanToy += K*(v - self.velKalmanToy)
-                xEst = (measurements[i] + self.velKalmanToy*.1)
+                xEst = (measurements[i] + self.velKalmanToy*dt)
+                vError.append(self.velKalmanToy - (1/dt))
                 xError.append(xEst - (i+1))
         #print(xError)
-        return xError
+        return [xError, vError]
