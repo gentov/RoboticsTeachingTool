@@ -5,6 +5,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 import matplotlib.animation as animation
 import matplotlib.patches as patches
 from statistics import mean
+import random
 
 class KalmanFilter(Module):
     def __init__(self, gui = None, title = None, mainModule = None):
@@ -26,11 +27,13 @@ class KalmanFilter(Module):
         self.yMovingAvgData = []
         self.xKalmanToyData = []
         self.yData = [2,2,2,2,2,2]
+        self.velKalmanToy = 0
         self.plotIterator = 0
         self.radioVarMovingAvgQ1 = tk.StringVar()
         self.radioVarMovingAvgQ2 = tk.StringVar()
         self.mainModule = mainModule
         self.car = None
+        self.errorData = None
 
     def introToKalmanFilter(self):
         self.gui.clearScreen()
@@ -161,49 +164,15 @@ class KalmanFilter(Module):
                                           command = lambda: self.checkKFTable(tableCanvas, measurements))
         checkAssignmentButton.place(relx = .5, rely = .84, anchor = tk.CENTER)
 
-    def checkKFTable(self, table, measurements):
-        # make a list with the calculated X values, which are just the predictions
-        # If they line up with what the user put, fine --> plot it and ship it.
-        # if they don't, then plot it and show how the estimate is not quite right
-        vTrue = []
-        xEstTrue = []
-
-        vUser = []
-        xEstUser = []
-
-        for i in range(len(measurements)):
-            if(i > 0):
-                # won't run if entry is empty
-                vTrue.append((measurements[i] - measurements[i-1])/(.5))
-                xEstTrue.append(measurements[i] + vTrue[i-1]*.5)
-                vUserFromTable = table.grid_slaves(row=i, column=1)[0]
-                xEstUserFromTable = table.grid_slaves(row=i, column=2)[0]
-                if(vUserFromTable.get() == ''):
-                    vUser.append(0)
-                else:
-                    vUser.append(float(vUserFromTable.get()))
-                if(xEstUserFromTable.get() == ''):
-                    xEstUser.append(0)
-                else:
-                    xEstUser.append(float(xEstUserFromTable.get()))
-
-
-        self.xKalmanToyData = xEstUser
-        self.startCarKalmanToyAni()
-        tolerance = .01
-        isCorrect = (self.isCloseEnough(xEstTrue, xEstUser, tolerance) & self.isCloseEnough(vTrue, vUser, tolerance))
-        # If their math was correct, then they get to move on
-        if(isCorrect):
-            self.placeNextButton(.7, .75, pane=self.interactivePane,
-                                 text="You got it!", font=self.font, command = self.kalmanGainToy)
-        print(vTrue, xEstTrue)
-        print(vUser, xEstUser)
-        # print(t, t.get())
-
     def kalmanGainToy(self):
         self.gui.clearScreen()
         self.makePanes()
         self.placeBackToMenuButton(self.visualizingPane)
+        dataPoints = 100
+        self.xData = [i for i in range(dataPoints)]
+        noise = [random.randint(-100,100)/1500 for i in range(dataPoints)]
+        self.xKalmanToyData = [a + b for a, b in zip(self.xData, noise)]
+        print(self.xKalmanToyData)
         aboutKalmanGain = "    We've now see that a prediction algorithm such \n" \
                            "as a basic kalman filter, produces much better results \n" \
                            "than the moving average filter. However, before we can\n" \
@@ -222,12 +191,12 @@ class KalmanFilter(Module):
         self.carAxisKF = f.add_subplot(211)
         self.carAxisKF.set_ylim([0, 5])
         self.carAxisKF.set_xlim([0, 50])
-        self.xPosErrorKF = f.add_subplot(223)
-        self.xPosErrorKF.set_ylim([0, 5])
+        self.xPosErrorKF = f.add_subplot(212)
+        self.xPosErrorKF.set_ylim([-5, 5])
         self.xPosErrorKF.set_xlim([0, 50])
-        self.vError = f.add_subplot(224)
-        self.vError.set_ylim([0, 5])
-        self.vError.set_xlim([0, 50])
+        # self.vError = f.add_subplot(224)
+        # self.vError.set_ylim([0, 5])
+        # self.vError.set_xlim([0, 50])
         figureCanvas = FigureCanvasTkAgg(f, master=self.visualizingPane)
         figureCanvas.get_tk_widget().grid(row=0, column=0)
 
@@ -236,6 +205,9 @@ class KalmanFilter(Module):
         K = tk.Scale(self.interactivePane, from_=1, to=0, resolution = .001)
         K.set(.5)
         K.place(relx = .5, rely = .7, anchor = tk.CENTER)
+        changeKalmanGain = tk.Button(self.interactivePane, text = "Try this Kalman Gain!",
+                                     command=lambda :self.startCarKalmanGainToyAni(K.get()))
+        changeKalmanGain.place(relx = .5, rely = .84, anchor = tk.CENTER)
         pass
 
 ########################## MISC
@@ -334,6 +306,45 @@ class KalmanFilter(Module):
         figureCanvas.get_tk_widget().grid(row=0, column=0)
         self.ani = animation.FuncAnimation(f, self.moveCarKalmanToy, interval=500)
 
+    def checkKFTable(self, table, measurements):
+        # make a list with the calculated X values, which are just the predictions
+        # If they line up with what the user put, fine --> plot it and ship it.
+        # if they don't, then plot it and show how the estimate is not quite right
+        vTrue = []
+        xEstTrue = []
+
+        vUser = []
+        xEstUser = []
+
+        for i in range(len(measurements)):
+            if(i > 0):
+                # won't run if entry is empty
+                vTrue.append((measurements[i] - measurements[i-1])/(.5))
+                xEstTrue.append(measurements[i] + vTrue[i-1]*.5)
+                vUserFromTable = table.grid_slaves(row=i, column=1)[0]
+                xEstUserFromTable = table.grid_slaves(row=i, column=2)[0]
+                if(vUserFromTable.get() == ''):
+                    vUser.append(0)
+                else:
+                    vUser.append(float(vUserFromTable.get()))
+                if(xEstUserFromTable.get() == ''):
+                    xEstUser.append(0)
+                else:
+                    xEstUser.append(float(xEstUserFromTable.get()))
+
+
+        self.xKalmanToyData = xEstUser
+        self.startCarKalmanToyAni()
+        tolerance = .01
+        isCorrect = (self.isCloseEnough(xEstTrue, xEstUser, tolerance) & self.isCloseEnough(vTrue, vUser, tolerance))
+        # If their math was correct, then they get to move on
+        if(isCorrect):
+            self.placeNextButton(.7, .75, pane=self.interactivePane,
+                                 text="You got it!", font=self.font, command = self.kalmanGainToy)
+        print(vTrue, xEstTrue)
+        print(vUser, xEstUser)
+        # print(t, t.get())
+
 
     def isCloseEnough(self, listA, listB, tolerance):
         for i in range(len(listA)):
@@ -341,3 +352,51 @@ class KalmanFilter(Module):
                 print(listA[i] - listB[i])
                 return False
         return True
+
+    def startCarKalmanGainToyAni(self, k):
+        f = Figure(figsize=(5, 5), dpi=100)
+        self.carAxisKF = f.add_subplot(211)
+        self.carAxisKF.set_ylim([0, 5])
+        self.carAxisKF.set_xlim([0, 100])
+        self.xPosErrorKF = f.add_subplot(212)
+        self.xPosErrorKF.set_ylim([-2, 2])
+        self.xPosErrorKF.set_xlim([0, 50])
+        # self.vError = f.add_subplot(224)
+        # self.vError.set_ylim([0, 5])
+        # self.vError.set_xlim([0, 50])
+        figureCanvas = FigureCanvasTkAgg(f, master=self.visualizingPane)
+        figureCanvas.get_tk_widget().grid(row=0, column=0)
+        self.errorData = self.makeKalmanFilterToyLists(self.xKalmanToyData, k)
+        self.ani = animation.FuncAnimation(f, self.moveCarKalmanGainToy, interval=100)
+
+    def moveCarKalmanGainToy(self, event):
+        self.carAxisKF.clear()
+        self.xPosErrorKF.clear()
+        self.carAxisKF.set_ylim([0, 5])
+        self.carAxisKF.set_xlim([0, 50])
+        self.xPosErrorKF.set_ylim([-2, 2])
+        # move the car
+        self.drawCar(self.xData[self.plotIterator], 1.5, self.carAxisKF)
+        # plot the moving average here, y stays the same
+        if (self.plotIterator >= 2):
+            # plots moving average data
+            self.xPosErrorKF.plot(self.xData[0:self.plotIterator - 1], self.errorData[0:self.plotIterator - 1],
+                           marker='o', markersize=1.0, color='b')
+
+
+        self.plotIterator = self.plotIterator + 1
+
+        if (self.plotIterator > len(self.xData) - 1):
+            self.ani.event_source.stop()
+        self.placeBackToMenuButton(self.visualizingPane)
+
+    def makeKalmanFilterToyLists(self, measurements, K):
+        xError = []
+        for i in range(len(measurements)):
+            if(i > 0):
+                v = (measurements[i] - measurements[i-1])/(.1)
+                self.velKalmanToy += K*(v - self.velKalmanToy)
+                xEst = (measurements[i] + self.velKalmanToy*.1)
+                xError.append(xEst - (i+1))
+        #print(xError)
+        return xError
