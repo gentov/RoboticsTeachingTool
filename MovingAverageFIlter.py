@@ -166,7 +166,7 @@ class MovingAverageFilter(Module):
                 self.quizFailed(self.movingAvgQuiz)
                 return
         print("Quiz Passed.")
-        self.quizPassed(self.mainModule.kalmanFilter.introToKalmanFilter)
+        self.quizPassed(self.mainModule.kalmanFilterToy.introToKalmanFilter)
         pass
 
     def quizPassed(self, nextPage):

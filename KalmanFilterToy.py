@@ -7,9 +7,9 @@ import matplotlib.patches as patches
 from statistics import mean
 import random
 
-class KalmanFilter(Module):
+class KalmanFilterToy(Module):
     def __init__(self, gui = None, title = None, mainModule = None):
-        super(KalmanFilter, self).__init__(gui = gui, title = title)
+        super(KalmanFilterToy, self).__init__(gui = gui, title = title)
         self.quizQuestionMark = tk.PhotoImage(file = "quizQuestionMark.png")
         self.quizPassedImage = tk.PhotoImage(file="passedQuiz.png")
         self.quizFailedImage = tk.PhotoImage(file="failedQuiz.png")
@@ -203,7 +203,7 @@ class KalmanFilter(Module):
 
         self.interactivePane.create_text(260, 140, text=aboutKalmanGain, font=self.font)
         self.drawCar(0,1.5,self.carAxisKF)
-        K = tk.Scale(self.interactivePane, from_=1, to=0, resolution = .001)
+        K = tk.Scale(self.interactivePane, from_=1, to=0.01, resolution = .001)
         K.set(.5)
         K.place(relx = .5, rely = .7, anchor = tk.CENTER)
         changeKalmanGain = tk.Button(self.interactivePane, text = "Try this Kalman Gain!",
@@ -355,10 +355,12 @@ class KalmanFilter(Module):
         return True
 
     def startCarKalmanGainToyAni(self, k):
+        self.plotIterator = 0
+        self.velKalmanToy = 0
         f = Figure(figsize=(5, 5), dpi=100)
         self.carAxisKF = f.add_subplot(211)
         self.carAxisKF.set_ylim([0, 5])
-        self.carAxisKF.set_xlim([0, 100])
+        self.carAxisKF.set_xlim([0, len(self.xData) + 2])
         self.xPosErrorKF = f.add_subplot(223)
         self.xPosErrorKF.set_ylim([-5, 5])
         self.vErrorKF = f.add_subplot(224)
@@ -372,7 +374,7 @@ class KalmanFilter(Module):
         self.carAxisKF.clear()
         self.xPosErrorKF.clear()
         self.carAxisKF.set_ylim([0, 5])
-        self.carAxisKF.set_xlim([0, 50])
+        self.carAxisKF.set_xlim([0, len(self.xData) + 2])
         self.xPosErrorKF.clear()
         self.xPosErrorKF.set_ylim([-5, 5])
         self.vErrorKF.clear()
@@ -393,7 +395,7 @@ class KalmanFilter(Module):
 
         if (self.plotIterator > len(self.xData) - 1):
             self.ani.event_source.stop()
-        self.placeBackToMenuButton(self.visualizingPane)
+            self.placeBackToMenuButton(self.visualizingPane)
 
     def makeKalmanFilterToyLists(self, measurements, K):
         xError = []
