@@ -6,6 +6,8 @@ from FilterModule import *
 from KinModule import *
 from PIDModule import *
 from CVModule import *
+import pickle
+
 class GUI():
     def __init__(self):
         self.win = Tk()
@@ -37,6 +39,13 @@ class GUI():
         buttonNum = 0
         completedAtLeastOneModule = False
         completedAllTopics = True
+
+        # Create save button
+        saveButton = Button(additionalResourcesFrame, height=2, text="Save Progress", font=('Comic Sans MS', 10, 'bold italic'), bg="white", command=self.saveProgress)
+        saveButton.place(relx=.5, rely=.5, anchor = CENTER)
+        loadButton = Button(additionalResourcesFrame, height=2, text="Load Progress", font=('Comic Sans MS', 10, 'bold italic'), bg="white", command=self.loadProgress)
+        loadButton.place(relx=.5, rely=.75, anchor=CENTER)
+
         for module in self.moduleDict.values():
             if(module.completed):
                 completedAtLeastOneModule = True
@@ -77,6 +86,33 @@ class GUI():
 
     def addModule(self, module):
         self.moduleList[module.title] = module
+
+    def saveProgress(self):
+        # Create progress file
+        progress_file = open("progress.pkl", "wb")
+
+        # Make a temporary dictionary with the module name to save completion status
+        moduleProgressDict = {}
+        for key, value in self.moduleDict.items():
+            moduleProgressDict.update({key : value.completed})
+
+        pickle.dump(moduleProgressDict, progress_file)
+        progress_file.close()
+        print ("Saved progress to file: progress.pkl")
+
+    def loadProgress(self):
+        progress_file = open("progress.pkl", "rb")
+        moduleProgressDict = pickle.load(progress_file)
+        for key, value in moduleProgressDict.items():
+            self.moduleDict[key].completed = value
+        progress_file.close()
+        print ("Loaded progress")
+
+        #Update the homepage with the new progress
+        self.HomePage()
+
+
+
 
 g = GUI()
 g.HomePage()
