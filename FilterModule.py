@@ -38,4 +38,4 @@ class FilterModule(Module):
         self.gui.clearScreen()
         self.makePanes()
         #self.introPage()
-        self.kalmanFilter.introToKalmanFilter()
+        self.kalmanFilter.kalmanGainToy()
