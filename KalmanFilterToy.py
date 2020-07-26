@@ -245,15 +245,19 @@ class KalmanFilterToy(Module):
                           "Our state transition equation was: \n" \
                           "                     X_n = X + v*dt \n" \
                           "Matrices multiply row by column. So, if the state of our robot \n" \
-                          "is given as: [x;v], which is a 2 x 1 matrix, then our state\n" \
-                          "transition matrix will be a 2 x 2 matrix. In fact, our matrix will \n" \
-                          "be [1 dt; 0 1]. What this means is: 'To get X_n, multiply our\n" \
-                          "X by 1, then add v*dt. To get the new velocity, just mulitply\n" \
-                          "v by 1. The visual on the right will help show this a bit \n" \
-                          "better."
-        self.interactivePane.create_text(260, 145, text=aboutMatrixForm, font=self.font)
+                          "is given as: \n" \
+                          "                            [X] \n" \
+                          "                            [v] \n" \
+                          "which is a 2 x 1 matrix, then our state transition matrix will\n" \
+                          "be a 2 x 2 matrix. In fact, our matrix will be: \n" \
+                          "                          [1 dt] \n" \
+                          "                          [0  1] \n" \
+                          "What this means is: 'To get X_n, multiply our X by 1, then add \n" \
+                          "v*dt. To get the new velocity, just mulitply v by 1. The visual \n" \
+                          "on the right will help show this a bit better."
+        self.interactivePane.create_text(260, 190, text=aboutMatrixForm, font=self.font)
         self.placeNextButton(.7, .75, pane=self.interactivePane,
-                             text="I get it!", font=self.font)#, command=self.matrixFormExplanation)
+                             text="I get it!", font=self.font, command=self.mainModule.kalmanFilter.introPage)
         self.visualizingPane.create_image(200, 250, image=self.matrixMultImage, anchor=tk.CENTER)
         self.placeBackButton(.05, .75, pane=self.interactivePane,
                              text="Take me back!", font=self.font, command=self.kalmanGainToy)

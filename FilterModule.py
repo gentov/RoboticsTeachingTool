@@ -1,6 +1,7 @@
 from Module import *
 from MovingAverageFIlter import *
 from KalmanFilterToy import *
+from KalmanFilter import*
 import tkinter as tk
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
@@ -12,6 +13,7 @@ class FilterModule(Module):
         super(FilterModule, self).__init__(gui = gui, title = title)
         self.movingAverageModule = MovingAverageFilter(gui = gui, mainModule=self)
         self.kalmanFilterToy = KalmanFilterToy(gui = gui, mainModule = self)
+        self.kalmanFilter = KalmanFilter(gui=gui, mainModule=self)
         self.font = ('Comic Sans MS', 11, 'bold italic')
         self.noisyImage = tk.PhotoImage(file = "noisy_data.png")
 
@@ -38,4 +40,4 @@ class FilterModule(Module):
         self.gui.clearScreen()
         self.makePanes()
         #self.introPage()
-        self.kalmanFilterToy.kalmanGainToy()
+        self.kalmanFilter.kalmanPrediction()
