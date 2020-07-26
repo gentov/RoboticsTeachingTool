@@ -23,6 +23,7 @@ class KalmanFilterToy(Module):
         self.xErrorKF = None
         self.vErrorKF = None
         self.xData = [0,1,2,3,4,5]
+        self.xDataKalmanGainToy = None
         self.xMovingAvgData = []
         self.yMovingAvgData = []
         self.xKalmanToyData = []
@@ -35,6 +36,8 @@ class KalmanFilterToy(Module):
         self.car = None
         self.xErrorData = None
         self.vErrorData = None
+        self.dtKalmanGainToy_sec = .1
+        self.matrixMultImage = tk.PhotoImage(file="matrixMultImage.png")
 
     def introToKalmanFilter(self):
         self.gui.clearScreen()
@@ -50,10 +53,12 @@ class KalmanFilterToy(Module):
                     "the car from a bird's eye view."
         # create Matplotlib figure
         self.interactivePane.create_text(260, 100, text = whyKalmanFilter, font = self.font)
+        ## Configure the Plot(s)
         f = Figure(figsize=(5, 5), dpi=100)
         self.axis = f.add_subplot(111)
         self.axis.set_ylim([0, 10])
         self.axis.set_xlim([0, 12])
+        self.axis.set_title("Car Position (Y vs X)")
         figureCanvas = FigureCanvasTkAgg(f, master=self.visualizingPane)
         figureCanvas.get_tk_widget().grid(row=0, column=0)
 
@@ -90,6 +95,8 @@ class KalmanFilterToy(Module):
         self.interactivePane.create_text(255, 180, text = howKalmanFilterWorks, font = self.font)
         self.placeNextButton(.675, .7, pane = self.interactivePane,
                              text = "Let's see it!", font = self.font, command = self.kalmanFilterToyTable)
+        self.placeBackButton(.05, .7, pane=self.interactivePane,
+                             text="Take me back!", font=self.font, command=self.introToKalmanFilter)
         self.placeBackToMenuButton(self.visualizingPane)
         self.visualizingPane.create_image(200, 250, image=self.kalmanExampleImage, anchor=tk.CENTER)
         self.visualizingPane.create_image(350, 450, image=self.carImage, anchor=tk.CENTER)
@@ -129,13 +136,17 @@ class KalmanFilterToy(Module):
         self.interactivePane.create_text(100, 460, text=equationReminder, font=self.smallFont)
 
         # Add the car
+        ## Configure the Plot(s)
         f = Figure(figsize=(5, 5), dpi=100)
         self.axis = f.add_subplot(111)
         self.axis.set_ylim([0, 10])
         self.axis.set_xlim([0, 12])
+        self.axis.set_title("Car Position (Y vs X)")
+
         figureCanvas = FigureCanvasTkAgg(f, master=self.visualizingPane)
         figureCanvas.get_tk_widget().grid(row=0, column=0)
-
+        self.placeBackButton(.05, .6, pane=self.interactivePane,
+                             text="Take me back!", font=self.font, command=self.kalmanFilterPrinciple)
         # VROOM VROOM
         self.drawCar(0, 1.5, self.axis)
 
@@ -165,14 +176,15 @@ class KalmanFilterToy(Module):
                                           command = lambda: self.checkKFTable(tableCanvas, measurements))
         checkAssignmentButton.place(relx = .5, rely = .84, anchor = tk.CENTER)
 
+
     def kalmanGainToy(self):
         self.gui.clearScreen()
         self.makePanes()
         self.placeBackToMenuButton(self.visualizingPane)
         dataPoints = 100
-        self.xData = [i for i in range(dataPoints)]
+        self.xDataKalmanGainToy = [i for i in range(dataPoints)]
         noise = [random.randint(-100,100)/1500 for i in range(dataPoints)]
-        self.xKalmanToyData = [a + b for a, b in zip(self.xData, noise)]
+        self.xKalmanToyData = [a + b for a, b in zip(self.xDataKalmanGainToy, noise)]
         print(self.xKalmanToyData)
         aboutKalmanGain = "    We've now see that a prediction algorithm such \n" \
                            "as a basic kalman filter, produces much better results \n" \
@@ -188,16 +200,23 @@ class KalmanFilterToy(Module):
                            "how the system responds! "
 
         # Add the car
+        ## Configure the Plot(s)
         f = Figure(figsize=(5, 5), dpi=100)
+        f.subplots_adjust(wspace=.5)
         self.carAxisKF = f.add_subplot(211)
         self.carAxisKF.set_ylim([0, 5])
-        self.carAxisKF.set_xlim([0, 50])
+        self.carAxisKF.set_xlim([0, len(self.xData) + 2])
+        self.carAxisKF.set_title("Car Position (Y vs X)")
         self.xPosErrorKF = f.add_subplot(223)
         self.xPosErrorKF.set_ylim([-5, 5])
-        self.xPosErrorKF.set_xlim([0, 50])
+        self.xPosErrorKF.set_xlabel("Time")
+        self.xPosErrorKF.set_ylabel("X Error")
         self.vErrorKF = f.add_subplot(224)
         self.vErrorKF.set_ylim([-5, 5])
-        self.vErrorKF.set_xlim([0, 50])
+        self.vErrorKF.set_xlabel("Time")
+        self.vErrorKF.set_ylabel("V Error")
+
+
         figureCanvas = FigureCanvasTkAgg(f, master=self.visualizingPane)
         figureCanvas.get_tk_widget().grid(row=0, column=0)
 
@@ -209,14 +228,43 @@ class KalmanFilterToy(Module):
         changeKalmanGain = tk.Button(self.interactivePane, text = "Try this Kalman Gain!",
                                      command=lambda :self.startCarKalmanGainToyAni(K.get()))
         changeKalmanGain.place(relx = .5, rely = .84, anchor = tk.CENTER)
+        self.placeNextButton(.7, .75, pane=self.interactivePane,
+                             text="Let's move!", font=self.font, command=self.matrixFormExplanation)
+        self.placeBackButton(.05, .75, pane=self.interactivePane,
+                             text="Take me back!", font=self.font, command=self.kalmanFilterToyTable)
         pass
 
+    def matrixFormExplanation(self):
+        self.gui.clearScreen()
+        self.makePanes()
+        self.placeBackToMenuButton(self.visualizingPane)
+        aboutMatrixForm = "Before we can move onto implementing a real one dimensional\n" \
+                          "kalman, we need to understand how to express information \n" \
+                          "compactly in matrix form. For example, let's look at our state \n" \
+                          "transition equations, how can we put those into matrix form? \n" \
+                          "Our state transition equation was: \n" \
+                          "                     X_n = X + v*dt \n" \
+                          "Matrices multiply row by column. So, if the state of our robot \n" \
+                          "is given as: [x;v], which is a 2 x 1 matrix, then our state\n" \
+                          "transition matrix will be a 2 x 2 matrix. In fact, our matrix will \n" \
+                          "be [1 dt; 0 1]. What this means is: 'To get X_n, multiply our\n" \
+                          "X by 1, then add v*dt. To get the new velocity, just mulitply\n" \
+                          "v by 1. The visual on the right will help show this a bit \n" \
+                          "better."
+        self.interactivePane.create_text(260, 145, text=aboutMatrixForm, font=self.font)
+        self.placeNextButton(.7, .75, pane=self.interactivePane,
+                             text="I get it!", font=self.font)#, command=self.matrixFormExplanation)
+        self.visualizingPane.create_image(200, 250, image=self.matrixMultImage, anchor=tk.CENTER)
+        self.placeBackButton(.05, .75, pane=self.interactivePane,
+                             text="Take me back!", font=self.font, command=self.kalmanGainToy)
+        pass
 ########################## MISC
     def moveCarMovingAverage(self, event):
         history = 4
         self.axis.clear()
         self.axis.set_ylim([0, 10])
         self.axis.set_xlim([0, len(self.xData) + 2])
+        self.axis.set_title("Car Position (Y vs X)")
 
         # move the car
         self.drawCar(self.xData[self.plotIterator], 1.5, self.axis)
@@ -239,6 +287,8 @@ class KalmanFilterToy(Module):
         self.axis.clear()
         self.axis.set_ylim([0, 10])
         self.axis.set_xlim([0, len(self.xData) + 2])
+        self.axis.set_title("Car Position (Y vs X)")
+
 
         # move the car
         self.drawCar(self.xData[self.plotIterator], 1.5, self.axis)
@@ -254,6 +304,106 @@ class KalmanFilterToy(Module):
         if (self.plotIterator > len(self.xData) - 1):
             self.ani.event_source.stop()
         self.placeBackToMenuButton(self.visualizingPane)
+
+    def moveCarKalmanGainToy(self, event):
+        self.carAxisKF.clear()
+        self.carAxisKF.set_ylim([0, 5])
+        self.carAxisKF.set_xlim([0, len(self.xDataKalmanGainToy) + 2])
+        self.carAxisKF.set_title("Car Position (Y vs X)")
+        self.xPosErrorKF.clear()
+        self.xPosErrorKF.set_ylim([-5, 5])
+        self.xPosErrorKF.set_xlabel("Time")
+        self.xPosErrorKF.set_ylabel("X Error")
+        self.vErrorKF.clear()
+        self.vErrorKF.set_ylim([-5, 5])
+        self.vErrorKF.set_xlabel("Time")
+        self.vErrorKF.set_ylabel("V Error")
+        # move the car
+        self.drawCar(self.xDataKalmanGainToy[self.plotIterator], 1.5, self.carAxisKF)
+        # plot the moving average here, y stays the same
+        if (self.plotIterator >= 2):
+            # plots moving average data
+            self.xPosErrorKF.plot(self.xDataKalmanGainToy[0:self.plotIterator - 1], self.xErrorData[0:self.plotIterator - 1],
+                           marker='o', markersize=1.0, color='b')
+            self.vErrorKF.plot(self.xDataKalmanGainToy[0:self.plotIterator - 1], self.vErrorData[0:self.plotIterator - 1],
+                                  marker='o', markersize=1.0, color='b')
+
+
+
+        self.plotIterator = self.plotIterator + 1
+
+        if (self.plotIterator > len(self.xDataKalmanGainToy) - 1):
+            self.ani.event_source.stop()
+            self.placeBackToMenuButton(self.visualizingPane)
+
+    def startCarMovAvgAni(self):
+        self.plotIterator = 0
+        # create Matplotlib figure
+        ## Configure the Plot(s)
+        f = Figure(figsize=(5, 5), dpi=100)
+        self.axis = f.add_subplot(111)
+        self.axis.set_title("Car Position (Y vs X)")
+        del self.yMovingAvgData[:]
+        del self.xMovingAvgData[:]
+        self.axis.set_xlim([0, len(self.xData) + 1])
+        figureCanvas = FigureCanvasTkAgg(f, master=self.visualizingPane)
+        figureCanvas.get_tk_widget().grid(row=0, column=0)
+        self.ani = animation.FuncAnimation(f, self.moveCarMovingAverage, interval=500)
+        poorFilteringExplanation = \
+            "The blue dots represent the average position of the car, using \n" \
+            "a moving average filter. What do we notice about the data? The \n" \
+            "moving average filter gives us a position estimate far from where \n" \
+            "the car really is. If only there was another way.... Enter, \n" \
+            "the Kalman Filter (KF)! \n"
+
+        self.interactivePane.create_text(260, 290, text = poorFilteringExplanation, font = self.font)
+
+    def startCarKalmanToyAni(self):
+        self.plotIterator = 0
+        # create Matplotlib figure
+        ## Configure the Plot(s)
+        f = Figure(figsize=(5, 5), dpi=100)
+        self.axis = f.add_subplot(111)
+        self.axis.set_xlim([0, len(self.xData) + 1])
+        self.axis.set_title("Car Position (Y vs X)")
+        figureCanvas = FigureCanvasTkAgg(f, master=self.visualizingPane)
+        figureCanvas.get_tk_widget().grid(row=0, column=0)
+        self.ani = animation.FuncAnimation(f, self.moveCarKalmanToy, interval=500)
+
+    def startCarKalmanGainToyAni(self, k):
+        self.plotIterator = 0
+        self.velKalmanToy = 0
+        ## Configure the Plot(s)
+        f = Figure(figsize=(5, 5), dpi=100)
+        f.subplots_adjust(wspace=.5)
+        self.carAxisKF = f.add_subplot(211)
+        self.carAxisKF.set_ylim([0, 5])
+        self.carAxisKF.set_xlim([0, len(self.xDataKalmanGainToy) + 2])
+        self.carAxisKF.set_title("Car Position (Y vs X)")
+        self.xPosErrorKF = f.add_subplot(223)
+        self.xPosErrorKF.set_ylim([-5, 5])
+        self.xPosErrorKF.set_xlabel("Time")
+        self.xPosErrorKF.set_ylabel("X Error")
+        self.vErrorKF = f.add_subplot(224)
+        self.vErrorKF.set_ylim([-5, 5])
+        self.vErrorKF.set_xlabel("Time")
+        self.vErrorKF.set_ylabel("V Error")
+        figureCanvas = FigureCanvasTkAgg(f, master=self.visualizingPane)
+        figureCanvas.get_tk_widget().grid(row=0, column=0)
+        self.xErrorData, self.vErrorData = self.makeKalmanFilterToyLists(self.xKalmanToyData, k)
+        self.ani = animation.FuncAnimation(f, self.moveCarKalmanGainToy, interval=self.dtKalmanGainToy_sec*1000)
+
+    def makeKalmanFilterToyLists(self, measurements, K):
+        xError = []
+        vError = []
+        for i in range(len(measurements)):
+            if(i > 0):
+                v = (measurements[i] - measurements[i-1])/(self.dtKalmanGainToy_sec)
+                self.velKalmanToy += K*(v - self.velKalmanToy)
+                xEst = (measurements[i] + self.velKalmanToy*self.dtKalmanGainToy_sec)
+                vError.append(self.velKalmanToy - (1/self.dtKalmanGainToy_sec))
+                xError.append(xEst - (i+1))
+        return [xError, vError]
 
     def drawCar(self, x,y, axis):
         carHeight = 1
@@ -274,38 +424,6 @@ class KalmanFilterToy(Module):
         axis.add_patch(carBackRightWheel)
         axis.add_patch(carFrontLeftWheel)
         axis.add_patch(carFrontRightWheel)
-
-        pass
-
-    def startCarMovAvgAni(self):
-        self.plotIterator = 0
-        # create Matplotlib figure
-        f = Figure(figsize=(5, 5), dpi=100)
-        self.axis = f.add_subplot(111)
-        del self.yMovingAvgData[:]
-        del self.xMovingAvgData[:]
-        self.axis.set_xlim([0, len(self.xData) + 1])
-        figureCanvas = FigureCanvasTkAgg(f, master=self.visualizingPane)
-        figureCanvas.get_tk_widget().grid(row=0, column=0)
-        self.ani = animation.FuncAnimation(f, self.moveCarMovingAverage, interval=500)
-        poorFilteringExplanation = \
-            "The blue dots represent the average position of the car, using \n" \
-            "a moving average filter. What do we notice about the data? The \n" \
-            "moving average filter gives us a position estimate far from where \n" \
-            "the car really is. If only there was another way.... Enter, \n" \
-            "the Kalman Filter (KF)! \n"
-
-        self.interactivePane.create_text(260, 290, text = poorFilteringExplanation, font = self.font)
-
-    def startCarKalmanToyAni(self):
-        self.plotIterator = 0
-        # create Matplotlib figure
-        f = Figure(figsize=(5, 5), dpi=100)
-        self.axis = f.add_subplot(111)
-        self.axis.set_xlim([0, len(self.xData) + 1])
-        figureCanvas = FigureCanvasTkAgg(f, master=self.visualizingPane)
-        figureCanvas.get_tk_widget().grid(row=0, column=0)
-        self.ani = animation.FuncAnimation(f, self.moveCarKalmanToy, interval=500)
 
     def checkKFTable(self, table, measurements):
         # make a list with the calculated X values, which are just the predictions
@@ -353,60 +471,3 @@ class KalmanFilterToy(Module):
                 print(listA[i] - listB[i])
                 return False
         return True
-
-    def startCarKalmanGainToyAni(self, k):
-        self.plotIterator = 0
-        self.velKalmanToy = 0
-        f = Figure(figsize=(5, 5), dpi=100)
-        self.carAxisKF = f.add_subplot(211)
-        self.carAxisKF.set_ylim([0, 5])
-        self.carAxisKF.set_xlim([0, len(self.xData) + 2])
-        self.xPosErrorKF = f.add_subplot(223)
-        self.xPosErrorKF.set_ylim([-5, 5])
-        self.vErrorKF = f.add_subplot(224)
-        self.vErrorKF.set_ylim([-5, 5])
-        figureCanvas = FigureCanvasTkAgg(f, master=self.visualizingPane)
-        figureCanvas.get_tk_widget().grid(row=0, column=0)
-        self.xErrorData, self.vErrorData = self.makeKalmanFilterToyLists(self.xKalmanToyData, k)
-        self.ani = animation.FuncAnimation(f, self.moveCarKalmanGainToy, interval=100)
-
-    def moveCarKalmanGainToy(self, event):
-        self.carAxisKF.clear()
-        self.xPosErrorKF.clear()
-        self.carAxisKF.set_ylim([0, 5])
-        self.carAxisKF.set_xlim([0, len(self.xData) + 2])
-        self.xPosErrorKF.clear()
-        self.xPosErrorKF.set_ylim([-5, 5])
-        self.vErrorKF.clear()
-        self.vErrorKF.set_ylim([-5, 5])
-        # move the car
-        self.drawCar(self.xData[self.plotIterator], 1.5, self.carAxisKF)
-        # plot the moving average here, y stays the same
-        if (self.plotIterator >= 2):
-            # plots moving average data
-            self.xPosErrorKF.plot(self.xData[0:self.plotIterator - 1], self.xErrorData[0:self.plotIterator - 1],
-                           marker='o', markersize=1.0, color='b')
-            self.vErrorKF.plot(self.xData[0:self.plotIterator - 1], self.vErrorData[0:self.plotIterator - 1],
-                                  marker='o', markersize=1.0, color='b')
-
-
-
-        self.plotIterator = self.plotIterator + 1
-
-        if (self.plotIterator > len(self.xData) - 1):
-            self.ani.event_source.stop()
-            self.placeBackToMenuButton(self.visualizingPane)
-
-    def makeKalmanFilterToyLists(self, measurements, K):
-        xError = []
-        vError = []
-        dt = .1
-        for i in range(len(measurements)):
-            if(i > 0):
-                v = (measurements[i] - measurements[i-1])/(dt)
-                self.velKalmanToy += K*(v - self.velKalmanToy)
-                xEst = (measurements[i] + self.velKalmanToy*dt)
-                vError.append(self.velKalmanToy - (1/dt))
-                xError.append(xEst - (i+1))
-        #print(xError)
-        return [xError, vError]
