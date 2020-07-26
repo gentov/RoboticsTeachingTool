@@ -58,9 +58,9 @@ class CVModule(Module):
         # img = img.resize((300, 250), Image.BOX)  # The (250, 250) is (height, width)
         # img = ImageTk.PhotoImage(img)  # convert to PhotoImage
 
-        im_temp = Image.open("Computer-vision-apply-for-medical-image-processing.png")
-        im_temp = im_temp.resize((300, 250), Image.ANTIALIAS)
-        im_temp.save("test.png", "png")
+        # im_temp = Image.open("Computer-vision-apply-for-medical-image-processing.png")
+        # im_temp = im_temp.resize((300, 250), Image.ANTIALIAS)
+        # im_temp.save("test.png", "png")
 
         #int(300 * float(w / 2)),int(300 * float(h / 2))
         self.visualizingPane.create_image(0,0, image=tk.PhotoImage(file = "test.png"), anchor=tk.CENTER)
@@ -106,7 +106,7 @@ class CVModule(Module):
         im = Image.fromarray(ed)
         self.imgtk = ImageTk.PhotoImage(image=im)
 
-        second_visualizingPane.create_image(50, 50, image=self.imgtk, anchor=tk.NE)
+        second_visualizingPane.create_image(250, 100, image=self.imgtk, anchor=tk.CENTER)
 
         font = ('Comic Sans MS', 11, 'bold italic')
         self.showText(275, 150, "THIS IS SO DUMB", self.interactivePane, font)
