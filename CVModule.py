@@ -11,7 +11,7 @@ class CVModule(Module):
         self.cv_overview = tk.PhotoImage(file = "cv_home_example.png")
         self.cv_connections = tk.PhotoImage(file = "Computer-vision-apply-for-medical-image-processing.png")
         self.edge_detect = tk.PhotoImage(file = "edge_pepper_cropped5.png")
-        self.img_for_ed_interactive = tk.PhotoImage(file = "single_rose.png")
+        self.img_for_ed_interactive = tk.PhotoImage(file = "single_rose_medium_square.png")
         # tk.Frame.__init__(self)
         # self.tk.Frame.master.bind('<Configure>', self.resize_image)
 
@@ -54,9 +54,6 @@ class CVModule(Module):
         self.showText(275, 150, paragraph,self.interactivePane, font)
         w = self.visualizingPane.winfo_width()
         h = self.visualizingPane.winfo_height()
-        # img = Image.open("Computer-vision-apply-for-medical-image-processing.png")  # PIL solution
-        # img = img.resize((300, 250), Image.BOX)  # The (250, 250) is (height, width)
-        # img = ImageTk.PhotoImage(img)  # convert to PhotoImage
 
         # im_temp = Image.open("Computer-vision-apply-for-medical-image-processing.png")
         # im_temp = im_temp.resize((300, 250), Image.ANTIALIAS)
@@ -92,10 +89,10 @@ class CVModule(Module):
     def edge_detection_interactive(self):
         self.gui.clearScreen()
         #INSTEAD OF SELF.MAKE PANES
-        self.interactivePane = tk.Canvas(self.gui.win, width=500, height=200, bg='grey')
-        sliderPane = tk.Canvas(self.gui.win, width=500, height=200, bg='grey')
-        self.visualizingPane = tk.Canvas(self.gui.win, width=500, height=200, bg='white')
-        second_visualizingPane = tk.Canvas(self.gui.win, width=500, height=200, bg='grey')
+        self.interactivePane = tk.Canvas(self.gui.win, width=500, height=250, bg='grey')
+        sliderPane = tk.Canvas(self.gui.win, width=500, height=250, bg='grey')
+        self.visualizingPane = tk.Canvas(self.gui.win, width=500, height=250, bg='white')
+        second_visualizingPane = tk.Canvas(self.gui.win, width=500, height=250, bg='grey')
         self.interactivePane.grid(row=0, column=0)
         sliderPane.grid(row=1, column=0)
         self.visualizingPane.grid(row=0, column=1)
@@ -104,47 +101,49 @@ class CVModule(Module):
         self.visualizingPane.create_image(250, 100, image=self.img_for_ed_interactive, anchor=tk.CENTER)
         ed = EdgeDecectionandGaussianBlur().edge_detection()
         im = Image.fromarray(ed)
-        self.imgtk = ImageTk.PhotoImage(image=im)
+        im_temp = im
+        im_temp = im_temp.resize((300, 300), Image.ANTIALIAS)
+        self.imgtk = ImageTk.PhotoImage(image=im_temp)
 
         second_visualizingPane.create_image(250, 100, image=self.imgtk, anchor=tk.CENTER)
 
         font = ('Comic Sans MS', 11, 'bold italic')
         self.showText(275, 150, "THIS IS SO DUMB", self.interactivePane, font)
 
-        minval_slider = tk.Scale(sliderPane, from_=0, to=200, orient=tk.HORIZONTAL)
-        maxval_slider = tk.Scale(sliderPane, from_=0, to=200, orient=tk.HORIZONTAL)
-        minval_slider.pack()
-        maxval_slider.pack()
+        self.minval_slider = tk.Scale(sliderPane, from_=0, to=200, orient=tk.HORIZONTAL)
+        self.maxval_slider = tk.Scale(sliderPane, from_=0, to=200, orient=tk.HORIZONTAL)
+        self.minval_slider.pack()
+        self.maxval_slider.pack()
 
-
-        # recalc = tk.Button(sliderPane, text='Recalc Image', command=self.recalc_image)
-        # recalc.pack()
+        recalc = tk.Button(sliderPane, text='Recalc Image', command=self.recalc_image)
+        recalc.pack()
         # w = tk.Scale(self.interactivePane, from_=0, to=200, orient=HORIZONTAL)
         # w.pack()
 
-        self.placeBackButton(.1, .7, pane=self.interactivePane, command=self.edge_detection,
+        self.placeBackButton(0.1, .4, pane=self.interactivePane, command=self.edge_detection,
                              text="ED Activity", font=font)
-        self.placeNextButton(.7, .7, pane=self.interactivePane,
+        self.placeNextButton(.7, .4, pane=self.interactivePane,
                              text="Gaussian Filtering", font=font, command=self.gaussian)
+
 
     def gaussian(self):
         self.gui.clearScreen()
         # INSTEAD OF SELF.MAKE PANES
-        self.interactivePane = tk.Canvas(self.gui.win, width=500, height=200, bg='grey')
-        sliderPane = tk.Canvas(self.gui.win, width=500, height=200, bg='grey')
-        self.visualizingPane = tk.Canvas(self.gui.win, width=500, height=200, bg='white')
-        second_visualizingPane = tk.Canvas(self.gui.win, width=500, height=200, bg='grey')
+        self.interactivePane = tk.Canvas(self.gui.win, width=500, height=250, bg='grey')
+        sliderPane = tk.Canvas(self.gui.win, width=500, height=250, bg='grey')
+        self.visualizingPane = tk.Canvas(self.gui.win, width=500, height=250, bg='white')
+        self.second_visualizingPane = tk.Canvas(self.gui.win, width=500, height=250, bg='grey')
         self.interactivePane.grid(row=0, column=0)
         sliderPane.grid(row=1, column=0)
         self.visualizingPane.grid(row=0, column=1)
-        second_visualizingPane.grid(row=1, column=1)
+        self.second_visualizingPane.grid(row=1, column=1)
 
         ed = EdgeDecectionandGaussianBlur().edge_detection()
         im = Image.fromarray(ed)
         imgtk = ImageTk.PhotoImage(image=im)
 
         self.visualizingPane.create_image(250, 100, image=self.img_for_ed_interactive, anchor=tk.NE)
-        second_visualizingPane.create_image(50, 50, image=imgtk, anchor=tk.NE)
+        self.second_visualizingPane.create_image(50, 50, image=imgtk, anchor=tk.NE)
 
         font = ('Comic Sans MS', 11, 'bold italic')
         self.showText(275, 150, "THIS IS SO DUMB pt 2", self.interactivePane, font)
@@ -156,13 +155,26 @@ class CVModule(Module):
         kernalY_slider.pack()
         sigmaX_slider.pack()
 
-        self.placeBackButton(.1, .7, pane=self.interactivePane, command=self.edge_detection_interactive,
+        self.placeBackButton(.1, .4, pane=self.interactivePane, command=self.edge_detection_interactive,
                              text="ED Activity", font=font)
-        self.placeNextButton(.7, .7, pane=self.interactivePane,
+        self.placeNextButton(.7, .4, pane=self.interactivePane,
                              text="Gaussian Filtering", font=font, command=self.CVQuiz)
 
 
-    #def recalc_image(self):
+    def recalc_image(self):
+        minval = self.minval_slider.get()
+        maxval = self.maxval_slider.get()
+
+        ed = EdgeDecectionandGaussianBlur(minval, maxval).edge_detection()
+        im = Image.fromarray(ed)
+        im_temp = im
+        im_temp = im_temp.resize((300, 300), Image.ANTIALIAS)
+        self.imgtk = ImageTk.PhotoImage(image=im_temp)
+
+        self.gui.win.winfo_children()[3].destroy()
+        self.second_visualizingPane = tk.Canvas(self.gui.win, width=500, height=250, bg='grey')
+        self.second_visualizingPane.grid(row=1, column=1)
+        self.second_visualizingPane.create_image(250, 100, image=self.imgtk, anchor=tk.CENTER)
 
     def CVQuiz(self):
         quizPrompt = "Let's put the knowlege you learned to the test!\n" \
