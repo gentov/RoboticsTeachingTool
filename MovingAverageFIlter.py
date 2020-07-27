@@ -44,7 +44,10 @@ class MovingAverageFilter(Module):
                     "at a time the filter will average. Let's take a look at an example.\n" \
                     "The graph on the right shows how a moving average would look \n" \
                     "without a history at all. That is, no filtering occurs. \n" \
-                    "Go ahead and change the history and run the filter again."
+                    "If we set a history to 3, for example, the filter will compute\n" \
+                    "an average of the last three points. That is, the current \n" \
+                    "point, and the previous two points. Go ahead and change the \n" \
+                    "history and run the filter."
         self.gui.clearScreen()
         self.makePanes()
         #self.animateText(260, 150,text = aboutMovingAvg, canvasOfText=self.interactivePane, font = self.font)
@@ -166,7 +169,7 @@ class MovingAverageFilter(Module):
                 self.quizFailed(self.movingAvgQuiz)
                 return
         print("Quiz Passed.")
-        self.quizPassed(self.mainModule.kalmanFilter.introToKalmanFilter)
+        self.quizPassed(self.mainModule.kalmanFilterToy.introToKalmanFilter)
         pass
 
     def quizPassed(self, nextPage):

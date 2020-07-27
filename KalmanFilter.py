@@ -6,253 +6,439 @@ import matplotlib.animation as animation
 import matplotlib.patches as patches
 from statistics import mean
 import random
+import numpy as np
 
 class KalmanFilter(Module):
     def __init__(self, gui = None, title = None, mainModule = None):
         super(KalmanFilter, self).__init__(gui = gui, title = title)
-        self.quizQuestionMark = tk.PhotoImage(file = "quizQuestionMark.png")
-        self.quizPassedImage = tk.PhotoImage(file="passedQuiz.png")
-        self.quizFailedImage = tk.PhotoImage(file="failedQuiz.png")
-        self.carImage = tk.PhotoImage(file="carImage.png")
-        self.kalmanExampleImage = tk.PhotoImage(file="kalmanExampleImage.png")
+        self.mainModule = mainModule
+        self.bigFont = ('Comic Sans MS', 14, 'bold italic')
         self.font = ('Comic Sans MS', 11, 'bold italic')
         self.smallFont = ('Comic Sans MS', 9, 'bold italic')
         self.quizResultFont = ('Comic Sans MS', 15, 'bold italic')
-        self.axis = None
-        self.carAxisKF = None
-        self.xErrorKF = None
-        self.yErrorKF = None
-        self.xData = [0,1,2,3,4,5]
-        self.xMovingAvgData = []
-        self.yMovingAvgData = []
-        self.xKalmanToyData = []
-        self.yData = [2,2,2,2,2,2]
-        self.velKalmanToy = 0
-        self.plotIterator = 0
+        self.quizQuestionMark = tk.PhotoImage(file="quizQuestionMark.png")
+        self.quizPassedImage = tk.PhotoImage(file="passedQuiz.png")
+        self.quizFailedImage = tk.PhotoImage(file="failedQuiz.png")
         self.radioVarMovingAvgQ1 = tk.StringVar()
         self.radioVarMovingAvgQ2 = tk.StringVar()
-        self.mainModule = mainModule
-        self.car = None
-        self.errorData = None
+        self.kalmanXError = []
+        self.kalmanVError = []
+        self.dt_sec = .1
+        self.ani = None
+        # Initial State
+        self.x = np.matrix([[0.],
+                            [0.]])
 
-    def introToKalmanFilter(self):
+        # Uncertainity Matrix (0 being we trust the state completely)
+        self.P = np.matrix([[1000, 0.],
+                            [0., 1000]])
+
+        # Next State Function
+        self.F = np.matrix([[1., self.dt_sec],
+                            [0., 1.]])
+
+        # Measurement Function
+        self.H = np.matrix([[1., 0.]])
+
+        # Measurement Uncertainty (0 being we trust the state completely)
+        self.R = np.matrix([[0.7]])
+
+        # Identity Matrix
+        self.I = np.matrix([[1., 0.],
+                            [0., 1.]])
+
+        self.Q = np.matrix([[.1, 0.],
+                            [0., .1]])
+
+    def introPage(self):
+        self.gui.clearScreen()
+        canvas = tk.Canvas(self.gui.win, width = 1000, height = 500, bg = 'grey')
+        canvas.grid(row = 0, column = 0)
+        self.placeBackToMenuButton(canvas)
+        self.placeSaveButton(canvas)
+        self.placeNextButton(.85, .75, pane=canvas,
+                             text="KF Prediction", font=self.font, command = self.kalmanPrediction)
+        title = "The Kalman Filter: "
+        theKalmanEquations = \
+                          "We can finally start talking about designing a real KF! " \
+                          "We know that the kalman filter is a prediction-based filter. \n" \
+                          "When a new measurement is made, the KF updates and corrects " \
+                          "its prediction. The following are all of the equations in both \n" \
+                          "the prediction and update steps. Don't get discouraged! We'll go" \
+                          " through each one!\n" \
+                          "     Prediction: \n" \
+                          "                                     x = F*x\n" \
+                          "                                     P = F*P*F' + Q \n" \
+                          "     Measure and Update: \n" \
+                          "                                     Y = Z - H*x \n" \
+                          "                                     K = (P*H')/((H*P*H') + R)\n" \
+                          "                                     x = x + K*Y\n" \
+                          "                                     P = (I - K*H)*P \n" \
+                          "Although this lesson will not be deriving each one of these " \
+                          "equations from scratch, you'll know what the matrices mean, and\n" \
+                          "how to design them! \n\n"
+
+        disclaimer = "Note: The matrices Q and R are matrices " \
+                      "we can not design. Usually, we must find the values of these " \
+                      "matrices experimentally."
+        canvas.create_text(100, 55, text = title, font = self.bigFont)
+        canvas.create_text(500, 250, text=theKalmanEquations, font=self.font)
+        canvas.create_text(450, 400, text=disclaimer, font=self.smallFont)
+
+    def kalmanPrediction(self):
         self.gui.clearScreen()
         self.makePanes()
-        whyKalmanFilter = \
-                    "So far it seems as though the moving average is the only \n" \
-                    "thing we need to be experts at filtering. It's true, the moving \n"\
-                    "average is a pretty simple way to take care of really noisy data, \n"\
-                    "but it's not always the tool for the job. Suppose, for example, \n"\
-                    "we are building an autonomous car! We are given GPS data, but \n"\
-                    "it's very noisy. Let's see what happens when we apply a moving \n" \
-                    "average. For the purposes of this example, we are looking at \n" \
-                    "the car from a bird's eye view."
-        # create Matplotlib figure
-        self.interactivePane.create_text(260, 100, text = whyKalmanFilter, font = self.font)
-        f = Figure(figsize=(5, 5), dpi=100)
-        self.axis = f.add_subplot(111)
-        self.axis.set_ylim([0, 10])
-        self.axis.set_xlim([0, 12])
-        figureCanvas = FigureCanvasTkAgg(f, master=self.visualizingPane)
-        figureCanvas.get_tk_widget().grid(row=0, column=0)
-
-        #VROOM VROOM
-        self.drawCar(0, 1.5, self.axis)
-
-        movingAverageGPS = tk.Button(self.interactivePane, relief=tk.RAISED, command=lambda: self.startCarMovAvgAni(),
-                                  text="Filter GPS Data")
-        movingAverageGPS.place(relx=.5, rely=.42, anchor=tk.CENTER)
-        self.placeNextButton(.675, .7, pane = self.interactivePane,
-                             text = "The KF", font = self.font, command = self.kalmanFilterPrinciple)
+        self.visualizingPane.config(bg = "grey")
         self.placeBackToMenuButton(self.visualizingPane)
-
-    def kalmanFilterPrinciple(self):
-        self.gui.clearScreen()
-        self.makePanes()
-        howKalmanFilterWorks = \
-                    "   The working principle of the Kalman Filter is quite different \n" \
-                    "than that of the moving average filter. Imagine we are given GPS \n" \
-                    "coordinates, X and Y. Assume also that at each measurement, \n" \
-                    "we take a time-stamp. This means that we have some raw XY \n" \
-                    "data, and some time data. How can we use this?\n" \
-                    "   If we can model our system, we can make a prediction \n" \
-                    "about the future state of the car, based on our current \n" \
-                    "state. For those of you who have taken physics, the \n" \
-                    "following equations might look familiar: \n" \
-                    "                           v = d/t              \n" \
-                    "                       xf = x0 + v*t        \n" \
-                    "In the first equation 'd' is distance, 'v' is velocity, and \n" \
-                    "'t' is time. In the second equation, 'xf' is final position, and \n" \
-                    "'x0' is initial position. We can call this our 'state transition\n" \
-                    "equation'. If we can calculate our current 'v' or velocity, we can \n" \
-                    "estimate where the car will be in the next measurement!"
-        self.interactivePane.create_text(255, 180, text = howKalmanFilterWorks, font = self.font)
-        self.placeNextButton(.675, .7, pane = self.interactivePane,
-                             text = "Let's see it!", font = self.font, command = self.kalmanFilterToyTable)
-        self.placeBackToMenuButton(self.visualizingPane)
-        self.visualizingPane.create_image(200, 250, image=self.kalmanExampleImage, anchor=tk.CENTER)
-        self.visualizingPane.create_image(350, 450, image=self.carImage, anchor=tk.CENTER)
+        self.placeNextButton(.7, .75, pane=self.visualizingPane,
+                             text="KF Measure \n & Update", font=self.font, command=self.kalmanMeasureAndUpdate)
+        self.placeBackButton(.05, .75, pane=self.visualizingPane,
+                             text="KF Equations", font=self.font, command=self.introPage)
+        thePredictionStep = \
+                          "Believe it or not, we've done some of this! We just \n" \
+                          "didn't use all of the fancy letters that the previous page did.\n" \
+                          "Let's look at the prediction step equations again:\n" \
+                          "Prediction: \n" \
+                          "                        x = F*x\n" \
+                          "                      P = F*P*F' + Q \n" \
+                          "'x' is just our state matrix. In our previous examples, our \n" \
+                          "state was just position and velocity (X and v). The state \n" \
+                          "gives us information about our robot at any time. If we cared \n" \
+                          "about the robot's orientation then our state may look something \n" \
+                          "like this:\n" \
+                          "                           [X]\n" \
+                          "                           [v]\n" \
+                          "                         [theta]\n"\
+                          "The state is always a single dimension (n x 1). So what is F? \n" \
+                          "F is the state transition matrix! It tells us how to get from \n" \
+                          "one state to the next. In our previous examples, this F was:\n" \
+                          "                         [1 dt] \n" \
+                          "                         [0  1] \n" \
+                          "The state transition matrix is always n x n, where n is the\n" \
+                          "number of elements in your state matrix (or vector). "
+        self.interactivePane.create_text(260, 240, text=thePredictionStep, font=self.font)
+        thePredictionStepCont = \
+                          "Next comes the P matrix. This is a matrix that explains\n" \
+                          "how uncertain we are about our estimate of each element of the\n" \
+                          "state vector that we've just made using the first equation.\n" \
+                          "This matrix (usually) has values on its diagonal. The larger\n" \
+                          "the values, the less certain we are about our estimate. Because\n" \
+                          "the P matrix gives us the uncertainty of state estimate, its \n" \
+                          "dimension will always be n x n. P might look something like: \n " \
+                          "                         [100 0]\n" \
+                          "                          [0 100]\n" \
+                          "in our case.\n" \
+                          "So now we know about the P matrix, and all that is left in the \n" \
+                          "prediction step is the Q matrix. Q is our 'Process Noise\n" \
+                          "Covariance' matrix. As the KF runs, P becomes more certain. Q\n" \
+                          "allows us to add a little bit of uncertainty back into P. Q is\n" \
+                          "also n x n, with values on the diagonal. Q might look like: \n " \
+                          "                          [.001 0]\n" \
+                          "                           [0 .001]"
+        self.visualizingPane.create_text(260, 220, text=thePredictionStepCont, font=self.font)
         pass
 
-    def kalmanFilterToyTable(self):
-        """
-        I'm going to give the user a table of KNOWN measurements
-        Since I haven't yet introduced the kalman gain, I want them
-        to calculate the dt and determine the velocity using difference
-        in position. Then I want them to make a prediction of the car's state.
-
-        if the prediction doesn't line up well then the filter is wrong.
-
-        Then, I will have them "tune" a kalman gain which determines how much weight
-        is put into new and old predictions
-        """
-        asssignmentIntro = "    Let's work through the most simple kalman filter \n" \
-                           "example. This is not yet a true kalman filter, but it \n" \
-                           "applies some principles of the kalman filter. \n" \
-                           "    The table below shows measured values from the GPS,\n" \
-                           "but as we've learned this sensor has some noise. The real\n" \
-                           "kalman filter,as we'll learn, can deal with this noise, but the\n" \
-                           "point of this activity is to understand the prediction step.\n" \
-                           "Using the measured value, calculate the velocity of the car, \n" \
-                           "and make a 'prediction' about where the car will be at the next\n" \
-                           "measurement. Assume that the time between measurements is \n" \
-                           "500 ms. We will denote measurements as 'Z', and we'll denote \n" \
-                           "the predictions as 'X_n'."
-        equationReminder = "As a reminder: \n" \
-                           "                   v = d/t  and \n" \
-                           "                X_n = X_i + v*t"
+    def kalmanMeasureAndUpdate(self):
         self.gui.clearScreen()
         self.makePanes()
+        self.visualizingPane.config(bg = "grey")
         self.placeBackToMenuButton(self.visualizingPane)
-        self.interactivePane.create_text(250, 140, text = asssignmentIntro, font = self.font)
-        self.interactivePane.create_text(100, 460, text=equationReminder, font=self.smallFont)
+        theMeasureAndUpdateStep = \
+            "Now, let's look at the measure and update step equations again:\n" \
+            "Measure and Update: \n" \
+            "                         Y = Z - H*x \n" \
+            "                    K = (P*H')/((H*P*H') + R)\n" \
+            "                          x = x + K*Y\n" \
+            "                        P = (I - K*H)*P \n"\
+            "We need to look at the matrices a bit out of order. We'll start \n" \
+            "the matrix H. H is the 'measurement function' matrix. It is \n" \
+            "used to extract from the current state, the element we're trying \n" \
+            "to measure. Suppose we are trying to measure velocity. In this\n" \
+            "case, H would try to extract only 'v' from our state vector. It \n" \
+            "may look something like:\n" \
+            "                           H = [0 1]\n" \
+            "Since H*x would yeild just v. H is always m x n, where m is the\n" \
+            "number of measurements, and n is the number of elements in the\n" \
+            "state vector.\n" \
+            "   The Z matrix, we actually saw when we were filling in our KF \n" \
+            "table in our previous section. Z is the actual 'Measurement\n" \
+            "Vector'. If we were measuring velocity, Z might look like: \n" \
+            "                           Z = [2.1]\n" \
+            "This is the data coming from our sensor. It should \n" \
+            "always be a m x 1 vector."
+        self.interactivePane.create_text(255, 250, text=theMeasureAndUpdateStep, font=self.font)
 
-        # Add the car
-        f = Figure(figsize=(5, 5), dpi=100)
-        self.axis = f.add_subplot(111)
-        self.axis.set_ylim([0, 10])
-        self.axis.set_xlim([0, 12])
-        figureCanvas = FigureCanvasTkAgg(f, master=self.visualizingPane)
-        figureCanvas.get_tk_widget().grid(row=0, column=0)
+        theMeasureAndUpdateStepCont = "Y is simply the difference between the actual and the \n" \
+                                   "predicted measurement. K may look familiar to you as well! In the \n" \
+                                   "previous activity we've manually adjusted K in order to 'tune' our\n" \
+                                   "kalman filter. Now, K is computed using matrices H, and P, which\n" \
+                                   "we've talked about, but what about R?\n" \
+                                   "    R, similar to Q, which we've mentioned previously, is noise.\n" \
+                                   "Unlike Q which is process noise covariance, R is measurement\n" \
+                                   "noise covariance. Like Q and P, the values are (usually) on the\n" \
+                                   "diagonal. The less accurate a sensor is, the larger the values\n" \
+                                   "are. The matrix is m x m. For our velocity example, it may \n" \
+                                   "look like: \n" \
+                                   "                             R = [.2]                    \n" \
+                                   "The only matrix left to discuss is I. I is actually just the \n" \
+                                   "identity matrix, which is always n x n. For our example, since\n" \
+                                   "we have two elements in our state, n is 2. Thus I is:\n" \
+                                   "                              [1 0] \n" \
+                                   "                              [0 1] "
+        self.visualizingPane.create_text(255, 220, text=theMeasureAndUpdateStepCont, font=self.font)
+        self.placeNextButton(.7, .75, pane=self.visualizingPane,
+                             text="Quiz!", font=self.font, command = self.kalmanMatricesQuiz)
+        self.placeBackButton(.05, .75, pane=self.visualizingPane,
+                             text="KF Prediction", font=self.font, command = self.kalmanPrediction)
 
-        # VROOM VROOM
-        self.drawCar(0, 1.5, self.axis)
+        pass
 
+    def kalmanMatricesQuiz(self):
+        quizPrompt = "Let's put the knowlege you learned to the test!\n" \
+                     "Here are two questions to make sure you're understanding\n" \
+                     "the material so far.\n\n"
+        question1 = "1) Suppose we had a 5 element state, what might P look like?\n"
+        question2 = "2) And H? Suppose we need three measurements"
+        self.gui.clearScreen()
+        self.makePanes()
+        self.radioVarMovingAvgQ1.set(-1) # I think this makes it so that none are selected. Nice.
+        self.radioVarMovingAvgQ2.set(-1) # I think this makes it so that none are selected. Nice.
+        self.interactivePane.create_text(240, 60, text = quizPrompt, font = self.font)
+
+        # QUESTION 1
+        self.interactivePane.create_text(240, 90, text=question1, font=self.font)
+        self.visualizingPane.create_image(250, 250, image=self.quizQuestionMark, anchor=tk.CENTER)
+        A1 = tk.Radiobutton(self.interactivePane, text="A) [10 0 0 0 0]\n"
+                                                        "   [0 10 0 0 0]\n"
+                                                        "   [0 0 10 0 0]\n"
+                                                        "   [0 0 0 10 0]\n"
+                                                        "   [0 0 0 0 10]",
+                            padx=20, value = "A1", bg = "grey", variable = self.radioVarMovingAvgQ1)
+        A1.place(relx = .01, rely = .2)
+        B1 = tk.Radiobutton(self.interactivePane, text="B) [100 0]\n"
+                                                        "   [0 100]",
+                            padx=20, value = "B1", bg = "grey", variable = self.radioVarMovingAvgQ1)
+        B1.place(relx = .01, rely = .4)
+        C1 = tk.Radiobutton(self.interactivePane, text="C) [100 0 0]\n"
+                                                        "   [0 100 0]\n"
+                                                        "   [0 0 100]",
+                            padx=20, value = "C1", bg = "grey", variable = self.radioVarMovingAvgQ1)
+        C1.place(relx = .01, rely = .5)
+
+        #
+        # # QUESTION 2
+        self.interactivePane.create_text(190, 320, text=question2, font=self.font)
+        A2 = tk.Radiobutton(self.interactivePane, text="A) [0 1 1 1 0]",
+                            padx=20, value="A2", bg="grey", variable=self.radioVarMovingAvgQ2)
+        A2.place(relx=.01, rely=.65)
+        B2 = tk.Radiobutton(self.interactivePane, text="B) [0 1 1 0 0]\n"
+                                                       "   [0 0 0 1 0]",
+                            padx=20, value="B2", bg="grey", variable=self.radioVarMovingAvgQ2)
+        B2.place(relx=.01, rely=.7)
+        C2 = tk.Radiobutton(self.interactivePane, text="C) [0 1 0 0 0]\n"
+                                                       "   [0 0 1 0 0]\n"
+                                                       "   [0 0 0 1 0]",
+                            padx=20, value="C2", bg="grey", variable=self.radioVarMovingAvgQ2)
+        C2.place(relx=.01, rely=.8)
+        correctAnswers = [[self.radioVarMovingAvgQ1, "A1"],[self.radioVarMovingAvgQ2, "C2"]]
+        self.placeBackToMenuButton(self.visualizingPane)
+        self.placeNextButton(.675, .75, pane=self.visualizingPane,
+                             text="Submit Quiz", font=self.font, command=lambda: self.checkTest(correctAnswers))
+        self.placeBackButton(.05, .75, pane=self.visualizingPane, command=self.kalmanMeasureAndUpdate,
+                             text="", font=self.font)
+
+    def formKalmanFMatrix(self):
+        self.gui.clearScreen()
+        self.makePanes()
+        assignmentExplanation =       "It's time to practice! In the pages that follow,\n" \
+                                      "you will fill in each of the matrices in the Kalman Filter. The\n" \
+                                      "noise matrices P, Q, and R, have been done for you. When \n" \
+                                      "you think you've got it right, go ahead and hit the 'Check my \n" \
+                                      "work! button, and if your matrix looks good, you can move on,\n" \
+                                      "otherwise, you'll have to try again! Take a look at the image\n" \
+                                      "on the right if you need a refresher!\n" \
+                                      " We'll start with the F matrix. Assume that our state is: \n" \
+                                      "                             [X]\n" \
+                                      "                             [v]\n" \
+                                      "and our state transition equation is: X_n+1 = X_n + v*dt "
+        self.interactivePane.create_text(260, 150, text = assignmentExplanation, font = self.font)
         # make the table
-        tableCanvas = tk.Canvas(self.interactivePane,bg="white", width=400, height=200)
-        tableCanvas.place(relx = .5,rely = .7, anchor = tk.CENTER)
-        numRows = 5
-        numCols = 3
-        measurements = [0,1.1,2.15,3.05,4.1]
+        tableCanvas = tk.Canvas(self.interactivePane, bg="white", width=400, height=200)
+        tableCanvas.place(relx=.5, rely=.6, anchor=tk.CENTER)
+        numRows = 2
+        numCols = 2
         for i in range(numRows):  # Rows
             for j in range(numCols):  # Columns
                 # populate measurements
-                if(i == 0 and j != 0):
-                    b = tk.Label(tableCanvas, text="", width=8)
-                elif(j == 0):
-                    b = tk.Label(tableCanvas, text=str(measurements[j+i]), width=8)
-                else:
-                    b = tk.Entry(tableCanvas, text="", width = 10)
+                b = tk.Entry(tableCanvas, text="", width=10)
                 b.grid(row=i, column=j)
-        zLabel = tk.Label(self.interactivePane, text = "Z", font = self.font, bg = "grey")
-        zLabel.place(relx = .37, rely = .54)
-        vLabel = tk.Label(self.interactivePane, text = "V", font = self.font, bg = "grey")
-        vLabel.place(relx = .49, rely = .54)
-        xLabel = tk.Label(self.interactivePane, text=  "X_n", font=self.font, bg="grey")
-        xLabel.place(relx=.60, rely=.54)
+        pass
+        self.interactivePane.create_text(170, 300, text = "F = ", font = self.font)
         checkAssignmentButton = tk.Button(self.interactivePane, text = "Check my work!",
-                                          command = lambda: self.checkKFTable(tableCanvas, measurements))
-        checkAssignmentButton.place(relx = .5, rely = .84, anchor = tk.CENTER)
+                                          command = lambda:
+                                          self.checkMatrix(tableCanvas, self.F, rows = 2, columns = 2,
+                                                           nextPage = self.formKalmanHMatrix))
+        checkAssignmentButton.place(relx = .5, rely = .7, anchor = tk.CENTER)
 
-    def kalmanGainToy(self):
+    def formKalmanHMatrix(self):
+        self.gui.clearScreen()
+        self.makePanes()
+        assignmentExplanation =       "Now we'll try the H matrix. In this case, we will\n" \
+                                      "be measuring the position using a GPS. When you \n" \
+                                      "think you've got it right, go ahead and hit the 'Check my \n" \
+                                      "work! button, and if your matrix looks good, you can move on,\n" \
+                                      "otherwise, you'll have to try again! Take a look at the image\n" \
+                                      "on the right if you need a refresher!\n "
+
+        self.interactivePane.create_text(260, 150, text = assignmentExplanation, font = self.font)
+        # make the table
+        tableCanvas = tk.Canvas(self.interactivePane, bg="white", width=400, height=200)
+        tableCanvas.place(relx=.5, rely=.5, anchor=tk.CENTER)
+        numRows = 1
+        numCols = 2
+        for i in range(numRows):  # Rows
+            for j in range(numCols):  # Columns
+                # populate measurements
+                b = tk.Entry(tableCanvas, text="", width=10)
+                b.grid(row=i, column=j)
+        pass
+        self.interactivePane.create_text(175, 250, text = "H = ", font = self.font)
+        checkAssignmentButton = tk.Button(self.interactivePane, text = "Check my work!",
+                                          command = lambda:
+                                          self.checkMatrix(tableCanvas, self.H, rows = 1,
+                                                           columns = 2, nextPage=self.formKalmanXMatrix))
+        checkAssignmentButton.place(relx = .5, rely = .55, anchor = tk.CENTER)
+
+    def formKalmanXMatrix(self):
+        self.gui.clearScreen()
+        self.makePanes()
+        assignmentExplanation =       "Good Job! Now let's do the state vector. In this case, we \n" \
+                                      "can assume we start at X = 0, v = 0. When you think you've \n " \
+                                      "got it right, go ahead and hit the 'Check my work! button, \n" \
+                                      "and if your matrix looks good you can move on, otherwise, \n" \
+                                      "you'll have to try again! Take a look at the image on the right \n" \
+                                      "if you need a refresher!\n "
+
+        self.interactivePane.create_text(260, 150, text = assignmentExplanation, font = self.font)
+        # make the table
+        tableCanvas = tk.Canvas(self.interactivePane, bg="white", width=400, height=200)
+        tableCanvas.place(relx=.5, rely=.5, anchor=tk.CENTER)
+        numRows = 2
+        numCols = 1
+        for i in range(numRows):  # Rows
+            for j in range(numCols):  # Columns
+                # populate measurements
+                b = tk.Entry(tableCanvas, text="", width=10)
+                b.grid(row=i, column=j)
+        pass
+        self.interactivePane.create_text(200, 250, text = "x = ", font = self.font)
+        checkAssignmentButton = tk.Button(self.interactivePane, text = "Check my work!",
+                                          command = lambda:
+                                          self.checkMatrix(tableCanvas, self.x, rows = 2,
+                                                           columns = 1, nextPage=self.runKalmanFilter))
+        checkAssignmentButton.place(relx = .5, rely = .58, anchor = tk.CENTER)
+
+    def runKalmanFilter(self):
         self.gui.clearScreen()
         self.makePanes()
         self.placeBackToMenuButton(self.visualizingPane)
         dataPoints = 100
         self.xData = [i for i in range(dataPoints)]
         noise = [random.randint(-100,100)/1500 for i in range(dataPoints)]
-        self.xKalmanToyData = [a + b for a, b in zip(self.xData, noise)]
-        print(self.xKalmanToyData)
-        aboutKalmanGain = "    We've now see that a prediction algorithm such \n" \
-                           "as a basic kalman filter, produces much better results \n" \
-                           "than the moving average filter. However, before we can\n" \
-                           "implement a real one dimensional kalman filter, we need \n" \
-                           "to understand the kalman gain. Although these lessons on \n" \
-                           "the kalman filter won't derive all of the related equations,\n" \
-                           "you should have an intuition on what all of the components do.\n" \
-                           "   In a kalman filter, the kalman gain, K, will determine how \n" \
-                           "much the estimate will change given a new measurement. The \n" \
-                           "larger this value, the more your estimate will change with \n" \
-                           "new measurements. Go ahead an change the kalman gain, and see \n" \
-                           "how the system responds! "
+        self.xMeasurements = [a + b for a, b in zip(self.xData, noise)]
+        aboutKalmanGain = "We're ready to put it all together. So, what have\n" \
+                          "we learned? Well, we've learned about the moving\n" \
+                          "average, which constantly calculates an average\n" \
+                          "of the last n points, and uses that as a measurement.\n" \
+                          "We've learned that unlike the moving average, the \n" \
+                          "Kalman Filter (KF), estimates the future state of \n" \
+                          "the system, and computes a Kalman Gain, K, to weigh\n" \
+                          "old and new measurements. Furthermore, we've learned\n" \
+                          "about the daunting matrices in a kalman filter, and \n" \
+                          "formed them. Now, it's time to see the kalman filter\n" \
+                          "in action! Go ahead and push the plot button when you're\n" \
+                          "ready. Good job on completing this module!"
 
         # Add the car
+        ## Configure the Plot(s)
         f = Figure(figsize=(5, 5), dpi=100)
+        f.subplots_adjust(wspace=.5)
         self.carAxisKF = f.add_subplot(211)
         self.carAxisKF.set_ylim([0, 5])
-        self.carAxisKF.set_xlim([0, 50])
-        self.xPosErrorKF = f.add_subplot(212)
+        self.carAxisKF.set_xlim([0, len(self.xData) + 2])
+        self.carAxisKF.set_title("Car Position (Y vs X)")
+        self.xPosErrorKF = f.add_subplot(223)
         self.xPosErrorKF.set_ylim([-5, 5])
-        self.xPosErrorKF.set_xlim([0, 50])
-        # self.vError = f.add_subplot(224)
-        # self.vError.set_ylim([0, 5])
-        # self.vError.set_xlim([0, 50])
+        self.xPosErrorKF.set_xlabel("Time")
+        self.xPosErrorKF.set_ylabel("X Error")
+        self.vErrorKF = f.add_subplot(224)
+        self.vErrorKF.set_ylim([-5, 5])
+        self.vErrorKF.set_xlabel("Time")
+        self.vErrorKF.set_ylabel("V Error")
+
+
         figureCanvas = FigureCanvasTkAgg(f, master=self.visualizingPane)
         figureCanvas.get_tk_widget().grid(row=0, column=0)
 
         self.interactivePane.create_text(260, 140, text=aboutKalmanGain, font=self.font)
         self.drawCar(0,1.5,self.carAxisKF)
-        K = tk.Scale(self.interactivePane, from_=1, to=0, resolution = .001)
-        K.set(.5)
-        K.place(relx = .5, rely = .7, anchor = tk.CENTER)
-        changeKalmanGain = tk.Button(self.interactivePane, text = "Try this Kalman Gain!",
-                                     command=lambda :self.startCarKalmanGainToyAni(K.get()))
-        changeKalmanGain.place(relx = .5, rely = .84, anchor = tk.CENTER)
+        run = tk.Button(self.interactivePane, text = "Run Kalman Filter!",command = lambda:self.startKalmanFilterAni(self.xMeasurements))
+        run.place(relx = .5, rely = .64, anchor = tk.CENTER)
+        self.mainModule.completed = True
+        self.placeNextButton(.7, .75, pane=self.interactivePane,
+                             text="You did it!", font=self.font, command=self.gui.HomePage)
+        self.placeBackButton(.05, .75, pane=self.interactivePane,
+                             text="Take me back!", font=self.font, command=self.formKalmanXMatrix)
         pass
 
-########################## MISC
-    def moveCarMovingAverage(self, event):
-        history = 4
-        self.axis.clear()
-        self.axis.set_ylim([0, 10])
-        self.axis.set_xlim([0, len(self.xData) + 2])
+################### MISC
+        # Pass the list containing the correct answer objects (multiple choice)
+    def checkTest(self, correctAnswers):
+            for answer in correctAnswers:
+                if (answer[0].get() == answer[1]):
+                    pass
+                else:
+                    print("Quiz Failed.")
+                    self.quizFailed(self.kalmanMatricesQuiz)
+                    return
+            print("Quiz Passed.")
+            self.quizPassed(self.mainModule.kalmanFilter.formKalmanFMatrix)
 
-        # move the car
-        self.drawCar(self.xData[self.plotIterator], 1.5, self.axis)
 
-        # plot the moving average here, y stays the same
-        if (self.plotIterator >= int(history)):
-            self.xMovingAvgData.append(mean(self.xData[self.plotIterator - int(history):self.plotIterator]))
-            self.yMovingAvgData.append(self.yData[self.plotIterator - 1])
-            # plots moving average data
-            self.axis.plot(self.xMovingAvgData, self.yMovingAvgData,
-                           marker='o', markersize=10.0, linestyle='None', color='b')
+    def quizPassed(self, nextPage):
+        self.gui.clearScreen()
+        canvas = tk.Canvas(self.gui.win, width=1000, height=500, bg='grey')
+        canvas.grid(row=0, column=0)
+        canvas.create_image(500, 250, image=self.quizPassedImage, anchor=tk.CENTER)
+        canvas.create_text(500, 50, text="Quiz Passed!", font=self.quizResultFont)
+        self.placeBackToMenuButton(canvas)
+        self.placeNextButton(.7, .7, pane=canvas, command=nextPage, text="Next Topic!",
+                             font=self.font)
 
-        self.plotIterator = self.plotIterator + 1
-
-        if (self.plotIterator > len(self.xData) - 1):
-            self.ani.event_source.stop()
-        self.placeBackToMenuButton(self.visualizingPane)
-
-    def moveCarKalmanToy(self, event):
-        self.axis.clear()
-        self.axis.set_ylim([0, 10])
-        self.axis.set_xlim([0, len(self.xData) + 2])
-
-        # move the car
-        self.drawCar(self.xData[self.plotIterator], 1.5, self.axis)
-
-        # plot the moving average here, y stays the same
-        if (self.plotIterator >= 2):
-            # plots moving average data
-            self.axis.plot(self.xKalmanToyData[0:self.plotIterator - 1], self.yData[0:self.plotIterator - 1],
-                           marker='o', markersize=10.0, linestyle='None', color='b')
-
-        self.plotIterator = self.plotIterator + 1
-
-        if (self.plotIterator > len(self.xData) - 1):
-            self.ani.event_source.stop()
-        self.placeBackToMenuButton(self.visualizingPane)
+    def quizFailed(self, previousPage):
+        self.gui.clearScreen()
+        canvas = tk.Canvas(self.gui.win, width=1000, height=500, bg='grey')
+        canvas.grid(row=0, column=0)
+        canvas.create_image(500, 250, image=self.quizFailedImage, anchor=tk.CENTER)
+        canvas.create_text(500, 50, text="Quiz Failed!", font=self.quizResultFont)
+        self.placeBackToMenuButton(canvas)
+        self.placeBackButton(.1, .7, pane=canvas, command=previousPage, text="To Quiz",
+                             font=self.font)
+    def checkMatrix(self, table, trueMatrix, rows, columns, nextPage):
+        for i in range(rows):
+            for j in range(columns):
+                value = table.grid_slaves(row=i, column=j)[0].get()
+                if(value == ''):
+                    value = 0
+                elif(value == 'dt' or value == 't'):
+                    value = self.dt_sec
+                if(float(value) != trueMatrix[i,j]):
+                    print(table.grid_slaves(row=i, column=j)[0].get(), trueMatrix[i,j])
+                    return False
+        print("YES")
+        self.placeNextButton(.7, .75, pane=self.interactivePane,
+                             text="You got it!", font=self.font, command=nextPage)
+        return True
 
     def drawCar(self, x,y, axis):
         carHeight = 1
@@ -274,129 +460,77 @@ class KalmanFilter(Module):
         axis.add_patch(carFrontLeftWheel)
         axis.add_patch(carFrontRightWheel)
 
-        pass
+    def predict(self):
+        # Predict next x
+        self.x = self.F * self.x
 
-    def startCarMovAvgAni(self):
+        # Update uncertainty matrix
+        self.P = self.F * self.P * np.transpose(self.F) + self.Q
+
+    def measureAndUpdate(self, measurements):
+        # Equations for kalman filter
+        Z = np.matrix(measurements)
+        y = np.transpose(Z) - self.H * self.x
+        S = self.H * self.P * np.transpose(self.H) + self.R
+        K = self.P * np.transpose(self.H) * np.linalg.inv(S)
+        self.x = self.x + K * y
+        self.P = (self.I - K * self.H) * self.P
+
+    def startKalmanFilterAni(self, measurements):
         self.plotIterator = 0
-        # create Matplotlib figure
+        ## Configure the Plot(s)
         f = Figure(figsize=(5, 5), dpi=100)
-        self.axis = f.add_subplot(111)
-        del self.yMovingAvgData[:]
-        del self.xMovingAvgData[:]
-        self.axis.set_xlim([0, len(self.xData) + 1])
-        figureCanvas = FigureCanvasTkAgg(f, master=self.visualizingPane)
-        figureCanvas.get_tk_widget().grid(row=0, column=0)
-        self.ani = animation.FuncAnimation(f, self.moveCarMovingAverage, interval=500)
-        poorFilteringExplanation = \
-            "The blue dots represent the average position of the car, using \n" \
-            "a moving average filter. What do we notice about the data? The \n" \
-            "moving average filter gives us a position estimate far from where \n" \
-            "the car really is. If only there was another way.... Enter, \n" \
-            "the Kalman Filter (KF)! \n"
-
-        self.interactivePane.create_text(260, 290, text = poorFilteringExplanation, font = self.font)
-
-    def startCarKalmanToyAni(self):
-        self.plotIterator = 0
-        # create Matplotlib figure
-        f = Figure(figsize=(5, 5), dpi=100)
-        self.axis = f.add_subplot(111)
-        self.axis.set_xlim([0, len(self.xData) + 1])
-        figureCanvas = FigureCanvasTkAgg(f, master=self.visualizingPane)
-        figureCanvas.get_tk_widget().grid(row=0, column=0)
-        self.ani = animation.FuncAnimation(f, self.moveCarKalmanToy, interval=500)
-
-    def checkKFTable(self, table, measurements):
-        # make a list with the calculated X values, which are just the predictions
-        # If they line up with what the user put, fine --> plot it and ship it.
-        # if they don't, then plot it and show how the estimate is not quite right
-        vTrue = []
-        xEstTrue = []
-
-        vUser = []
-        xEstUser = []
-
-        for i in range(len(measurements)):
-            if(i > 0):
-                # won't run if entry is empty
-                vTrue.append((measurements[i] - measurements[i-1])/(.5))
-                xEstTrue.append(measurements[i] + vTrue[i-1]*.5)
-                vUserFromTable = table.grid_slaves(row=i, column=1)[0]
-                xEstUserFromTable = table.grid_slaves(row=i, column=2)[0]
-                if(vUserFromTable.get() == ''):
-                    vUser.append(0)
-                else:
-                    vUser.append(float(vUserFromTable.get()))
-                if(xEstUserFromTable.get() == ''):
-                    xEstUser.append(0)
-                else:
-                    xEstUser.append(float(xEstUserFromTable.get()))
-
-
-        self.xKalmanToyData = xEstUser
-        self.startCarKalmanToyAni()
-        tolerance = .01
-        isCorrect = (self.isCloseEnough(xEstTrue, xEstUser, tolerance) & self.isCloseEnough(vTrue, vUser, tolerance))
-        # If their math was correct, then they get to move on
-        if(isCorrect):
-            self.placeNextButton(.7, .75, pane=self.interactivePane,
-                                 text="You got it!", font=self.font, command = self.kalmanGainToy)
-        print(vTrue, xEstTrue)
-        print(vUser, xEstUser)
-        # print(t, t.get())
-
-
-    def isCloseEnough(self, listA, listB, tolerance):
-        for i in range(len(listA)):
-            if(abs(listA[i] - listB[i]) > tolerance):
-                print(listA[i] - listB[i])
-                return False
-        return True
-
-    def startCarKalmanGainToyAni(self, k):
-        f = Figure(figsize=(5, 5), dpi=100)
+        f.subplots_adjust(wspace=.5)
         self.carAxisKF = f.add_subplot(211)
         self.carAxisKF.set_ylim([0, 5])
-        self.carAxisKF.set_xlim([0, 100])
-        self.xPosErrorKF = f.add_subplot(212)
-        self.xPosErrorKF.set_ylim([-2, 2])
-        self.xPosErrorKF.set_xlim([0, 50])
-        # self.vError = f.add_subplot(224)
-        # self.vError.set_ylim([0, 5])
-        # self.vError.set_xlim([0, 50])
+        self.carAxisKF.set_xlim([0, len(self.xData) + 2])
+        self.carAxisKF.set_title("Car Position (Y vs X)")
+        self.xPosErrorKF = f.add_subplot(223)
+        self.xPosErrorKF.set_ylim([-5, 5])
+        self.xPosErrorKF.set_xlabel("Time")
+        self.xPosErrorKF.set_ylabel("X Error")
+        self.vErrorKF = f.add_subplot(224)
+        self.vErrorKF.set_ylim([-5, 5])
+        self.vErrorKF.set_xlabel("Time")
+        self.vErrorKF.set_ylabel("V Error")
         figureCanvas = FigureCanvasTkAgg(f, master=self.visualizingPane)
         figureCanvas.get_tk_widget().grid(row=0, column=0)
-        self.errorData = self.makeKalmanFilterToyLists(self.xKalmanToyData, k)
-        self.ani = animation.FuncAnimation(f, self.moveCarKalmanGainToy, interval=100)
+        del self.kalmanXError[:]
+        del self.kalmanVError[:]
+        for i in range(len(measurements)):
+            self.predict()
+            self.measureAndUpdate(measurements[i])
+            self.kalmanXError.append(self.x[0,0] - self.xData[i])
+            self.kalmanVError.append(self.x[1, 0] - 1/self.dt_sec)
+        self.ani = animation.FuncAnimation(f, self.moveCarKalmanFilter, interval=self.dt_sec*1000)
 
-    def moveCarKalmanGainToy(self, event):
+    def moveCarKalmanFilter(self, event):
         self.carAxisKF.clear()
-        self.xPosErrorKF.clear()
         self.carAxisKF.set_ylim([0, 5])
-        self.carAxisKF.set_xlim([0, 50])
-        self.xPosErrorKF.set_ylim([-2, 2])
+        self.carAxisKF.set_xlim([0, len(self.xData) + 2])
+        self.carAxisKF.set_title("Car Position (Y vs X)")
+        self.xPosErrorKF.clear()
+        self.xPosErrorKF.set_ylim([-5, 5])
+        self.xPosErrorKF.set_xlabel("Time")
+        self.xPosErrorKF.set_ylabel("X Error")
+        self.vErrorKF.clear()
+        self.vErrorKF.set_ylim([-5, 5])
+        self.vErrorKF.set_xlabel("Time")
+        self.vErrorKF.set_ylabel("V Error")
         # move the car
         self.drawCar(self.xData[self.plotIterator], 1.5, self.carAxisKF)
         # plot the moving average here, y stays the same
         if (self.plotIterator >= 2):
             # plots moving average data
-            self.xPosErrorKF.plot(self.xData[0:self.plotIterator - 1], self.errorData[0:self.plotIterator - 1],
-                           marker='o', markersize=1.0, color='b')
-
+            self.xPosErrorKF.plot(self.xData[0:self.plotIterator - 1],
+                                  self.kalmanXError[0:self.plotIterator - 1],
+                                  marker='o', markersize=1.0, color='b')
+            self.vErrorKF.plot(self.xData[0:self.plotIterator - 1],
+                               self.kalmanVError[0:self.plotIterator - 1],
+                               marker='o', markersize=1.0, color='b')
 
         self.plotIterator = self.plotIterator + 1
 
         if (self.plotIterator > len(self.xData) - 1):
             self.ani.event_source.stop()
-        self.placeBackToMenuButton(self.visualizingPane)
-
-    def makeKalmanFilterToyLists(self, measurements, K):
-        xError = []
-        for i in range(len(measurements)):
-            if(i > 0):
-                v = (measurements[i] - measurements[i-1])/(.1)
-                self.velKalmanToy += K*(v - self.velKalmanToy)
-                xEst = (measurements[i] + self.velKalmanToy*.1)
-                xError.append(xEst - (i+1))
-        #print(xError)
-        return xError
+            self.placeBackToMenuButton(self.visualizingPane)
