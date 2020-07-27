@@ -241,7 +241,7 @@ class KalmanFilterToy(Module):
         self.makePanes()
         self.placeBackToMenuButton(self.visualizingPane)
         aboutMatrixForm = "Before we can move onto implementing a real one dimensional\n" \
-                          "kalman, we need to understand how to express information \n" \
+                          "KF, we need to understand how to express information \n" \
                           "compactly in matrix form. For example, let's look at our state \n" \
                           "transition equations, how can we put those into matrix form? \n" \
                           "Our state transition equation was: \n" \
@@ -318,7 +318,7 @@ class KalmanFilterToy(Module):
 
 ########################## MISC
     def moveCarMovingAverage(self, event):
-        history = 4
+        history = 2
         self.axis.clear()
         self.axis.set_ylim([0, 10])
         self.axis.set_xlim([0, len(self.xData) + 2])

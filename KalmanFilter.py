@@ -62,7 +62,7 @@ class KalmanFilter(Module):
         theKalmanEquations = \
                           "We can finally start talking about designing a real KF! " \
                           "We know that the kalman filter is a prediction-based filter. \n" \
-                          "When a new measurement is made, the KF updates and corrects" \
+                          "When a new measurement is made, the KF updates and corrects " \
                           "its prediction. The following are all of the equations in both \n" \
                           "the prediction and update steps. Don't get discouraged! We'll go" \
                           " through each one!\n" \
@@ -129,7 +129,7 @@ class KalmanFilter(Module):
                           "                          [0 100]\n" \
                           "in our case.\n" \
                           "So now we know about the P matrix, and all that is left in the \n" \
-                          "prediction step is the Q matrix. This matrix is our 'Process Noise\n" \
+                          "prediction step is the Q matrix. Q is our 'Process Noise\n" \
                           "Covariance' matrix. As the KF runs, P becomes more certain. Q\n" \
                           "allows us to add a little bit of uncertainty back into P. Q is\n" \
                           "also n x n, with values on the diagonal. Q might look like: \n " \
