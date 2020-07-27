@@ -40,4 +40,4 @@ class FilterModule(Module):
         self.gui.clearScreen()
         self.makePanes()
         #self.introPage()
-        self.kalmanFilterToy.kalmanGainToy()
+        self.kalmanFilter.kalmanMeasureAndUpdate()
