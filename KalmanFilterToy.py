@@ -38,6 +38,8 @@ class KalmanFilterToy(Module):
         self.vErrorData = None
         self.dtKalmanGainToy_sec = .1
         self.matrixMultImage = tk.PhotoImage(file="matrixMultImage.png")
+        self.radioVarMovingAvgQ1 = tk.StringVar()
+        self.radioVarMovingAvgQ2 = tk.StringVar()
 
     def introToKalmanFilter(self):
         self.gui.clearScreen()
@@ -257,11 +259,63 @@ class KalmanFilterToy(Module):
                           "on the right will help show this a bit better."
         self.interactivePane.create_text(260, 190, text=aboutMatrixForm, font=self.font)
         self.placeNextButton(.7, .75, pane=self.interactivePane,
-                             text="I get it!", font=self.font, command=self.mainModule.kalmanFilter.introPage)
+                             text="Quiz!", font=self.font,command = self.kalmanToyQuiz)
         self.visualizingPane.create_image(200, 250, image=self.matrixMultImage, anchor=tk.CENTER)
         self.placeBackButton(.05, .75, pane=self.interactivePane,
                              text="Take me back!", font=self.font, command=self.kalmanGainToy)
+
+    def kalmanToyQuiz(self):
+        quizPrompt = "Let's put the knowlege you learned to the test!\n" \
+                     "Here are two questions to make sure you're understanding\n" \
+                     "the material so far.\n\n"
+        question1 = "1) At a high level, how does a Kalman Filter work?\n"
+        question2 = "2) What is the Kalman Gain responsible for?\n"
+        self.gui.clearScreen()
+        self.makePanes()
+        self.radioVarMovingAvgQ1.set(-1) # I think this makes it so that none are selected. Nice.
+        self.radioVarMovingAvgQ2.set(-1) # I think this makes it so that none are selected. Nice.
+        self.interactivePane.create_text(240, 60, text = quizPrompt, font = self.font)
+
+        # QUESTION 1
+        self.interactivePane.create_text(200, 90, text=question1, font=self.font)
+        self.visualizingPane.create_image(250, 250, image=self.quizQuestionMark, anchor=tk.CENTER)
+        A1 = tk.Radiobutton(self.interactivePane, text="A) It uses an average to predict sensor measurements",
+                            padx=20, value = "A1", bg = "grey", variable = self.radioVarMovingAvgQ1)
+        A1.place(relx = .01, rely = .2)
+        B1 = tk.Radiobutton(self.interactivePane, text="B) It predicts the next state of a system given the current "
+                                                       "state and measuments.",
+                            padx=20, value = "B1", bg="grey",variable = self.radioVarMovingAvgQ1)
+        B1.place(relx=.01, rely=.25)
+        C1 = tk.Radiobutton(self.interactivePane, text="C) It randomly guesses at a sensor value and updates its"
+                                                       " average measurement.",
+                            padx=20, value = "C1", bg="grey", variable = self.radioVarMovingAvgQ1)
+        C1.place(relx=.01, rely=.3)
+        D1 = tk.Radiobutton(self.interactivePane, text="D) None of the above",
+                            padx=20, value = "D1", bg="grey", variable = self.radioVarMovingAvgQ1)
+        D1.place(relx=.01, rely=.35)
+
+        # QUESTION 2
+        self.interactivePane.create_text(175, 235, text=question2, font=self.font)
+        A2 = tk.Radiobutton(self.interactivePane, text="A) Determining error in the system",
+                            padx=20, value="A2", bg="grey", variable=self.radioVarMovingAvgQ2)
+        A2.place(relx=.01, rely=.475)
+        B2 = tk.Radiobutton(self.interactivePane, text="B) Placing more or less weight in new measurements",
+                            padx=20, value="B2", bg="grey", variable=self.radioVarMovingAvgQ2)
+        B2.place(relx=.01, rely=.525)
+        C2 = tk.Radiobutton(self.interactivePane, text="C) Turning on and off the Kalman Filter",
+                            padx=20, value="C2", bg="grey", variable=self.radioVarMovingAvgQ2)
+        C2.place(relx=.01, rely=.575)
+        D2 = tk.Radiobutton(self.interactivePane, text="D) None of the above",
+                            padx=20, value="D2", bg="grey", variable=self.radioVarMovingAvgQ2)
+        D2.place(relx=.01, rely=.625)
+        correctAnswers = [[self.radioVarMovingAvgQ1, "B1"],[self.radioVarMovingAvgQ2, "B2"]]
+        self.placeBackToMenuButton(self.visualizingPane)
+        self.placeNextButton(.675, .75, pane=self.interactivePane,
+                             text="Submit Quiz", font=self.font, command=lambda: self.checkTest(correctAnswers))
+        self.placeBackButton(.075, .75, pane=self.interactivePane, command=self.matrixFormExplanation,
+                             text="", font=self.font)
         pass
+
 ########################## MISC
     def moveCarMovingAverage(self, event):
         history = 4
@@ -475,3 +529,36 @@ class KalmanFilterToy(Module):
                 print(listA[i] - listB[i])
                 return False
         return True
+
+        # Pass the list containing the correct answer objects (multiple choice)
+    def checkTest(self, correctAnswers):
+            for answer in correctAnswers:
+                if (answer[0].get() == answer[1]):
+                    pass
+                else:
+                    print("Quiz Failed.")
+                    self.quizFailed(self.kalmanToyQuiz)
+                    return
+            print("Quiz Passed.")
+            self.quizPassed(self.mainModule.kalmanFilter.introPage)
+
+
+    def quizPassed(self, nextPage):
+        self.gui.clearScreen()
+        canvas = tk.Canvas(self.gui.win, width=1000, height=500, bg='grey')
+        canvas.grid(row=0, column=0)
+        canvas.create_image(500, 250, image=self.quizPassedImage, anchor=tk.CENTER)
+        canvas.create_text(500, 50, text="Quiz Passed!", font=self.quizResultFont)
+        self.placeBackToMenuButton(canvas)
+        self.placeNextButton(.7, .7, pane=canvas, command=nextPage, text="Next Topic!",
+                             font=self.font)
+
+    def quizFailed(self, previousPage):
+        self.gui.clearScreen()
+        canvas = tk.Canvas(self.gui.win, width=1000, height=500, bg='grey')
+        canvas.grid(row=0, column=0)
+        canvas.create_image(500, 250, image=self.quizFailedImage, anchor=tk.CENTER)
+        canvas.create_text(500, 50, text="Quiz Failed!", font=self.quizResultFont)
+        self.placeBackToMenuButton(canvas)
+        self.placeBackButton(.1, .7, pane=canvas, command=previousPage, text="To Quiz",
+                             font=self.font)
