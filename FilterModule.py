@@ -39,5 +39,4 @@ class FilterModule(Module):
     def runModule(self):
         self.gui.clearScreen()
         self.makePanes()
-        #self.introPage()
-        self.kalmanFilter.kalmanMeasureAndUpdate()
+        self.introPage()
