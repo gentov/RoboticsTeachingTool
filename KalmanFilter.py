@@ -19,6 +19,9 @@ class KalmanFilter(Module):
         self.quizQuestionMark = tk.PhotoImage(file="quizQuestionMark.png")
         self.quizPassedImage = tk.PhotoImage(file="passedQuiz.png")
         self.quizFailedImage = tk.PhotoImage(file="failedQuiz.png")
+        self.fMatrixHelp = tk.PhotoImage(file = "fMatrixHelp.png")
+        self.hMatrixHelp = tk.PhotoImage(file="hMatrixHelp.png")
+        self.xMatrixHelp = tk.PhotoImage(file="xMatrixHelp.png")
         self.radioVarMovingAvgQ1 = tk.StringVar()
         self.radioVarMovingAvgQ2 = tk.StringVar()
         self.kalmanXError = []
@@ -262,6 +265,7 @@ class KalmanFilter(Module):
                                       "                             [v]\n" \
                                       "and our state transition equation is: X_n+1 = X_n + v*dt "
         self.interactivePane.create_text(260, 150, text = assignmentExplanation, font = self.font)
+        self.visualizingPane.create_image(250, 250, image=self.fMatrixHelp, anchor=tk.CENTER)
         # make the table
         tableCanvas = tk.Canvas(self.interactivePane, bg="white", width=400, height=200)
         tableCanvas.place(relx=.5, rely=.6, anchor=tk.CENTER)
@@ -291,6 +295,7 @@ class KalmanFilter(Module):
                                       "on the right if you need a refresher!\n "
 
         self.interactivePane.create_text(260, 150, text = assignmentExplanation, font = self.font)
+        self.visualizingPane.create_image(250, 250, image=self.hMatrixHelp, anchor=tk.CENTER)
         # make the table
         tableCanvas = tk.Canvas(self.interactivePane, bg="white", width=400, height=200)
         tableCanvas.place(relx=.5, rely=.5, anchor=tk.CENTER)
@@ -320,6 +325,7 @@ class KalmanFilter(Module):
                                       "if you need a refresher!\n "
 
         self.interactivePane.create_text(260, 150, text = assignmentExplanation, font = self.font)
+        self.visualizingPane.create_image(250, 250, image=self.xMatrixHelp, anchor=tk.CENTER)
         # make the table
         tableCanvas = tk.Canvas(self.interactivePane, bg="white", width=400, height=200)
         tableCanvas.place(relx=.5, rely=.5, anchor=tk.CENTER)

@@ -11,7 +11,7 @@ class CVModule(Module):
         self.cv_overview = tk.PhotoImage(file = "cv_home_example.png")
         self.cv_connections = tk.PhotoImage(file = "Computer-vision-apply-for-medical-image-processing.png")
         self.edge_detect = tk.PhotoImage(file = "edge_pepper_cropped5.png")
-        self.img_for_ed_interactive = tk.PhotoImage(file = "single_rose_medium_square.png")
+        self.img_for_ed_interactive = tk.PhotoImage(file = "single_rose_medium_sqare.png")
         # tk.Frame.__init__(self)
         # self.tk.Frame.master.bind('<Configure>', self.resize_image)
 
