@@ -1,5 +1,6 @@
 import tkinter as tk
 import time
+import dill as pickle
 
 class Module():
     def __init__(self, gui = None, title = None, description = None):
@@ -64,6 +65,7 @@ class Module():
         nextButton.config(image=self.nextButtonImage, compound='center', text=text, font=font)
         nextButton.place(relx=x, rely=y)
 
+
     def placeBackToMenuButton(self, pane):
         mainMenuButton = tk.Button(pane, bg=pane["background"], relief=tk.FLAT, command=self.gui.HomePage)
         self.mainMenuButtonImage = tk.PhotoImage(file="mainMenu.png")
@@ -84,8 +86,12 @@ class Module():
         backButton.config(image=self.backButtonImage, compound='center', text=text, font=font)
         backButton.place(relx=x, rely=y)
 
-    def placeSaveButton(self, pane):
-        saveButton = tk.Button(pane, bg=pane["background"], relief=tk.FLAT)# command=self.gui.HomePage)
+    def placeSaveButton(self, pane,progressFile, page):
+        saveButton = tk.Button(pane, bg=pane["background"], relief=tk.FLAT, command=lambda:
+                                            self.saveModuleProgress(progressFile,page))
         self.saveButtonImage = tk.PhotoImage(file="saveButtonImage.png")
         saveButton.config(image=self.saveButtonImage, compound='center')
-        saveButton.place(relx=.05, rely=.85) # I figured the top left corner was ok, but maybe we want params
+        saveButton.place(relx=.87, rely=.85) # I figured the top left corner was ok, but maybe we want params
+
+    def saveModuleProgress(self, progressFile, page):
+        pickle.dump(page, open(progressFile, "wb"))

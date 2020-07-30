@@ -5,6 +5,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 import matplotlib.animation as animation
 from statistics import mean
 
+
 class MovingAverageFilter(Module):
     def __init__(self, gui = None, title = None, mainModule = None):
         super(MovingAverageFilter, self).__init__(gui = gui, title = title)
@@ -34,6 +35,7 @@ class MovingAverageFilter(Module):
         + The moving avg is fine for short history or very noisy data
         - However on moving object, we can't use it to localize a robot
         """
+        self.mainModule.lastPage = self.mainModule.FilterModulePages.MOVING_AVERAGE
         i = 0
         aboutMovingAvg = \
                     "One of the most basic forms of filtering data is with a\n" \
@@ -50,6 +52,7 @@ class MovingAverageFilter(Module):
                     "history and run the filter."
         self.gui.clearScreen()
         self.makePanes()
+        self.placeSaveButton(self.visualizingPane,self.mainModule.progressFile, self.mainModule.lastPage)
         #self.animateText(260, 150,text = aboutMovingAvg, canvasOfText=self.interactivePane, font = self.font)
         self.interactivePane.create_text(260, 150, text = aboutMovingAvg, font = self.font)
         # create Matplotlib figure
@@ -77,6 +80,7 @@ class MovingAverageFilter(Module):
         self.placeBackToMenuButton(self.visualizingPane)
 
     def movingAvgQuiz(self):
+        self.mainModule.lastPage = self.mainModule.FilterModulePages.MOVING_AVERAGE_QUIZ
         quizPrompt = "Let's put the knowlege you learned to the test!\n" \
                      "Here are two questions to make sure you're understanding\n" \
                      "The material so far.\n"
@@ -85,6 +89,7 @@ class MovingAverageFilter(Module):
                     "moving average values are we going to have, and what are they?\n"
         self.gui.clearScreen()
         self.makePanes()
+        self.placeSaveButton(self.visualizingPane,self.mainModule.progressFile, self.mainModule.lastPage)
         self.radioVarMovingAvgQ1.set(-1) # I think this makes it so that none are selected. Nice.
         self.radioVarMovingAvgQ2.set(-1) # I think this makes it so that none are selected. Nice.
         self.interactivePane.create_text(260, 50, text = quizPrompt, font = self.font)

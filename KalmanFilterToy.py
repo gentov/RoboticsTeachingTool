@@ -42,8 +42,10 @@ class KalmanFilterToy(Module):
         self.radioVarMovingAvgQ2 = tk.StringVar()
 
     def introToKalmanFilter(self):
+        self.mainModule.lastPage = self.mainModule.FilterModulePages.INTRO_KF_TOY
         self.gui.clearScreen()
         self.makePanes()
+        self.placeSaveButton(self.visualizingPane,self.mainModule.progressFile, self.mainModule.lastPage)
         whyKalmanFilter = \
                     "So far it seems as though the moving average is the only \n" \
                     "thing we need to be experts at filtering. It's true, the moving \n"\
@@ -75,8 +77,10 @@ class KalmanFilterToy(Module):
         self.placeBackToMenuButton(self.visualizingPane)
 
     def kalmanFilterPrinciple(self):
+        self.mainModule.lastPage = self.mainModule.FilterModulePages.KF_PRINCIPLE
         self.gui.clearScreen()
         self.makePanes()
+        self.placeSaveButton(self.visualizingPane,self.mainModule.progressFile, self.mainModule.lastPage)
         howKalmanFilterWorks = \
                     "   The working principle of the Kalman Filter is quite different \n" \
                     "than that of the moving average filter. Imagine we are given GPS \n" \
@@ -116,6 +120,7 @@ class KalmanFilterToy(Module):
         Then, I will have them "tune" a kalman gain which determines how much weight
         is put into new and old predictions
         """
+        self.mainModule.lastPage = self.mainModule.FilterModulePages.KF_TOY_TABLE
         asssignmentIntro = "    Let's work through the most simple kalman filter \n" \
                            "example. This is not yet a true kalman filter, but it \n" \
                            "applies some principles of the kalman filter. \n" \
@@ -133,6 +138,7 @@ class KalmanFilterToy(Module):
                            "                X_n = X_i + v*t"
         self.gui.clearScreen()
         self.makePanes()
+        self.placeSaveButton(self.visualizingPane,self.mainModule.progressFile, self.mainModule.lastPage)
         self.placeBackToMenuButton(self.visualizingPane)
         self.interactivePane.create_text(250, 140, text = asssignmentIntro, font = self.font)
         self.interactivePane.create_text(100, 460, text=equationReminder, font=self.smallFont)
@@ -180,8 +186,10 @@ class KalmanFilterToy(Module):
 
 
     def kalmanGainToy(self):
+        self.mainModule.lastPage = self.mainModule.FilterModulePages.KF_TOY_GAIN
         self.gui.clearScreen()
         self.makePanes()
+        self.placeSaveButton(self.visualizingPane,self.mainModule.progressFile, self.mainModule.lastPage)
         self.placeBackToMenuButton(self.visualizingPane)
         dataPoints = 100
         self.xDataKalmanGainToy = [i for i in range(dataPoints)]
@@ -237,8 +245,10 @@ class KalmanFilterToy(Module):
         pass
 
     def matrixFormExplanation(self):
+        self.mainModule.lastPage = self.mainModule.FilterModulePages.MATRIX_FORM
         self.gui.clearScreen()
         self.makePanes()
+        self.placeSaveButton(self.visualizingPane,self.mainModule.progressFile, self.mainModule.lastPage)
         self.placeBackToMenuButton(self.visualizingPane)
         aboutMatrixForm = "Before we can move onto implementing a real one dimensional\n" \
                           "KF, we need to understand how to express information \n" \
@@ -265,6 +275,7 @@ class KalmanFilterToy(Module):
                              text="Take me back!", font=self.font, command=self.kalmanGainToy)
 
     def kalmanToyQuiz(self):
+        self.mainModule.lastPage = self.mainModule.FilterModulePages.KALMAN_TOY_QUIZ
         quizPrompt = "Let's put the knowlege you learned to the test!\n" \
                      "Here are two questions to make sure you're understanding\n" \
                      "the material so far.\n\n"
@@ -272,6 +283,8 @@ class KalmanFilterToy(Module):
         question2 = "2) What is the Kalman Gain responsible for?\n"
         self.gui.clearScreen()
         self.makePanes()
+        self.placeSaveButton(self.visualizingPane,self.mainModule.progressFile, self.mainModule.lastPage)
+        self.placeSaveButton(self.visualizingPane,self.mainModule.progressFile, self.mainModule.lastPage)
         self.radioVarMovingAvgQ1.set(-1) # I think this makes it so that none are selected. Nice.
         self.radioVarMovingAvgQ2.set(-1) # I think this makes it so that none are selected. Nice.
         self.interactivePane.create_text(240, 60, text = quizPrompt, font = self.font)

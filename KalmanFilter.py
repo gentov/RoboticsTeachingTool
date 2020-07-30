@@ -54,6 +54,7 @@ class KalmanFilter(Module):
                             [0., .1]])
 
     def introPage(self):
+        self.mainModule.lastPage = self.mainModule.FilterModulePages.INTRO_KF
         self.gui.clearScreen()
         canvas = tk.Canvas(self.gui.win, width = 1000, height = 500, bg = 'grey')
         canvas.grid(row = 0, column = 0)
@@ -89,9 +90,11 @@ class KalmanFilter(Module):
         canvas.create_text(450, 400, text=disclaimer, font=self.smallFont)
 
     def kalmanPrediction(self):
+        self.mainModule.lastPage = self.mainModule.FilterModulePages.KALMAN_PREDICTION
         self.gui.clearScreen()
         self.makePanes()
         self.visualizingPane.config(bg = "grey")
+        self.placeSaveButton(self.visualizingPane,self.mainModule.progressFile, self.mainModule.lastPage)
         self.placeBackToMenuButton(self.visualizingPane)
         self.placeNextButton(.7, .75, pane=self.visualizingPane,
                              text="KF Measure \n & Update", font=self.font, command=self.kalmanMeasureAndUpdate)
@@ -142,9 +145,11 @@ class KalmanFilter(Module):
         pass
 
     def kalmanMeasureAndUpdate(self):
+        self.mainModule.lastPage = self.mainModule.FilterModulePages.KALMAN_MEASURE_UPDATE
         self.gui.clearScreen()
         self.makePanes()
         self.visualizingPane.config(bg = "grey")
+        self.placeSaveButton(self.visualizingPane,self.mainModule.progressFile, self.mainModule.lastPage)
         self.placeBackToMenuButton(self.visualizingPane)
         theMeasureAndUpdateStep = \
             "Now, let's look at the measure and update step equations again:\n" \
@@ -197,6 +202,7 @@ class KalmanFilter(Module):
         pass
 
     def kalmanMatricesQuiz(self):
+        self.mainModule.lastPage = self.mainModule.FilterModulePages.KALMAN_MATRIX_QUIZ
         quizPrompt = "Let's put the knowlege you learned to the test!\n" \
                      "Here are two questions to make sure you're understanding\n" \
                      "the material so far.\n\n"
@@ -204,6 +210,7 @@ class KalmanFilter(Module):
         question2 = "2) And H? Suppose we need three measurements"
         self.gui.clearScreen()
         self.makePanes()
+        self.placeSaveButton(self.visualizingPane,self.mainModule.progressFile, self.mainModule.lastPage)
         self.radioVarMovingAvgQ1.set(-1) # I think this makes it so that none are selected. Nice.
         self.radioVarMovingAvgQ2.set(-1) # I think this makes it so that none are selected. Nice.
         self.interactivePane.create_text(240, 60, text = quizPrompt, font = self.font)
@@ -251,8 +258,10 @@ class KalmanFilter(Module):
                              text="", font=self.font)
 
     def formKalmanFMatrix(self):
+        self.mainModule.lastPage = self.mainModule.FilterModulePages.KALMAN_FORM_F
         self.gui.clearScreen()
         self.makePanes()
+        self.placeSaveButton(self.visualizingPane,self.mainModule.progressFile, self.mainModule.lastPage)
         assignmentExplanation =       "It's time to practice! In the pages that follow,\n" \
                                       "you will fill in each of the matrices in the Kalman Filter. The\n" \
                                       "noise matrices P, Q, and R, have been done for you. When \n" \
@@ -285,8 +294,10 @@ class KalmanFilter(Module):
         checkAssignmentButton.place(relx = .5, rely = .7, anchor = tk.CENTER)
 
     def formKalmanHMatrix(self):
+        self.mainModule.lastPage = self.mainModule.FilterModulePages.KALMAN_FORM_H
         self.gui.clearScreen()
         self.makePanes()
+        self.placeSaveButton(self.visualizingPane,self.mainModule.progressFile, self.mainModule.lastPage)
         assignmentExplanation =       "Now we'll try the H matrix. In this case, we will\n" \
                                       "be measuring the position using a GPS. When you \n" \
                                       "think you've got it right, go ahead and hit the 'Check my \n" \
@@ -317,8 +328,10 @@ class KalmanFilter(Module):
                              text="Form F Mat.", font=self.font)
 
     def formKalmanXMatrix(self):
+        self.mainModule.lastPage = self.mainModule.FilterModulePages.KALMAN_FORM_X
         self.gui.clearScreen()
         self.makePanes()
+        self.placeSaveButton(self.visualizingPane,self.mainModule.progressFile, self.mainModule.lastPage)
         assignmentExplanation =       "Good Job! Now let's do the state vector. In this case, we \n" \
                                       "can assume we start at X = 0, v = 0. When you think you've \n " \
                                       "got it right, go ahead and hit the 'Check my work! button, \n" \
@@ -349,8 +362,10 @@ class KalmanFilter(Module):
                              text="Form H Mat.", font=self.font)
 
     def runKalmanFilter(self):
+        self.mainModule.lastPage = self.mainModule.FilterModulePages.RUN_KALMAN
         self.gui.clearScreen()
         self.makePanes()
+        self.placeSaveButton(self.visualizingPane,self.mainModule.progressFile, self.mainModule.lastPage)
         self.placeBackToMenuButton(self.visualizingPane)
         dataPoints = 100
         self.xData = [i for i in range(dataPoints)]
