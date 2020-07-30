@@ -395,6 +395,13 @@ class KalmanFilterToy(Module):
             self.placeBackToMenuButton(self.visualizingPane)
 
     def startCarMovAvgAni(self):
+        # We could do this with a boolean but this is faster...
+        # basically if an animation is running just stop it. If it's not
+        # don't crash
+        try:
+            self.ani.event_source.stop()
+        except:
+            pass
         self.plotIterator = 0
         # create Matplotlib figure
         ## Configure the Plot(s)
@@ -417,6 +424,13 @@ class KalmanFilterToy(Module):
         self.interactivePane.create_text(260, 290, text = poorFilteringExplanation, font = self.font)
 
     def startCarKalmanToyAni(self):
+        # We could do this with a boolean but this is faster...
+        # basically if an animation is running just stop it. If it's not
+        # don't crash
+        try:
+            self.ani.event_source.stop()
+        except:
+            pass
         self.plotIterator = 0
         # create Matplotlib figure
         ## Configure the Plot(s)
@@ -429,6 +443,13 @@ class KalmanFilterToy(Module):
         self.ani = animation.FuncAnimation(f, self.moveCarKalmanToy, interval=500)
 
     def startCarKalmanGainToyAni(self, k):
+        # We could do this with a boolean but this is faster...
+        # basically if an animation is running just stop it. If it's not
+        # don't crash
+        try:
+            self.ani.event_source.stop()
+        except:
+            pass
         self.plotIterator = 0
         self.velKalmanToy = 0
         ## Configure the Plot(s)

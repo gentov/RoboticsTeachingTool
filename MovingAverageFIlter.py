@@ -68,6 +68,8 @@ class MovingAverageFilter(Module):
                                   text =  "Plot!")
         tryNewHistory.place(relx = .5, rely = .75, anchor = tk.CENTER)
         self.axis.plot(self.xData, self.yData, marker='o', markersize=10.0, linestyle='None', color='g')
+        self.axis.set_xlabel("Time")
+        self.axis.set_ylabel("Sensor Value")
         self.placeNextButton(.675, .7, pane = self.interactivePane,
                              text = "Continue", font = self.font, command = self.movingAvgQuiz)
         self.placeBackButton(.075, .7, pane=self.interactivePane, command=self.gui.moduleDict["Filters"].introPage,
@@ -133,17 +135,29 @@ class MovingAverageFilter(Module):
         # plot the raw data here
         self.axis.plot(self.xData[0:self.plotIterator], self.yData[0:self.plotIterator],
                        marker='o', markersize=10.0, linestyle='None', color='g')
-        # plot the moving average here, x stays the same
-        if (self.plotIterator >= int(history)):
-            self.yMovingAvgData.append(mean(self.yData[self.plotIterator - int(history):self.plotIterator]))
-            self.xMovingAvgData.append(self.xData[self.plotIterator - 1])
-            self.axis.plot(self.xMovingAvgData, self.yMovingAvgData,
-                           marker='o', markersize=10.0, linestyle='None', color='b')
-        self.plotIterator = self.plotIterator + 1
-        if (self.plotIterator > len(self.xData)):
-            self.ani.event_source.stop()
+        self.axis.set_xlabel("Time")
+        self.axis.set_ylabel("Sensor Value")
+        try:
+            # plot the moving average here, x stays the same
+            if (self.plotIterator >= int(history)):
+                self.yMovingAvgData.append(mean(self.yData[self.plotIterator - int(history):self.plotIterator]))
+                self.xMovingAvgData.append(self.xData[self.plotIterator - 1])
+                self.axis.plot(self.xMovingAvgData, self.yMovingAvgData,
+                               marker='o', markersize=10.0, linestyle='None', color='b')
+            self.plotIterator = self.plotIterator + 1
+            if (self.plotIterator > len(self.xData)):
+                self.ani.event_source.stop()
+        except:
+            pass
 
     def rePlot(self, history):
+        # We could do this with a boolean but this is faster...
+        # basically if an animation is running just stop it. If it's not
+        # don't crash
+        try:
+            self.ani.event_source.stop()
+        except:
+            pass
         self.axis.clear()
         self.axis.set_ylim([0, 10])
         self.axis.set_xlim([0, len(self.xData) + 1])

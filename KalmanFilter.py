@@ -313,6 +313,8 @@ class KalmanFilter(Module):
                                           self.checkMatrix(tableCanvas, self.H, rows = 1,
                                                            columns = 2, nextPage=self.formKalmanXMatrix))
         checkAssignmentButton.place(relx = .5, rely = .55, anchor = tk.CENTER)
+        self.placeBackButton(.05, .75, pane=self.interactivePane, command=self.formKalmanFMatrix,
+                             text="Form F Mat.", font=self.font)
 
     def formKalmanXMatrix(self):
         self.gui.clearScreen()
@@ -343,6 +345,8 @@ class KalmanFilter(Module):
                                           self.checkMatrix(tableCanvas, self.x, rows = 2,
                                                            columns = 1, nextPage=self.runKalmanFilter))
         checkAssignmentButton.place(relx = .5, rely = .58, anchor = tk.CENTER)
+        self.placeBackButton(.05, .75, pane=self.interactivePane, command=self.formKalmanHMatrix,
+                             text="Form H Mat.", font=self.font)
 
     def runKalmanFilter(self):
         self.gui.clearScreen()
@@ -438,8 +442,11 @@ class KalmanFilter(Module):
                     value = 0
                 elif(value == 'dt' or value == 't'):
                     value = self.dt_sec
-                if(float(value) != trueMatrix[i,j]):
-                    print(table.grid_slaves(row=i, column=j)[0].get(), trueMatrix[i,j])
+                try:
+                    if(float(value) != trueMatrix[i,j]):
+                        print(table.grid_slaves(row=i, column=j)[0].get(), trueMatrix[i,j])
+                        return False
+                except:
                     return False
         print("YES")
         self.placeNextButton(.7, .75, pane=self.interactivePane,
@@ -483,6 +490,14 @@ class KalmanFilter(Module):
         self.P = (self.I - K * self.H) * self.P
 
     def startKalmanFilterAni(self, measurements):
+        # We could do this with a boolean but this is faster...
+        # basically if an animation is running just stop it. If it's not
+        # don't crash
+        try:
+            self.ani.event_source.stop()
+        except:
+            pass
+        self.resetKalmanMatrices()
         self.plotIterator = 0
         ## Configure the Plot(s)
         f = Figure(figsize=(5, 5), dpi=100)
@@ -536,7 +551,34 @@ class KalmanFilter(Module):
                                marker='o', markersize=1.0, color='b')
 
         self.plotIterator = self.plotIterator + 1
+        print(self.plotIterator)
 
         if (self.plotIterator > len(self.xData) - 1):
             self.ani.event_source.stop()
             self.placeBackToMenuButton(self.visualizingPane)
+
+    def resetKalmanMatrices(self):
+        # Initial State
+        self.x = np.matrix([[0.],
+                            [0.]])
+
+        # Uncertainity Matrix (0 being we trust the state completely)
+        self.P = np.matrix([[1000, 0.],
+                            [0., 1000]])
+
+        # Next State Function
+        self.F = np.matrix([[1., self.dt_sec],
+                            [0., 1.]])
+
+        # Measurement Function
+        self.H = np.matrix([[1., 0.]])
+
+        # Measurement Uncertainty (0 being we trust the state completely)
+        self.R = np.matrix([[0.7]])
+
+        # Identity Matrix
+        self.I = np.matrix([[1., 0.],
+                            [0., 1.]])
+
+        self.Q = np.matrix([[.1, 0.],
+                            [0., .1]])
