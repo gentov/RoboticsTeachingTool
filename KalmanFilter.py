@@ -12,10 +12,10 @@ class KalmanFilter(Module):
     def __init__(self, gui = None, title = None, mainModule = None):
         super(KalmanFilter, self).__init__(gui = gui, title = title)
         self.mainModule = mainModule
-        self.bigFont = ('Comic Sans MS', 14, 'bold italic')
-        self.font = ('Comic Sans MS', 11, 'bold italic')
-        self.smallFont = ('Comic Sans MS', 9, 'bold italic')
-        self.quizResultFont = ('Comic Sans MS', 15, 'bold italic')
+        self.bigFont = ('Comic Sans MS', 14)#, 'bold italic')
+        self.font = ('Comic Sans MS', 11)
+        self.smallFont = ('Comic Sans MS', 9)#, 'bold italic')
+        self.quizResultFont = ('Comic Sans MS', 15)#, 'bold italic')
         self.quizQuestionMark = tk.PhotoImage(file="quizQuestionMark.png")
         self.quizPassedImage = tk.PhotoImage(file="passedQuiz.png")
         self.quizFailedImage = tk.PhotoImage(file="failedQuiz.png")
@@ -128,16 +128,16 @@ class KalmanFilter(Module):
                           "the values, the less certain we are about our estimate. Because\n" \
                           "the P matrix gives us the uncertainty of state estimate, its \n" \
                           "dimension will always be n x n. P might look something like: \n " \
-                          "                         [100 0]\n" \
-                          "                          [0 100]\n" \
+                          "                              [100 0]\n" \
+                          "                               [0 100]\n" \
                           "in our case.\n" \
                           "So now we know about the P matrix, and all that is left in the \n" \
                           "prediction step is the Q matrix. Q is our 'Process Noise\n" \
                           "Covariance' matrix. As the KF runs, P becomes more certain. Q\n" \
                           "allows us to add a little bit of uncertainty back into P. Q is\n" \
                           "also n x n, with values on the diagonal. Q might look like: \n " \
-                          "                          [.001 0]\n" \
-                          "                           [0 .001]"
+                          "                               [.001 0]\n" \
+                          "                                [0 .001]"
         self.visualizingPane.create_text(260, 220, text=thePredictionStepCont, font=self.font)
         pass
 
@@ -182,12 +182,12 @@ class KalmanFilter(Module):
                                    "diagonal. The less accurate a sensor is, the larger the values\n" \
                                    "are. The matrix is m x m. For our velocity example, it may \n" \
                                    "look like: \n" \
-                                   "                             R = [.2]                    \n" \
+                                   "                                   R = [.2]                    \n" \
                                    "The only matrix left to discuss is I. I is actually just the \n" \
                                    "identity matrix, which is always n x n. For our example, since\n" \
                                    "we have two elements in our state, n is 2. Thus I is:\n" \
-                                   "                              [1 0] \n" \
-                                   "                              [0 1] "
+                                   "                                    [1 0] \n" \
+                                   "                                    [0 1] "
         self.visualizingPane.create_text(255, 220, text=theMeasureAndUpdateStepCont, font=self.font)
         self.placeNextButton(.7, .75, pane=self.visualizingPane,
                              text="Quiz!", font=self.font, command = self.kalmanMatricesQuiz)

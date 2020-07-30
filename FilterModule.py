@@ -14,7 +14,7 @@ class FilterModule(Module):
         self.movingAverageModule = MovingAverageFilter(gui = gui, mainModule=self)
         self.kalmanFilterToy = KalmanFilterToy(gui = gui, mainModule = self)
         self.kalmanFilter = KalmanFilter(gui=gui, mainModule=self)
-        self.font = ('Comic Sans MS', 11, 'bold italic')
+        self.font = ('Comic Sans MS', 11)
         self.noisyImage = tk.PhotoImage(file = "noisy_data.png")
 
     def introPage(self):
@@ -39,5 +39,5 @@ class FilterModule(Module):
     def runModule(self):
         self.gui.clearScreen()
         self.makePanes()
-        self.introPage()
+        self.kalmanFilter.kalmanPrediction()
         #self.kalmanFilter.formKalmanFMatrix()

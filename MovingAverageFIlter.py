@@ -11,7 +11,7 @@ class MovingAverageFilter(Module):
         self.quizQuestionMark = tk.PhotoImage(file = "quizQuestionMark.png")
         self.quizPassedImage = tk.PhotoImage(file="passedQuiz.png")
         self.quizFailedImage = tk.PhotoImage(file="failedQuiz.png")
-        self.font = ('Comic Sans MS', 11, 'bold italic')
+        self.font = ('Comic Sans MS', 11)
         self.quizResultFont = ('Comic Sans MS', 15, 'bold italic')
         self.axis = None
         self.xData = [1, 2, 3, 4, 5, 6, 7, 8]

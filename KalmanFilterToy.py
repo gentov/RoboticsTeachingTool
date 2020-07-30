@@ -15,9 +15,9 @@ class KalmanFilterToy(Module):
         self.quizFailedImage = tk.PhotoImage(file="failedQuiz.png")
         self.carImage = tk.PhotoImage(file="carImage.png")
         self.kalmanExampleImage = tk.PhotoImage(file="kalmanExampleImage.png")
-        self.font = ('Comic Sans MS', 11, 'bold italic')
-        self.smallFont = ('Comic Sans MS', 9, 'bold italic')
-        self.quizResultFont = ('Comic Sans MS', 15, 'bold italic')
+        self.font = ('Comic Sans MS', 11)
+        self.smallFont = ('Comic Sans MS', 9)#, 'bold italic')
+        self.quizResultFont = ('Comic Sans MS', 15)#, 'bold italic')
         self.axis = None
         self.carAxisKF = None
         self.xErrorKF = None
