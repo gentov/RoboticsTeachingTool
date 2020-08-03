@@ -4,6 +4,7 @@
 from Module import Module as Mod
 from PIL import ImageTk, Image
 import tkinter as tk
+import numpy as np
 
 
 def place_rainbow_text(text, pane, x, y, font_size):
@@ -105,6 +106,9 @@ class KinModule(Mod):
         self.interactive_text_x = 255
         self.interactive_text_y = 100
 
+        self.active_str_vars = list()
+        self.active_entries = list()
+
         self.debug = True
 
         self.backButton = None
@@ -168,12 +172,12 @@ class KinModule(Mod):
         Y_entry.place(anchor=tk.S, relx=.5, rely=.92)
         x.set('X')
         y.set('Y')
-        x.trace('w',
-                lambda a, b, c: self.check_frame_trans([x, y], [x_check, y_check], [ans_x, ans_y],
-                                                       [X_entry, Y_entry]))
-        y.trace('w',
-                lambda a, b, c: self.check_frame_trans([x, y], [x_check, y_check], [ans_x, ans_y],
-                                                       [X_entry, Y_entry]))
+        x.trace_add("write",
+                    lambda a, b, c: self.check_frame_trans([x, y], [x_check, y_check], [ans_x, ans_y],
+                                                           [X_entry, Y_entry]))
+        y.trace_add("write",
+                    lambda a, b, c: self.check_frame_trans([x, y], [x_check, y_check], [ans_x, ans_y],
+                                                           [X_entry, Y_entry]))
         self.visualizingPane.update()
         w = self.visualizingPane.winfo_width()
         h = self.visualizingPane.winfo_height()
@@ -266,114 +270,54 @@ class KinModule(Mod):
         check_T = [[False, False, False, False],
                    [False, False, False, False],
                    [False, False, False, False]]
-        rxx = tk.StringVar()
-        rxy = tk.StringVar()
-        rxz = tk.StringVar()
-        ryx = tk.StringVar()
-        ryy = tk.StringVar()
-        ryz = tk.StringVar()
-        rzx = tk.StringVar()
-        rzy = tk.StringVar()
-        rzz = tk.StringVar()
-        px = tk.StringVar()
-        py = tk.StringVar()
-        pz = tk.StringVar()
 
-        RXX_entry = tk.Entry(self.visualizingPane, textvariable=rxx, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        RXY_entry = tk.Entry(self.visualizingPane, textvariable=rxy, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        RXZ_entry = tk.Entry(self.visualizingPane, textvariable=rxz, font=('Comic Sans MS', 11, 'bold italic'), width=5)
+        self.active_str_vars = list()
+        self.active_entries = list()
+        default_str = ['RXx', 'RYx', 'RZx', 'Px', 'RXy', 'RYy', 'RZy', 'Py', 'RXz', 'RYz', 'RZz', 'Pz']
 
-        RYX_entry = tk.Entry(self.visualizingPane, textvariable=ryx, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        RYY_entry = tk.Entry(self.visualizingPane, textvariable=ryy, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        RYZ_entry = tk.Entry(self.visualizingPane, textvariable=ryz, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-
-        RZX_entry = tk.Entry(self.visualizingPane, textvariable=rzx, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        RZY_entry = tk.Entry(self.visualizingPane, textvariable=rzy, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        RZZ_entry = tk.Entry(self.visualizingPane, textvariable=rzz, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-
-        PX_entry = tk.Entry(self.visualizingPane, textvariable=px, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        PY_entry = tk.Entry(self.visualizingPane, textvariable=py, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        PZ_entry = tk.Entry(self.visualizingPane, textvariable=pz, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-
-        col1_rel, col2_rel, col3_rel, col4_rel = .35, .45, .55, .65
-        row1_rel, row2_rel, row3_rel = .23, .28, .33
-        RXX_entry.place(anchor=tk.S, relx=col1_rel, rely=row1_rel)
-        RXY_entry.place(anchor=tk.S, relx=col1_rel, rely=row2_rel)
-        RXZ_entry.place(anchor=tk.S, relx=col1_rel, rely=row3_rel)
-
-        RYX_entry.place(anchor=tk.S, relx=col2_rel, rely=row1_rel)
-        RYY_entry.place(anchor=tk.S, relx=col2_rel, rely=row2_rel)
-        RYZ_entry.place(anchor=tk.S, relx=col2_rel, rely=row3_rel)
-
-        RZX_entry.place(anchor=tk.S, relx=col3_rel, rely=row1_rel)
-        RZY_entry.place(anchor=tk.S, relx=col3_rel, rely=row2_rel)
-        RZZ_entry.place(anchor=tk.S, relx=col3_rel, rely=row3_rel)
-
-        PX_entry.place(anchor=tk.S, relx=col4_rel, rely=row1_rel)
-        PY_entry.place(anchor=tk.S, relx=col4_rel, rely=row2_rel)
-        PZ_entry.place(anchor=tk.S, relx=col4_rel, rely=row3_rel)
-
-        rxx.set('RXx')
-        rxy.set('RXy')
-        rxz.set('RXz')
-        ryx.set('RYx')
-        ryy.set('RYy')
-        ryz.set('RYz')
-        rzx.set('RZx')
-        rzy.set('RZy')
-        rzz.set('RZz')
-        px.set('Px')
-        py.set('Py')
-        pz.set('Pz')
-
-        entries_T = [[RXX_entry, RYX_entry, RZX_entry, PX_entry],
-                     [RXY_entry, RYY_entry, RZY_entry, PY_entry],
-                     [RXZ_entry, RYZ_entry, RZZ_entry, PZ_entry]]
-        rxx.trace('w',
-                  lambda a, b, c: self.check_trans_mat(check_T, entries_T))
-        rxy.trace('w',
-                  lambda a, b, c: self.check_trans_mat(check_T, entries_T))
-        rxz.trace('w',
-                  lambda a, b, c: self.check_trans_mat(check_T, entries_T))
-        ryx.trace('w',
-                  lambda a, b, c: self.check_trans_mat(check_T, entries_T))
-        ryy.trace('w',
-                  lambda a, b, c: self.check_trans_mat(check_T, entries_T))
-        ryz.trace('w',
-                  lambda a, b, c: self.check_trans_mat(check_T, entries_T))
-        rzx.trace('w',
-                  lambda a, b, c: self.check_trans_mat(check_T, entries_T))
-        rzy.trace('w',
-                  lambda a, b, c: self.check_trans_mat(check_T, entries_T))
-        rzz.trace('w',
-                  lambda a, b, c: self.check_trans_mat(check_T, entries_T))
-        px.trace('w',
-                 lambda a, b, c: self.check_trans_mat(check_T, entries_T))
-        py.trace('w',
-                 lambda a, b, c: self.check_trans_mat(check_T, entries_T))
-        pz.trace('w',
-                 lambda a, b, c: self.check_trans_mat(check_T, entries_T))
+        for i in range(0, 12):
+            v = tk.StringVar()
+            self.active_str_vars.append(v)
+            e = tk.Entry(self.visualizingPane, textvariable=v,
+                         font=('Comic Sans MS', 11, 'bold italic'), width=5)
+            self.active_entries.append(e)
+            col_rel = [.35, .45, .55, .65]
+            row_rel = [.23, .28, .33]
+            e.place(anchor=tk.S, relx=col_rel[i % 4], rely=row_rel[int(np.floor(i / 4))])
+            v.set(default_str[i])
+            v.trace('w', lambda a, b, c: self.check_trans_mat(a, b, c, check_T))
 
         self.visualizingPane.update()
         w = self.visualizingPane.winfo_width()
         h = self.visualizingPane.winfo_height()
         self.visualizingPane.create_image(w / 2, .65 * h, image=self.trans_matrix, anchor=tk.CENTER)
 
-    def check_trans_mat(self, check_T, entries_T):
+    def check_trans_mat(self, a, b, c, check_T):
         ans_T = [('0', '-1', '0', '5'),
                  ('1', '0', '0', '2'),
                  ('0', '0', '1', '0')]
+        try:
+            count = 0
+            for i in range(0, 3):
+                for j in range(0, 4):
+                    entry = self.active_entries[count]
+                    ans = ans_T[i][j]
+                    check = check_T[i][j]
+                    print(f"EntryVal: {entry.get()}  Answer: {ans}")
+                    self.check_entry(entry, ans, check)
+                    count += 1
+            if check_T:
+                self.nextButton.config(state='normal')
+        except Exception as e:
+            print(f'Error in callback       {str(e)}')
 
-        for i in range(0, 3):
-            for j in range(0, 4):
-                if entries_T[i][j].get() == ans_T[i][j]:
-                    check_T[i][j] = True
-                    entries_T[i][j]['bg'] = 'chartreuse2'
-                else:
-                    check_T[i][j] = False
-                    entries_T[i][j]['bg'] = 'firebrick1'
-        if check_T:
-            self.nextButton.config(state='normal')
+    def check_entry(self, entry, ans, check):
+        if entry.get() == ans:
+            check = True
+            entry['bg'] = 'chartreuse2'
+        else:
+            check = False
+            entry['bg'] = 'firebrick1'
 
     def dh_page(self):
         self.interactivePane.create_text(self.interactive_text_x, self.interactive_text_y - 45,
@@ -457,7 +401,8 @@ class KinModule(Mod):
         self.interactivePane.create_text(self.interactive_text_x, self.interactive_text_y,
                                          text="Fill in the DH table for this 2DOF RR Planar robot. Then write\n"
                                               "out the transformation matrix corresponding to the first row of\n"
-                                              "the table if l1=l2=5, t1=t2=0. Write decimals out to 3 places.",
+                                              "the table if l1=l2=5, t1=t2=0. Write decimals out to 3 places.\n"
+                                              "Write theta_n as tn (i.e. theta_1 as t1).",
                                          font=self.font,
                                          anchor='n')
 
@@ -466,182 +411,73 @@ class KinModule(Mod):
         h = self.visualizingPane.winfo_height()
         self.visualizingPane.create_image(w / 2, h / 2, image=self.planar2D, anchor=tk.CENTER)
 
-        self.interactivePane.create_text(self.interactive_text_x, self.interactive_text_y + 80,
+        self.interactivePane.create_text(self.interactive_text_x, self.interactive_text_y + 100,
                                          text="θ      d      a     α",
                                          font=self.font,
                                          anchor='n')
-        dh11 = tk.StringVar()
-        dh12 = tk.StringVar()
-        dh13 = tk.StringVar()
-        dh14 = tk.StringVar()
-        dh21 = tk.StringVar()
-        dh22 = tk.StringVar()
-        dh23 = tk.StringVar()
-        dh24 = tk.StringVar()
 
-        entry11 = tk.Entry(self.interactivePane, textvariable=dh11, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        entry12 = tk.Entry(self.interactivePane, textvariable=dh12, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        entry13 = tk.Entry(self.interactivePane, textvariable=dh13, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        entry14 = tk.Entry(self.interactivePane, textvariable=dh14, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        entry21 = tk.Entry(self.interactivePane, textvariable=dh21, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        entry22 = tk.Entry(self.interactivePane, textvariable=dh22, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        entry23 = tk.Entry(self.interactivePane, textvariable=dh23, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        entry24 = tk.Entry(self.interactivePane, textvariable=dh24, font=('Comic Sans MS', 11, 'bold italic'), width=5)
+        self.active_str_vars = list()
+        self.active_entries = list()
+        default_str = ['-', '-', '-', '-', '-', '-', '-', '-']
 
-        entries_dh = [[entry11, entry12, entry13, entry14],
-                      [entry21, entry22, entry23, entry24]]
-        check_T = [[False, False, False, False],
-                   [False, False, False, False]]
-
-        dh11.trace('w',
-                   lambda a, b, c: self.check_dh_1(check_T, entries_dh))
-        dh12.trace('w',
-                   lambda a, b, c: self.check_dh_1(check_T, entries_dh))
-        dh13.trace('w',
-                   lambda a, b, c: self.check_dh_1(check_T, entries_dh))
-        dh14.trace('w',
-                   lambda a, b, c: self.check_dh_1(check_T, entries_dh))
-        dh21.trace('w',
-                   lambda a, b, c: self.check_dh_1(check_T, entries_dh))
-        dh22.trace('w',
-                   lambda a, b, c: self.check_dh_1(check_T, entries_dh))
-        dh23.trace('w',
-                   lambda a, b, c: self.check_dh_1(check_T, entries_dh))
-        dh24.trace('w',
-                   lambda a, b, c: self.check_dh_1(check_T, entries_dh))
-
-        col1_rel, col2_rel, col3_rel, col4_rel = .35, .45, .55, .65
-        row1_rel, row2_rel = .45, .50
-        entry11.place(anchor=tk.S, relx=col1_rel, rely=row1_rel)
-        entry12.place(anchor=tk.S, relx=col2_rel, rely=row1_rel)
-        entry13.place(anchor=tk.S, relx=col3_rel, rely=row1_rel)
-        entry14.place(anchor=tk.S, relx=col4_rel, rely=row1_rel)
-        entry21.place(anchor=tk.S, relx=col1_rel, rely=row2_rel)
-        entry22.place(anchor=tk.S, relx=col2_rel, rely=row2_rel)
-        entry23.place(anchor=tk.S, relx=col3_rel, rely=row2_rel)
-        entry24.place(anchor=tk.S, relx=col4_rel, rely=row2_rel)
-
-        check_TT = [[False, False, False, False],
-                    [False, False, False, False],
+        check_dh = [[False, False, False, False],
                     [False, False, False, False]]
+        for i in range(0, 8):
+            v = tk.StringVar()
+            e = tk.Entry(self.interactivePane, textvariable=v,
+                         font=('Comic Sans MS', 11, 'bold italic'), width=5)
+            self.active_entries.append(e)
+            col_rel = [.35, .45, .55, .65]
+            row_rel = [.5, .55]
+            e.place(anchor=tk.S, relx=col_rel[i % len(col_rel)], rely=row_rel[int(np.floor(i / len(col_rel)))])
+            v.set(default_str[i])
+            v.trace('w', lambda a, b, c: self.check_dh1(a, b, c, check_dh))
+            self.active_str_vars.append(v)
 
-        rxx = tk.StringVar()
-        rxy = tk.StringVar()
-        rxz = tk.StringVar()
-        ryx = tk.StringVar()
-        ryy = tk.StringVar()
-        ryz = tk.StringVar()
-        rzx = tk.StringVar()
-        rzy = tk.StringVar()
-        rzz = tk.StringVar()
-        px = tk.StringVar()
-        py = tk.StringVar()
-        pz = tk.StringVar()
+        check_T = [[False, False, False, False],
+                   [False, False, False, False],
+                   [False, False, False, False]]
+        default_str = ['RXx', 'RYx', 'RZx', 'Px', 'RXy', 'RYy', 'RZy', 'Py', 'RXz', 'RYz', 'RZz', 'Pz']
+        for i in range(0, 12):
+            v = tk.StringVar()
+            self.active_str_vars.append(v)
+            e = tk.Entry(self.interactivePane, textvariable=v,
+                         font=('Comic Sans MS', 11, 'bold italic'), width=5)
+            self.active_entries.append(e)
+            col_rel = [.35, .45, .55, .65]
+            row_rel = [.63, .68, .73]
+            e.place(anchor=tk.S, relx=col_rel[i % len(col_rel)], rely=row_rel[int(np.floor(i / len(col_rel)))])
+            v.set(default_str[i])
+            v.trace('w', lambda a, b, c: self.check_fk_ex1(a, b, c, check_T))
 
-        RXX_entry = tk.Entry(self.interactivePane, textvariable=rxx, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        RXY_entry = tk.Entry(self.interactivePane, textvariable=rxy, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        RXZ_entry = tk.Entry(self.interactivePane, textvariable=rxz, font=('Comic Sans MS', 11, 'bold italic'), width=5)
 
-        RYX_entry = tk.Entry(self.interactivePane, textvariable=ryx, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        RYY_entry = tk.Entry(self.interactivePane, textvariable=ryy, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        RYZ_entry = tk.Entry(self.interactivePane, textvariable=ryz, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-
-        RZX_entry = tk.Entry(self.interactivePane, textvariable=rzx, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        RZY_entry = tk.Entry(self.interactivePane, textvariable=rzy, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        RZZ_entry = tk.Entry(self.interactivePane, textvariable=rzz, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-
-        PX_entry = tk.Entry(self.interactivePane, textvariable=px, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        PY_entry = tk.Entry(self.interactivePane, textvariable=py, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        PZ_entry = tk.Entry(self.interactivePane, textvariable=pz, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-
-        col1_rel, col2_rel, col3_rel, col4_rel = .35, .45, .55, .65
-        row1_rel, row2_rel, row3_rel = .63, .68, .73
-        RXX_entry.place(anchor=tk.S, relx=col1_rel, rely=row1_rel)
-        RXY_entry.place(anchor=tk.S, relx=col1_rel, rely=row2_rel)
-        RXZ_entry.place(anchor=tk.S, relx=col1_rel, rely=row3_rel)
-
-        RYX_entry.place(anchor=tk.S, relx=col2_rel, rely=row1_rel)
-        RYY_entry.place(anchor=tk.S, relx=col2_rel, rely=row2_rel)
-        RYZ_entry.place(anchor=tk.S, relx=col2_rel, rely=row3_rel)
-
-        RZX_entry.place(anchor=tk.S, relx=col3_rel, rely=row1_rel)
-        RZY_entry.place(anchor=tk.S, relx=col3_rel, rely=row2_rel)
-        RZZ_entry.place(anchor=tk.S, relx=col3_rel, rely=row3_rel)
-
-        PX_entry.place(anchor=tk.S, relx=col4_rel, rely=row1_rel)
-        PY_entry.place(anchor=tk.S, relx=col4_rel, rely=row2_rel)
-        PZ_entry.place(anchor=tk.S, relx=col4_rel, rely=row3_rel)
-
-        rxx.set('RXx')
-        rxy.set('RXy')
-        rxz.set('RXz')
-        ryx.set('RYx')
-        ryy.set('RYy')
-        ryz.set('RYz')
-        rzx.set('RZx')
-        rzy.set('RZy')
-        rzz.set('RZz')
-        px.set('Px')
-        py.set('Py')
-        pz.set('Pz')
-
-        entries_T = [[RXX_entry, RYX_entry, RZX_entry, PX_entry],
-                     [RXY_entry, RYY_entry, RZY_entry, PY_entry],
-                     [RXZ_entry, RYZ_entry, RZZ_entry, PZ_entry]]
-        rxx.trace('w',
-                  lambda a, b, c: self.check_fk_ex1(check_TT, entries_T))
-        rxy.trace('w',
-                  lambda a, b, c: self.check_fk_ex1(check_TT, entries_T))
-        rxz.trace('w',
-                  lambda a, b, c: self.check_fk_ex1(check_TT, entries_T))
-        ryx.trace('w',
-                  lambda a, b, c: self.check_fk_ex1(check_TT, entries_T))
-        ryy.trace('w',
-                  lambda a, b, c: self.check_fk_ex1(check_TT, entries_T))
-        ryz.trace('w',
-                  lambda a, b, c: self.check_fk_ex1(check_TT, entries_T))
-        rzx.trace('w',
-                  lambda a, b, c: self.check_fk_ex1(check_TT, entries_T))
-        rzy.trace('w',
-                  lambda a, b, c: self.check_fk_ex1(check_TT, entries_T))
-        rzz.trace('w',
-                  lambda a, b, c: self.check_fk_ex1(check_TT, entries_T))
-        px.trace('w',
-                 lambda a, b, c: self.check_fk_ex1(check_TT, entries_T))
-        py.trace('w',
-                 lambda a, b, c: self.check_fk_ex1(check_TT, entries_T))
-        pz.trace('w',
-                 lambda a, b, c: self.check_fk_ex1(check_TT, entries_T))
-
-    def check_dh_1(self, check_T, entries_T):
+    def check_dh1(self, a, b, c, check_T):
         ans_T = [('t1', '0', 'l1', '0'),
                  ('t2', '0', 'l2', '0')]
-
+        count = 0
         for i in range(0, 2):
-            for j in range(0, 3):
-                if entries_T[i][j].get() == ans_T[i][j]:
-                    check_T[i][j] = True
-                    entries_T[i][j]['bg'] = 'chartreuse2'
-                else:
-                    check_T[i][j] = False
-                    entries_T[i][j]['bg'] = 'firebrick1'
+            for j in range(0, 4):
+                entry = self.active_entries[count]
+                check = check_T[i][j]
+                ans = ans_T[i][j]
+                self.check_entry(entry, ans, check)
+                count += 1
         if check_T:
             self.nextButton.config(state='normal')
 
-    def check_fk_ex1(self, check_T, entries_T):
+    def check_fk_ex1(self, a, b, c, correct_bool_matrix):
         ans_T = [('1', '0', '0', '5'),
                  ('0', '1', '0', '0'),
                  ('0', '0', '1', '0')]
-
+        count = 0
         for i in range(0, 3):
             for j in range(0, 4):
-                if entries_T[i][j].get() == ans_T[i][j]:
-                    check_T[i][j] = True
-                    entries_T[i][j]['bg'] = 'chartreuse2'
-                else:
-                    check_T[i][j] = False
-                    entries_T[i][j]['bg'] = 'firebrick1'
-        if check_T:
+                entry = self.active_entries[8+count]
+                check = correct_bool_matrix[i][j]
+                ans = ans_T[i][j]
+                self.check_entry(entry, ans, check)
+                count += 1
+        if correct_bool_matrix:
             self.nextButton.config(state='normal')
 
     def fk2_page(self):
@@ -694,30 +530,30 @@ class KinModule(Mod):
                    [False, False, False, False],
                    [False, False, False, False]]
 
-        dh11.trace('w',
-                   lambda a, b, c: self.check_dh_2(check_T, entries_dh))
-        dh12.trace('w',
-                   lambda a, b, c: self.check_dh_2(check_T, entries_dh))
-        dh13.trace('w',
-                   lambda a, b, c: self.check_dh_2(check_T, entries_dh))
-        dh14.trace('w',
-                   lambda a, b, c: self.check_dh_2(check_T, entries_dh))
-        dh21.trace('w',
-                   lambda a, b, c: self.check_dh_2(check_T, entries_dh))
-        dh22.trace('w',
-                   lambda a, b, c: self.check_dh_2(check_T, entries_dh))
-        dh23.trace('w',
-                   lambda a, b, c: self.check_dh_2(check_T, entries_dh))
-        dh24.trace('w',
-                   lambda a, b, c: self.check_dh_2(check_T, entries_dh))
-        dh31.trace('w',
-                   lambda a, b, c: self.check_dh_2(check_T, entries_dh))
-        dh32.trace('w',
-                   lambda a, b, c: self.check_dh_2(check_T, entries_dh))
-        dh33.trace('w',
-                   lambda a, b, c: self.check_dh_2(check_T, entries_dh))
-        dh34.trace('w',
-                   lambda a, b, c: self.check_dh_2(check_T, entries_dh))
+        dh11.trace_add("write",
+                       lambda a, b, c: self.check_dh_2(a, b, c, check_T, entries_dh))
+        dh12.trace_add("write",
+                       lambda a, b, c: self.check_dh_2(a, b, c, check_T, entries_dh))
+        dh13.trace_add("write",
+                       lambda a, b, c: self.check_dh_2(a, b, c, check_T, entries_dh))
+        dh14.trace_add("write",
+                       lambda a, b, c: self.check_dh_2(a, b, c, check_T, entries_dh))
+        dh21.trace_add("write",
+                       lambda a, b, c: self.check_dh_2(a, b, c, check_T, entries_dh))
+        dh22.trace_add("write",
+                       lambda a, b, c: self.check_dh_2(a, b, c, check_T, entries_dh))
+        dh23.trace_add("write",
+                       lambda a, b, c: self.check_dh_2(a, b, c, check_T, entries_dh))
+        dh24.trace_add("write",
+                       lambda a, b, c: self.check_dh_2(a, b, c, check_T, entries_dh))
+        dh31.trace_add("write",
+                       lambda a, b, c: self.check_dh_2(a, b, c, check_T, entries_dh))
+        dh32.trace_add("write",
+                       lambda a, b, c: self.check_dh_2(a, b, c, check_T, entries_dh))
+        dh33.trace_add("write",
+                       lambda a, b, c: self.check_dh_2(a, b, c, check_T, entries_dh))
+        dh34.trace_add("write",
+                       lambda a, b, c: self.check_dh_2(a, b, c, check_T, entries_dh))
 
         col1_rel, col2_rel, col3_rel, col4_rel = .35, .45, .55, .65
         row1_rel, row2_rel, row3_rel = .48, .53, .58
@@ -785,6 +621,34 @@ class KinModule(Mod):
         PY_entry.place(anchor=tk.S, relx=col4_rel, rely=row2_rel)
         PZ_entry.place(anchor=tk.S, relx=col4_rel, rely=row3_rel)
 
+        entries_T = [[RXX_entry, RYX_entry, RZX_entry, PX_entry],
+                     [RXY_entry, RYY_entry, RZY_entry, PY_entry],
+                     [RXZ_entry, RYZ_entry, RZZ_entry, PZ_entry]]
+
+        rxx.trace_add("write",
+                      lambda a, b, c: self.check_fk_ex2(a, b, c, check_TT, entries_T))
+        rxy.trace_add("write",
+                      lambda a, b, c: self.check_fk_ex2(a, b, c, check_TT, entries_T))
+        rxz.trace_add("write",
+                      lambda a, b, c: self.check_fk_ex2(a, b, c, check_TT, entries_T))
+        ryx.trace_add("write",
+                      lambda a, b, c: self.check_fk_ex2(a, b, c, check_TT, entries_T))
+        ryy.trace_add("write",
+                      lambda a, b, c: self.check_fk_ex2(a, b, c, check_TT, entries_T))
+        ryz.trace_add("write",
+                      lambda a, b, c: self.check_fk_ex2(a, b, c, check_TT, entries_T))
+        rzx.trace_add("write",
+                      lambda a, b, c: self.check_fk_ex2(a, b, c, check_TT, entries_T))
+        rzy.trace_add("write",
+                      lambda a, b, c: self.check_fk_ex2(a, b, c, check_TT, entries_T))
+        rzz.trace_add("write",
+                      lambda a, b, c: self.check_fk_ex2(a, b, c, check_TT, entries_T))
+        px.trace_add("write",
+                     lambda a, b, c: self.check_fk_ex2(a, b, c, check_TT, entries_T))
+        py.trace_add("write",
+                     lambda a, b, c: self.check_fk_ex2(a, b, c, check_TT, entries_T))
+        pz.trace_add("write",
+                     lambda a, b, c: self.check_fk_ex2(a, b, c, check_TT, entries_T))
         rxx.set('RXx')
         rxy.set('RXy')
         rxz.set('RXz')
@@ -798,35 +662,7 @@ class KinModule(Mod):
         py.set('Py')
         pz.set('Pz')
 
-        entries_T = [[RXX_entry, RYX_entry, RZX_entry, PX_entry],
-                     [RXY_entry, RYY_entry, RZY_entry, PY_entry],
-                     [RXZ_entry, RYZ_entry, RZZ_entry, PZ_entry]]
-        rxx.trace('w',
-                  lambda a, b, c: self.check_fk_ex2(check_TT, entries_T))
-        rxy.trace('w',
-                  lambda a, b, c: self.check_fk_ex2(check_TT, entries_T))
-        rxz.trace('w',
-                  lambda a, b, c: self.check_fk_ex2(check_TT, entries_T))
-        ryx.trace('w',
-                  lambda a, b, c: self.check_fk_ex2(check_TT, entries_T))
-        ryy.trace('w',
-                  lambda a, b, c: self.check_fk_ex2(check_TT, entries_T))
-        ryz.trace('w',
-                  lambda a, b, c: self.check_fk_ex2(check_TT, entries_T))
-        rzx.trace('w',
-                  lambda a, b, c: self.check_fk_ex2(check_TT, entries_T))
-        rzy.trace('w',
-                  lambda a, b, c: self.check_fk_ex2(check_TT, entries_T))
-        rzz.trace('w',
-                  lambda a, b, c: self.check_fk_ex2(check_TT, entries_T))
-        px.trace('w',
-                 lambda a, b, c: self.check_fk_ex2(check_TT, entries_T))
-        py.trace('w',
-                 lambda a, b, c: self.check_fk_ex2(check_TT, entries_T))
-        pz.trace('w',
-                 lambda a, b, c: self.check_fk_ex2(check_TT, entries_T))
-
-    def check_dh_2(self, check_T, entries_T):
+    def check_dh_2(self, a, b, c, check_T, entries_T):
         ans_T = [('t1', 'l1', '0', 'pi/2'),
                  ('t2', '0', 'l2', '0'),
                  ('t3', '0', 'l3', '0')]
@@ -842,7 +678,7 @@ class KinModule(Mod):
         if check_T:
             self.nextButton.config(state='normal')
 
-    def check_fk_ex2(self, check_T, entries_T):
+    def check_fk_ex2(self, a, b, c, check_T, entries_T):
         ans_T = [('0', '0', '1', '0'),
                  ('1', '0', '0', '0'),
                  ('0', '1', '0', '5')]
@@ -905,8 +741,8 @@ class KinModule(Mod):
         w = self.visualizingPane.winfo_width()
         h = self.visualizingPane.winfo_height()
         self.visualizingPane.create_image(w / 2, 70, image=self.sincos, anchor=tk.CENTER)
-        self.visualizingPane.create_image(w / 2,  (h / 3)+10, image=self.atan2_im, anchor=tk.CENTER)
-        self.visualizingPane.create_image(w / 2, (3 * h / 4)-15, image=self.D, anchor=tk.CENTER)
+        self.visualizingPane.create_image(w / 2, (h / 3) + 10, image=self.atan2_im, anchor=tk.CENTER)
+        self.visualizingPane.create_image(w / 2, (3 * h / 4) - 15, image=self.D, anchor=tk.CENTER)
 
     def ik1_page(self):
         self.interactivePane.create_text(self.interactive_text_x, self.interactive_text_y,
@@ -919,7 +755,7 @@ class KinModule(Mod):
         self.visualizingPane.update()
         w = self.visualizingPane.winfo_width()
         h = self.visualizingPane.winfo_height()
-        self.visualizingPane.create_image(w / 2, h/2, image=self.ikin_ex1, anchor=tk.CENTER)
+        self.visualizingPane.create_image(w / 2, h / 2, image=self.ikin_ex1, anchor=tk.CENTER)
 
     def ik2_page(self):
         self.interactivePane.create_text(self.interactive_text_x, self.interactive_text_y,
@@ -932,7 +768,7 @@ class KinModule(Mod):
         self.visualizingPane.update()
         w = self.visualizingPane.winfo_width()
         h = self.visualizingPane.winfo_height()
-        self.visualizingPane.create_image(w / 2, h/2, image=self.ikin_ex2, anchor=tk.CENTER)
+        self.visualizingPane.create_image(w / 2, h / 2, image=self.ikin_ex2, anchor=tk.CENTER)
 
     def velkin_page(self):
         self.interactivePane.create_text(self.interactive_text_x, self.interactive_text_y - 45,
@@ -959,7 +795,7 @@ class KinModule(Mod):
                                          anchor='n')
 
     def sing_page(self):
-        self.interactivePane.create_text(self.interactive_text_x, self.interactive_text_y-45,
+        self.interactivePane.create_text(self.interactive_text_x, self.interactive_text_y - 45,
                                          text="Robotic arms have special configurations called singularities.\n"
                                               "A singularity occurs when an arm’s joints are in any position\n"
                                               "such that there is an instantaneous loss of a degree of\n"
