@@ -1,0 +1,3 @@
+Next, we want to make thinner edges on our image and remove unwanted pixels that arent part of an edge.  To do this we use non-maximum supression.  To determine if a pixel is an edge, every pixel is checked to see if it is a local maximum in its neighborhood in the direction of the previously calculated gradient.  
+
+In the example image on the right, point A is on a vertical edge, and the gradient direction is normal to that edge. Point B and C are in gradient directions; therefore point A is checked with point B and C to determine if it is a local maximum. If so, it is left as an edge in the image, otherwise, it is suppressed, meaning put to zero so therefore removed from the image.

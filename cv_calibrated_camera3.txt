@@ -1,0 +1,13 @@
+If the pose of one contour defines the pose of another contour then the following algorithm can be used.
+
+"(a) Reconstruct projection rays from the image points
+(b) For each projection ray R:
+     (c) For each 3D contour:
+          (c1) Estimate the nearest point P1 of ray R to a point on the contour
+          (c2) if (n == 1) choose P1 as actual P for the point-line correspondence
+          (c3) else compare P1 with P:
+                   if dist(P1, R) is smaller than dist(P, R) then
+                       choose P1 as new P
+(d) Use (P, R) as correspondence set.
+(e) Estimate pose with this correspondence set
+(f) Transform contours, goto (b)"

@@ -42,7 +42,7 @@ class Module():
             time.sleep(.003)
 
     def showText(self, x, y, text, canvasOfText, font):
-        canvasOfText.create_text(x, y, text=text, font=font, width = 400)
+        canvasOfText.create_text(x, y, text=text, font=font, width = 450)
         self.gui.win.update()
 
     def makePanes(self):

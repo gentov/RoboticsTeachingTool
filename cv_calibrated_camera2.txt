@@ -1,0 +1,8 @@
+The algorithm for determining pose estimation is based on the iterative closest point algorithm. The main idea is to determine the correspondences between 2D image features and points on the 3D model curve.
+
+"(a) Reconstruct projection rays from the image points
+(b) Estimate the nearest point of each projection ray to a point on the 3D contour
+(c) Estimate the pose of the contour with the use of this correspondence set
+(d) goto (b)"
+
+The above algorithm does not account for images containing an object that is partially occluded.  Next is an algorithm that "assumes that all contours are rigidly coupled, meaning the pose of one contour defines the pose of another contour"

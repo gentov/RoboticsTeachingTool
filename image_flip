@@ -1,0 +1,19 @@
+import cv2
+import numpy
+
+
+def flip(statement):
+    image = cv2.imread('butterfly.jpg', 1)
+    image1 = cv2.imread('roses.jpg', 1)
+    image2 = cv2.imread('single_rose.jpg', 1)
+
+    all_images = [image, image1, image2]
+
+    if(statement == "all_images[0][:, ::-1]"):
+        single_image = all_images[0][:, ::-1]
+        return single_image
+
+
+    #cv2.imshow('window', single_image)
+
+    #cv2.waitKey(0)
