@@ -21,6 +21,7 @@ class CVModule(Module):
         self.non_max = tk.PhotoImage(file = "nonmaxsupress2.png")
         self.hyst_graph = tk.PhotoImage(file = "hysterisis_graph2.png")
         self.butterfly = tk.PhotoImage(file = "butterfly_resized.png")
+        self.robot_learning = tk.PhotoImage(file = "machineLearning_robot.png")
         # tk.Frame.__init__(self)
         # self.tk.Frame.master.bind('<Configure>', self.resize_image)
 
@@ -66,6 +67,10 @@ class CVModule(Module):
         # im_temp = Image.open("Computer-vision-apply-for-medical-image-processing.png")
         # im_temp = im_temp.resize((400, 300), Image.ANTIALIAS)
         # im_temp.save("cv_overview_resized.png", "png")
+
+        # im_temp = Image.open("machineLearning3.png")
+        # im_temp = im_temp.resize((500, 600), Image.ANTIALIAS)
+        # im_temp.save("machineLearning_robot2.png", "png")
 
         # int(300 * float(w / 2)),int(300 * float(h / 2))
         self.visualizingPane.create_image(250, 250, image=self.cv_connections, anchor=tk.CENTER)
@@ -372,6 +377,7 @@ class CVModule(Module):
         #     data = file.read().replace('\n', '')
         #     paragraph2 = data
         font = ('Comic Sans MS', 11, 'bold italic')
+        self.visualizingPane.create_image(250, 250, image=self.robot_learning, anchor=tk.CENTER)
         self.showText(250, 175, paragraph, self.interactivePane, font)
         # self.showText(275, 150, paragraph2, self.visualizingPane, font)
         self.placeBackButton(.1, .7, pane=self.interactivePane, command=self.PoseQuiz,
