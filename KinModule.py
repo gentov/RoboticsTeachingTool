@@ -5,6 +5,7 @@ from Module import Module as Mod
 from PIL import ImageTk, Image
 import tkinter as tk
 import numpy as np
+from numpy import cos, sin
 
 
 def place_rainbow_text(text, pane, x, y, font_size):
@@ -26,6 +27,13 @@ def place_rainbow_text(text, pane, x, y, font_size):
         x = start + (font_size * .8 * char_count)
         pane.create_text(x, y, anchor="nw", font=title_font, text=char, fill=color)
         char_count += 1
+
+
+def load_image(location, resize=False, x=None, y=None):
+    im = Image.open(location)
+    if resize and x is not None and y is not None:
+        im = im.resize((x, y), Image.ANTIALIAS)
+    return ImageTk.PhotoImage(im)
 
 
 class KinModule(Mod):
@@ -77,31 +85,26 @@ class KinModule(Mod):
                            'Singularities': self.sing_page,
                            'Congratulations!': self.congrats_page}
 
-        image = Image.open("BluePurpleGreenStyle2.jpg")
-        fit_canvas_im = image.resize((500, 500), Image.ANTIALIAS)
-        self.blue_purple_bg = ImageTk.PhotoImage(fit_canvas_im)
-        self.basic_frames = ImageTk.PhotoImage(Image.open("BasicFrames.jpg"))
-        self.basic_rotations = ImageTk.PhotoImage(Image.open("rotations.png"))
-        self.trans_matrix = ImageTk.PhotoImage(Image.open("TransMatFrames.png"))
-        image2 = Image.open("robot1_dh_z.png")
-        image3 = Image.open("robot1_dh_x.png")
-        image4 = Image.open("robot1_full_dh.png")
-        resize2 = image2.resize((200, 200), Image.ANTIALIAS)
-        resize3 = image3.resize((200, 200), Image.ANTIALIAS)
-        resize4 = image4.resize((175, 175), Image.ANTIALIAS)
-        self.rob1_z = ImageTk.PhotoImage(resize2)
-        self.rob1_x = ImageTk.PhotoImage(resize3)
-        self.rob1_full = ImageTk.PhotoImage(resize4)
-        self.dh_show = ImageTk.PhotoImage(Image.open("exampleDH.png"))
-        self.param_mat = ImageTk.PhotoImage(Image.open("DH_parameterized.png"))
-        self.planar2D = ImageTk.PhotoImage(Image.open("2DPlanar.png"))
-        self.RRR3D = ImageTk.PhotoImage(Image.open("3DRRR.png"))
-        self.cos = ImageTk.PhotoImage(Image.open("lawOfcosines.png").resize((440, 400), Image.ANTIALIAS))
-        self.sincos = ImageTk.PhotoImage(Image.open("sincos.png").resize((470, 120), Image.ANTIALIAS))
-        self.atan2_im = ImageTk.PhotoImage(Image.open("atan2.png").resize((480, 125), Image.ANTIALIAS))
-        self.D = ImageTk.PhotoImage(Image.open("D.png").resize((400, 250), Image.ANTIALIAS))
-        self.ikin_ex1 = ImageTk.PhotoImage(Image.open("2DPlanarIKin.png").resize((400, 250), Image.ANTIALIAS))
-        self.ikin_ex2 = ImageTk.PhotoImage(Image.open("3DIKin.png").resize((400, 400), Image.ANTIALIAS))
+        self.blue_purple_bg = load_image("BluePurpleGreenStyle2.jpg", True, 500, 500)
+        self.basic_frames = load_image("BasicFrames.jpg")
+        self.basic_rotations = load_image("rotations.png")
+        self.trans_matrix = load_image("TransMatFrames.png")
+        self.rob1_z = load_image("robot1_dh_z.png", True, 200, 200)
+        self.rob1_x = load_image("robot1_dh_x.png", True, 200, 200)
+        self.rob1_full = load_image("robot1_full_dh.png", True, 175, 175)
+        self.dh_show = load_image("exampleDH.png")
+        self.param_mat = load_image("DH_parameterized.png")
+        self.planar2D = load_image("2DPlanar.png")
+        self.RRR3D = load_image("3DRRR.png")
+        self.cos = load_image("lawOfcosines.png", True, 440, 400)
+        self.sincos = load_image("sincos.png", True, 470, 120)
+        self.atan2_im = load_image("atan2.png", True, 480, 125)
+        self.D = load_image("D.png", True, 400, 250)
+        self.ikin_ex1 = load_image("2DPlanarIKin.png")
+        self.ikin_ex2 = load_image("3DIKin.png", True, 400, 400)
+        self.vkin_eq = load_image("velKin.png", True, 400, 110)
+        self.vikin_eq = load_image("velIKin.png")
+        self.jacobian = load_image("Jacobian.png")
 
         self.interactive_text_x = 255
         self.interactive_text_y = 100
@@ -450,7 +453,6 @@ class KinModule(Mod):
             v.set(default_str[i])
             v.trace('w', lambda a, b, c: self.check_fk_ex1(a, b, c, check_T))
 
-
     def check_dh1(self, a, b, c, check_T):
         ans_T = [('t1', '0', 'l1', '0'),
                  ('t2', '0', 'l2', '0')]
@@ -472,7 +474,7 @@ class KinModule(Mod):
         count = 0
         for i in range(0, 3):
             for j in range(0, 4):
-                entry = self.active_entries[8+count]
+                entry = self.active_entries[8 + count]
                 check = correct_bool_matrix[i][j]
                 ans = ans_T[i][j]
                 self.check_entry(entry, ans, check)
@@ -494,203 +496,75 @@ class KinModule(Mod):
         h = self.visualizingPane.winfo_height()
         self.visualizingPane.create_image(w / 2, h / 2, image=self.RRR3D, anchor=tk.CENTER)
 
-        self.interactivePane.create_text(self.interactive_text_x, self.interactive_text_y + 85,
+        self.interactivePane.create_text(self.interactive_text_x, self.interactive_text_y + 100,
                                          text="θ      d      a     α",
                                          font=self.font,
                                          anchor='n')
-        dh11 = tk.StringVar()
-        dh12 = tk.StringVar()
-        dh13 = tk.StringVar()
-        dh14 = tk.StringVar()
-        dh21 = tk.StringVar()
-        dh22 = tk.StringVar()
-        dh23 = tk.StringVar()
-        dh24 = tk.StringVar()
-        dh31 = tk.StringVar()
-        dh32 = tk.StringVar()
-        dh33 = tk.StringVar()
-        dh34 = tk.StringVar()
 
-        entry11 = tk.Entry(self.interactivePane, textvariable=dh11, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        entry12 = tk.Entry(self.interactivePane, textvariable=dh12, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        entry13 = tk.Entry(self.interactivePane, textvariable=dh13, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        entry14 = tk.Entry(self.interactivePane, textvariable=dh14, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        entry21 = tk.Entry(self.interactivePane, textvariable=dh21, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        entry22 = tk.Entry(self.interactivePane, textvariable=dh22, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        entry23 = tk.Entry(self.interactivePane, textvariable=dh23, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        entry24 = tk.Entry(self.interactivePane, textvariable=dh24, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        entry31 = tk.Entry(self.interactivePane, textvariable=dh31, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        entry32 = tk.Entry(self.interactivePane, textvariable=dh32, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        entry33 = tk.Entry(self.interactivePane, textvariable=dh33, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        entry34 = tk.Entry(self.interactivePane, textvariable=dh34, font=('Comic Sans MS', 11, 'bold italic'), width=5)
+        self.active_str_vars = list()
+        self.active_entries = list()
+        default_str = ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-']
 
-        entries_dh = [[entry11, entry12, entry13, entry14],
-                      [entry21, entry22, entry23, entry24]]
+        check_dh = [[False, False, False, False],
+                    [False, False, False, False],
+                    [False, False, False, False]]
+        for i in range(0, 12):
+            v = tk.StringVar()
+            e = tk.Entry(self.interactivePane, textvariable=v,
+                         font=('Comic Sans MS', 11, 'bold italic'), width=5)
+            self.active_entries.append(e)
+            col_rel = [.35, .45, .55, .65]
+            row_rel = [.5, .55, .6]
+            e.place(anchor=tk.S, relx=col_rel[i % len(col_rel)], rely=row_rel[int(np.floor(i / len(col_rel)))])
+            v.set(default_str[i])
+            v.trace('w', lambda a, b, c: self.check_dh2(a, b, c, check_dh))
+            self.active_str_vars.append(v)
+
         check_T = [[False, False, False, False],
                    [False, False, False, False],
                    [False, False, False, False]]
+        default_str = ['RXx', 'RYx', 'RZx', 'Px', 'RXy', 'RYy', 'RZy', 'Py', 'RXz', 'RYz', 'RZz', 'Pz']
+        for i in range(0, 12):
+            v = tk.StringVar()
+            self.active_str_vars.append(v)
+            e = tk.Entry(self.interactivePane, textvariable=v,
+                         font=('Comic Sans MS', 11, 'bold italic'), width=5)
+            self.active_entries.append(e)
+            col_rel = [.35, .45, .55, .65]
+            row_rel = [.66, .71, .76]
+            e.place(anchor=tk.S, relx=col_rel[i % len(col_rel)], rely=row_rel[int(np.floor(i / len(col_rel)))])
+            v.set(default_str[i])
+            v.trace('w', lambda a, b, c: self.check_fk_ex2(a, b, c, check_T))
 
-        dh11.trace_add("write",
-                       lambda a, b, c: self.check_dh_2(a, b, c, check_T, entries_dh))
-        dh12.trace_add("write",
-                       lambda a, b, c: self.check_dh_2(a, b, c, check_T, entries_dh))
-        dh13.trace_add("write",
-                       lambda a, b, c: self.check_dh_2(a, b, c, check_T, entries_dh))
-        dh14.trace_add("write",
-                       lambda a, b, c: self.check_dh_2(a, b, c, check_T, entries_dh))
-        dh21.trace_add("write",
-                       lambda a, b, c: self.check_dh_2(a, b, c, check_T, entries_dh))
-        dh22.trace_add("write",
-                       lambda a, b, c: self.check_dh_2(a, b, c, check_T, entries_dh))
-        dh23.trace_add("write",
-                       lambda a, b, c: self.check_dh_2(a, b, c, check_T, entries_dh))
-        dh24.trace_add("write",
-                       lambda a, b, c: self.check_dh_2(a, b, c, check_T, entries_dh))
-        dh31.trace_add("write",
-                       lambda a, b, c: self.check_dh_2(a, b, c, check_T, entries_dh))
-        dh32.trace_add("write",
-                       lambda a, b, c: self.check_dh_2(a, b, c, check_T, entries_dh))
-        dh33.trace_add("write",
-                       lambda a, b, c: self.check_dh_2(a, b, c, check_T, entries_dh))
-        dh34.trace_add("write",
-                       lambda a, b, c: self.check_dh_2(a, b, c, check_T, entries_dh))
-
-        col1_rel, col2_rel, col3_rel, col4_rel = .35, .45, .55, .65
-        row1_rel, row2_rel, row3_rel = .48, .53, .58
-        entry11.place(anchor=tk.S, relx=col1_rel, rely=row1_rel)
-        entry12.place(anchor=tk.S, relx=col2_rel, rely=row1_rel)
-        entry13.place(anchor=tk.S, relx=col3_rel, rely=row1_rel)
-        entry14.place(anchor=tk.S, relx=col4_rel, rely=row1_rel)
-        entry21.place(anchor=tk.S, relx=col1_rel, rely=row2_rel)
-        entry22.place(anchor=tk.S, relx=col2_rel, rely=row2_rel)
-        entry23.place(anchor=tk.S, relx=col3_rel, rely=row2_rel)
-        entry24.place(anchor=tk.S, relx=col4_rel, rely=row2_rel)
-        entry31.place(anchor=tk.S, relx=col1_rel, rely=row3_rel)
-        entry32.place(anchor=tk.S, relx=col2_rel, rely=row3_rel)
-        entry33.place(anchor=tk.S, relx=col3_rel, rely=row3_rel)
-        entry34.place(anchor=tk.S, relx=col4_rel, rely=row3_rel)
-
-        check_TT = [[False, False, False, False],
-                    [False, False, False, False],
-                    [False, False, False, False]]
-
-        rxx = tk.StringVar()
-        rxy = tk.StringVar()
-        rxz = tk.StringVar()
-        ryx = tk.StringVar()
-        ryy = tk.StringVar()
-        ryz = tk.StringVar()
-        rzx = tk.StringVar()
-        rzy = tk.StringVar()
-        rzz = tk.StringVar()
-        px = tk.StringVar()
-        py = tk.StringVar()
-        pz = tk.StringVar()
-
-        RXX_entry = tk.Entry(self.interactivePane, textvariable=rxx, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        RXY_entry = tk.Entry(self.interactivePane, textvariable=rxy, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        RXZ_entry = tk.Entry(self.interactivePane, textvariable=rxz, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-
-        RYX_entry = tk.Entry(self.interactivePane, textvariable=ryx, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        RYY_entry = tk.Entry(self.interactivePane, textvariable=ryy, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        RYZ_entry = tk.Entry(self.interactivePane, textvariable=ryz, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-
-        RZX_entry = tk.Entry(self.interactivePane, textvariable=rzx, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        RZY_entry = tk.Entry(self.interactivePane, textvariable=rzy, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        RZZ_entry = tk.Entry(self.interactivePane, textvariable=rzz, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-
-        PX_entry = tk.Entry(self.interactivePane, textvariable=px, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        PY_entry = tk.Entry(self.interactivePane, textvariable=py, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-        PZ_entry = tk.Entry(self.interactivePane, textvariable=pz, font=('Comic Sans MS', 11, 'bold italic'), width=5)
-
-        col1_rel, col2_rel, col3_rel, col4_rel = .35, .45, .55, .65
-        row1_rel, row2_rel, row3_rel = .66, .71, .76
-        RXX_entry.place(anchor=tk.S, relx=col1_rel, rely=row1_rel)
-        RXY_entry.place(anchor=tk.S, relx=col1_rel, rely=row2_rel)
-        RXZ_entry.place(anchor=tk.S, relx=col1_rel, rely=row3_rel)
-
-        RYX_entry.place(anchor=tk.S, relx=col2_rel, rely=row1_rel)
-        RYY_entry.place(anchor=tk.S, relx=col2_rel, rely=row2_rel)
-        RYZ_entry.place(anchor=tk.S, relx=col2_rel, rely=row3_rel)
-
-        RZX_entry.place(anchor=tk.S, relx=col3_rel, rely=row1_rel)
-        RZY_entry.place(anchor=tk.S, relx=col3_rel, rely=row2_rel)
-        RZZ_entry.place(anchor=tk.S, relx=col3_rel, rely=row3_rel)
-
-        PX_entry.place(anchor=tk.S, relx=col4_rel, rely=row1_rel)
-        PY_entry.place(anchor=tk.S, relx=col4_rel, rely=row2_rel)
-        PZ_entry.place(anchor=tk.S, relx=col4_rel, rely=row3_rel)
-
-        entries_T = [[RXX_entry, RYX_entry, RZX_entry, PX_entry],
-                     [RXY_entry, RYY_entry, RZY_entry, PY_entry],
-                     [RXZ_entry, RYZ_entry, RZZ_entry, PZ_entry]]
-
-        rxx.trace_add("write",
-                      lambda a, b, c: self.check_fk_ex2(a, b, c, check_TT, entries_T))
-        rxy.trace_add("write",
-                      lambda a, b, c: self.check_fk_ex2(a, b, c, check_TT, entries_T))
-        rxz.trace_add("write",
-                      lambda a, b, c: self.check_fk_ex2(a, b, c, check_TT, entries_T))
-        ryx.trace_add("write",
-                      lambda a, b, c: self.check_fk_ex2(a, b, c, check_TT, entries_T))
-        ryy.trace_add("write",
-                      lambda a, b, c: self.check_fk_ex2(a, b, c, check_TT, entries_T))
-        ryz.trace_add("write",
-                      lambda a, b, c: self.check_fk_ex2(a, b, c, check_TT, entries_T))
-        rzx.trace_add("write",
-                      lambda a, b, c: self.check_fk_ex2(a, b, c, check_TT, entries_T))
-        rzy.trace_add("write",
-                      lambda a, b, c: self.check_fk_ex2(a, b, c, check_TT, entries_T))
-        rzz.trace_add("write",
-                      lambda a, b, c: self.check_fk_ex2(a, b, c, check_TT, entries_T))
-        px.trace_add("write",
-                     lambda a, b, c: self.check_fk_ex2(a, b, c, check_TT, entries_T))
-        py.trace_add("write",
-                     lambda a, b, c: self.check_fk_ex2(a, b, c, check_TT, entries_T))
-        pz.trace_add("write",
-                     lambda a, b, c: self.check_fk_ex2(a, b, c, check_TT, entries_T))
-        rxx.set('RXx')
-        rxy.set('RXy')
-        rxz.set('RXz')
-        ryx.set('RYx')
-        ryy.set('RYy')
-        ryz.set('RYz')
-        rzx.set('RZx')
-        rzy.set('RZy')
-        rzz.set('RZz')
-        px.set('Px')
-        py.set('Py')
-        pz.set('Pz')
-
-    def check_dh_2(self, a, b, c, check_T, entries_T):
+    def check_dh2(self, a, b, c, check_T):
         ans_T = [('t1', 'l1', '0', 'pi/2'),
                  ('t2', '0', 'l2', '0'),
                  ('t3', '0', 'l3', '0')]
 
-        for i in range(0, 2):
-            for j in range(0, 3):
-                if entries_T[i][j].get() == ans_T[i][j]:
-                    check_T[i][j] = True
-                    entries_T[i][j]['bg'] = 'chartreuse2'
-                else:
-                    check_T[i][j] = False
-                    entries_T[i][j]['bg'] = 'firebrick1'
+        count = 0
+        for i in range(0, 3):
+            for j in range(0, 4):
+                entry = self.active_entries[count]
+                check = check_T[i][j]
+                ans = ans_T[i][j]
+                self.check_entry(entry, ans, check)
+                count += 1
         if check_T:
             self.nextButton.config(state='normal')
 
-    def check_fk_ex2(self, a, b, c, check_T, entries_T):
+    def check_fk_ex2(self, a, b, c, check_T):
         ans_T = [('0', '0', '1', '0'),
                  ('1', '0', '0', '0'),
                  ('0', '1', '0', '5')]
 
-        for i in range(0, 2):
-            for j in range(0, 3):
-                if entries_T[i][j].get() == ans_T[i][j]:
-                    check_T[i][j] = True
-                    entries_T[i][j]['bg'] = 'chartreuse2'
-                else:
-                    check_T[i][j] = False
-                    entries_T[i][j]['bg'] = 'firebrick1'
+        count = 0
+        for i in range(0, 3):
+            for j in range(0, 4):
+                entry = self.active_entries[12 + count]
+                check = check_T[i][j]
+                ans = ans_T[i][j]
+                self.check_entry(entry, ans, check)
+                count += 1
         if check_T:
             self.nextButton.config(state='normal')
 
@@ -749,13 +623,55 @@ class KinModule(Mod):
                                          text="A basic 2D example for geometric inverse. Find the equations\n"
                                               "for theta 1 and theta 2 and then report the elbow up and\n"
                                               "elbow down solutions for l1=l2=5 and x=(5/2)*2^(1/2),\n"
-                                              "y=(5/2)*2^(1/2) + 5. Round decimals to three places.",
+                                              "y=(5/2)*2^(1/2) + 5. Round decimals to three places.\n"
+                                              "The solution plus or minus .01 are counted as correct.",
                                          font=self.font,
                                          anchor='n')
         self.visualizingPane.update()
         w = self.visualizingPane.winfo_width()
         h = self.visualizingPane.winfo_height()
         self.visualizingPane.create_image(w / 2, h / 2, image=self.ikin_ex1, anchor=tk.CENTER)
+
+        self.active_str_vars = list()
+        self.active_entries = list()
+        default_str = ['0', '0']
+
+        for i in range(0, 2):
+            v = tk.StringVar()
+            e = tk.Entry(self.interactivePane, textvariable=v,
+                         font=('Comic Sans MS', 24, 'bold italic'), width=5)
+            self.active_entries.append(e)
+            col_rel = [.5]
+            row_rel = [.6, .7]
+            e.place(anchor=tk.S, relx=col_rel[i % len(col_rel)], rely=row_rel[int(np.floor(i / len(col_rel)))])
+            v.set(default_str[i])
+            v.trace('w', lambda a, b, c: self.check_ik1(a, b, c))
+            self.active_str_vars.append(v)
+
+    def check_ik1(self, a, b, c):
+        ans = [5 * np.sqrt(2) / 2, 5 + 5 * np.sqrt(2) / 2, 0]
+        try:
+            t1 = float(self.active_entries[0].get())
+            t2 = float(self.active_entries[1].get())
+            tm = [5 * cos(t1) + 5 * cos(t1) * cos(t2) - 5 * sin(t1) * sin(t2),
+                  5 * sin(t1) + 5 * cos(t1) * sin(t2) + 5 * cos(t2) * sin(t1),
+                  0]
+            err = .1
+            for i in range(0, 2):
+                print(f'{i} Given {tm[i]}      Soln {ans[i]}')
+
+                if ans[i] - err <= tm[i] <= ans[i] + err:
+                    self.active_entries[i]['bg'] = 'chartreuse2'
+                else:
+                    self.active_entries[i]['bg'] = 'firebrick1'
+
+        except Exception as e:
+            self.active_entries[0]['bg'] = 'firebrick1'
+            self.active_entries[1]['bg'] = 'firebrick1'
+            if self.active_entries[0].get() == 'pi/4' or self.active_entries[0].get() == 'pi/2':
+                self.active_entries[0]['bg'] = 'chartreuse2'
+            if self.active_entries[1].get() == 'pi/2' or self.active_entries[1].get() == '-pi/4':
+                self.active_entries[1]['bg'] = 'chartreuse2'
 
     def ik2_page(self):
         self.interactivePane.create_text(self.interactive_text_x, self.interactive_text_y,
@@ -770,6 +686,50 @@ class KinModule(Mod):
         h = self.visualizingPane.winfo_height()
         self.visualizingPane.create_image(w / 2, h / 2, image=self.ikin_ex2, anchor=tk.CENTER)
 
+        self.active_str_vars = list()
+        self.active_entries = list()
+        default_str = ['0', '0', '0']
+
+        for i in range(0, 3):
+            v = tk.StringVar()
+            e = tk.Entry(self.interactivePane, textvariable=v,
+                         font=('Comic Sans MS', 24, 'bold italic'), width=5)
+            self.active_entries.append(e)
+            col_rel = [.5]
+            row_rel = [.6, .7, .8]
+            e.place(anchor=tk.S, relx=col_rel[i % len(col_rel)], rely=row_rel[int(np.floor(i / len(col_rel)))])
+            v.set(default_str[i])
+            v.trace('w', lambda a, b, c: self.check_ik2(a, b, c))
+            self.active_str_vars.append(v)
+
+    def check_ik2(self, a, b, c):
+        ans = [0, 5, 15]
+        try:
+            t1 = float(self.active_entries[0].get())
+            t2 = float(self.active_entries[1].get())
+            t3 = float(self.active_entries[2].get())
+            tm = [5 * cos(t1) * cos(t2) - 5 * cos(t1) * sin(t2) * sin(t3) + 5 * cos(t1) * cos(t2) * cos(t3),
+                  5 * cos(t2) * sin(t1) - 5 * sin(t1) * sin(t2) * sin(t3) + 5 * cos(t2) * cos(t3) * sin(t1),
+                  5 * sin(t2) + 5 * cos(t2) * sin(t3) + 5 * cos(t3) * sin(t2) + 10]
+            err = .1
+            for i in range(0, 3):
+                print(f'{i} Given {tm[i]}      Soln {ans[i]}')
+
+                if ans[i] - err <= tm[i] <= ans[i] + err:
+                    self.active_entries[i]['bg'] = 'chartreuse2'
+                else:
+                    self.active_entries[i]['bg'] = 'firebrick1'
+
+        except Exception as e:
+            for i in range(0, 3):
+                self.active_entries[i]['bg'] = 'firebrick1'
+            if self.active_entries[2].get() == '-pi/2' or self.active_entries[2].get() == 'pi/2':
+                self.active_entries[2]['bg'] = 'chartreuse2'
+            if self.active_entries[1].get() == 'pi/2' or self.active_entries[1].get() == '0':
+                self.active_entries[1]['bg'] = 'chartreuse2'
+            if self.active_entries[0].get() == 'pi/2':
+                self.active_entries[0]['bg'] = 'chartreuse2'
+
     def velkin_page(self):
         self.interactivePane.create_text(self.interactive_text_x, self.interactive_text_y - 45,
                                          text="Robot kinematics are not limited to just position kinematics.\n"
@@ -783,6 +743,15 @@ class KinModule(Mod):
                                          ,
                                          font=self.font,
                                          anchor='n')
+        self.interactivePane.update()
+        iw = self.interactivePane.winfo_width()
+        ih = self.interactivePane.winfo_height()
+        self.visualizingPane.update()
+        vw = self.visualizingPane.winfo_width()
+        vh = self.visualizingPane.winfo_height()
+
+        self.interactivePane.create_image(iw / 2, (2 * ih / 3) - 30, image=self.vkin_eq, anchor=tk.CENTER)
+
         self.visualizingPane.create_text(self.interactive_text_x, 20,
                                          text="Q_dot represents the nx1 vector of joint velocities, J is the\n"
                                               "manipulator Jacobian, and p_dot represents the 6x1 vector of\n"
@@ -790,6 +759,16 @@ class KinModule(Mod):
                                               "Jacobian is a matrix that represents the derivatives of the\n"
                                               "position of the end-effector with respect to each joint variable\n"
                                               "of the robot. It is constructed using the following equation.\n"
+                                         ,
+                                         font=self.font,
+                                         anchor='n')
+        self.visualizingPane.create_image(vw / 2, ih / 2, image=self.jacobian, anchor=tk.CENTER)
+        self.visualizingPane.create_text(self.interactive_text_x, 350,
+                                         text="The Jacobian is always a 6xn matrix. The top three rows are\n"
+                                              "the derivative of the position vector of the transformation\n"
+                                              "matrix from the base of the robot to the end-effector with\n"
+                                              "respect to each joint variable (i.e. the partial derivative of p0n\n"
+                                              "with respect to q_i)."
                                          ,
                                          font=self.font,
                                          anchor='n')
