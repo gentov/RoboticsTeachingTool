@@ -85,26 +85,26 @@ class KinModule(Mod):
                            'Singularities': self.sing_page,
                            'Congratulations!': self.congrats_page}
 
-        self.blue_purple_bg = load_image("BluePurpleGreenStyle2.jpg", True, 500, 500)
-        self.basic_frames = load_image("BasicFrames.jpg")
-        self.basic_rotations = load_image("rotations.png")
-        self.trans_matrix = load_image("TransMatFrames.png")
-        self.rob1_z = load_image("robot1_dh_z.png", True, 200, 200)
-        self.rob1_x = load_image("robot1_dh_x.png", True, 200, 200)
-        self.rob1_full = load_image("robot1_full_dh.png", True, 175, 175)
-        self.dh_show = load_image("exampleDH.png")
-        self.param_mat = load_image("DH_parameterized.png")
-        self.planar2D = load_image("2DPlanar.png")
-        self.RRR3D = load_image("3DRRR.png")
-        self.cos = load_image("lawOfcosines.png", True, 440, 400)
-        self.sincos = load_image("sincos.png", True, 470, 120)
-        self.atan2_im = load_image("atan2.png", True, 480, 125)
-        self.D = load_image("D.png", True, 400, 250)
-        self.ikin_ex1 = load_image("2DPlanarIKin.png")
-        self.ikin_ex2 = load_image("3DIKin.png", True, 400, 400)
-        self.vkin_eq = load_image("velKin.png", True, 400, 110)
-        self.vikin_eq = load_image("velIKin.png")
-        self.jacobian = load_image("Jacobian.png")
+        self.blue_purple_bg = load_image("images/BluePurpleGreenStyle2.jpg", True, 500, 500)
+        self.basic_frames = load_image("images/BasicFrames.jpg")
+        self.basic_rotations = load_image("images/rotations.png")
+        self.trans_matrix = load_image("images/TransMatFrames.png")
+        self.rob1_z = load_image("images/robot1_dh_z.png", True, 200, 200)
+        self.rob1_x = load_image("images/robot1_dh_x.png", True, 200, 200)
+        self.rob1_full = load_image("images/robot1_full_dh.png", True, 175, 175)
+        self.dh_show = load_image("images/exampleDH.png")
+        self.param_mat = load_image("images/DH_parameterized.png")
+        self.planar2D = load_image("images/2DPlanar.png")
+        self.RRR3D = load_image("images/3DRRR.png")
+        self.cos = load_image("images/lawOfcosines.png", True, 440, 400)
+        self.sincos = load_image("images/sincos.png", True, 470, 120)
+        self.atan2_im = load_image("images/atan2.png", True, 480, 125)
+        self.D = load_image("images/D.png", True, 400, 250)
+        self.ikin_ex1 = load_image("images/2DPlanarIKin.png")
+        self.ikin_ex2 = load_image("images/3DIKin.png", True, 400, 400)
+        self.vkin_eq = load_image("images/velKin.png", True, 400, 110)
+        self.vikin_eq = load_image("images/velIKin.png")
+        self.jacobian = load_image("images/Jacobian.png")
 
         self.interactive_text_x = 255
         self.interactive_text_y = 100
@@ -878,7 +878,7 @@ class KinModule(Mod):
 
     def placeNextButton(self, x, y, pane, text=None, command=None, font=None):
         nextButton = tk.Button(pane, bg=pane["background"], relief=tk.FLAT, command=command)
-        self.nextButtonImage = tk.PhotoImage(file="next.png")
+        self.nextButtonImage = tk.PhotoImage(file="images/next.png")
         nextButton.config(image=self.nextButtonImage, compound='center', text=text, font=font)
         nextButton.place(relx=x, rely=y)
         return nextButton
@@ -894,7 +894,7 @@ class KinModule(Mod):
 
     def placeBackButton(self, x, y, pane, text=None, command=None, font=None):
         backButton = tk.Button(pane, bg=pane["background"], relief=tk.FLAT, command=command)
-        self.backButtonImage = tk.PhotoImage(file="back.png")
+        self.backButtonImage = tk.PhotoImage(file="images/back.png")
         backButton.config(image=self.backButtonImage, compound='center', text=text, font=font)
         backButton.place(relx=x, rely=y)
         return backButton
