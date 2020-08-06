@@ -7,7 +7,7 @@ from matplotlib.animation import FuncAnimation
 class PIDModule(Module):
     def __init__(self, gui = None, title = None):
         super(PIDModule, self).__init__(gui = gui, title = title)
-        self.pidGraph = tk.PhotoImage(file = "pidgraph.png")
+        self.pidGraph = tk.PhotoImage(file = "images/pidgraph.png")
         self.kpLabel = None
         self.kdLabel = None
         self.kiLabel = None
