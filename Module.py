@@ -60,13 +60,13 @@ class Module():
     """
     def placeNextButton(self, x,y,pane, text = None,command = None, font = None):
         nextButton = tk.Button(pane, bg=pane["background"], relief=tk.FLAT, command=command)
-        self.nextButtonImage = tk.PhotoImage(file="next.png")
+        self.nextButtonImage = tk.PhotoImage(file="images/next.png")
         nextButton.config(image=self.nextButtonImage, compound='center', text=text, font=font)
         nextButton.place(relx=x, rely=y)
 
     def placeBackToMenuButton(self, pane):
         mainMenuButton = tk.Button(pane, bg=pane["background"], relief=tk.FLAT, command=self.gui.HomePage)
-        self.mainMenuButtonImage = tk.PhotoImage(file="mainMenu.png")
+        self.mainMenuButtonImage = tk.PhotoImage(file="images/mainMenu.png")
         mainMenuButton.config(image=self.mainMenuButtonImage, compound='center')
         mainMenuButton.place(relx=.87, rely=.025) # I figured the top right corner was ok, but maybe we want params
 
@@ -80,12 +80,12 @@ class Module():
     """
     def placeBackButton(self, x,y,pane, text = None,command = None, font = None):
         backButton = tk.Button(pane, bg=pane["background"], relief=tk.FLAT, command=command)
-        self.backButtonImage = tk.PhotoImage(file="back.png")
+        self.backButtonImage = tk.PhotoImage(file="images/back.png")
         backButton.config(image=self.backButtonImage, compound='center', text=text, font=font)
         backButton.place(relx=x, rely=y)
 
     def placeSaveButton(self, pane):
         saveButton = tk.Button(pane, bg=pane["background"], relief=tk.FLAT)# command=self.gui.HomePage)
-        self.saveButtonImage = tk.PhotoImage(file="saveButtonImage.png")
+        self.saveButtonImage = tk.PhotoImage(file="images/saveButtonImage.png")
         saveButton.config(image=self.saveButtonImage, compound='center')
         saveButton.place(relx=.05, rely=.85) # I figured the top left corner was ok, but maybe we want params

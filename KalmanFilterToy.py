@@ -10,11 +10,11 @@ import random
 class KalmanFilterToy(Module):
     def __init__(self, gui = None, title = None, mainModule = None):
         super(KalmanFilterToy, self).__init__(gui = gui, title = title)
-        self.quizQuestionMark = tk.PhotoImage(file = "quizQuestionMark.png")
-        self.quizPassedImage = tk.PhotoImage(file="passedQuiz.png")
-        self.quizFailedImage = tk.PhotoImage(file="failedQuiz.png")
-        self.carImage = tk.PhotoImage(file="carImage.png")
-        self.kalmanExampleImage = tk.PhotoImage(file="kalmanExampleImage.png")
+        self.quizQuestionMark = tk.PhotoImage(file = "images/quizQuestionMark.png")
+        self.quizPassedImage = tk.PhotoImage(file="images/passedQuiz.png")
+        self.quizFailedImage = tk.PhotoImage(file="images/failedQuiz.png")
+        self.carImage = tk.PhotoImage(file="images/carImage.png")
+        self.kalmanExampleImage = tk.PhotoImage(file="images/kalmanExampleImage.png")
         self.font = ('Comic Sans MS', 11)
         self.smallFont = ('Comic Sans MS', 9)#, 'bold italic')
         self.quizResultFont = ('Comic Sans MS', 15)#, 'bold italic')
@@ -37,7 +37,7 @@ class KalmanFilterToy(Module):
         self.xErrorData = None
         self.vErrorData = None
         self.dtKalmanGainToy_sec = .1
-        self.matrixMultImage = tk.PhotoImage(file="matrixMultImage.png")
+        self.matrixMultImage = tk.PhotoImage(file="images/matrixMultImage.png")
         self.radioVarMovingAvgQ1 = tk.StringVar()
         self.radioVarMovingAvgQ2 = tk.StringVar()
 

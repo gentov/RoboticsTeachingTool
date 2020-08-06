@@ -8,9 +8,9 @@ from statistics import mean
 class MovingAverageFilter(Module):
     def __init__(self, gui = None, title = None, mainModule = None):
         super(MovingAverageFilter, self).__init__(gui = gui, title = title)
-        self.quizQuestionMark = tk.PhotoImage(file = "quizQuestionMark.png")
-        self.quizPassedImage = tk.PhotoImage(file="passedQuiz.png")
-        self.quizFailedImage = tk.PhotoImage(file="failedQuiz.png")
+        self.quizQuestionMark = tk.PhotoImage(file = "images/quizQuestionMark.png")
+        self.quizPassedImage = tk.PhotoImage(file="images/passedQuiz.png")
+        self.quizFailedImage = tk.PhotoImage(file="images/failedQuiz.png")
         self.font = ('Comic Sans MS', 11)
         self.quizResultFont = ('Comic Sans MS', 15, 'bold italic')
         self.axis = None
