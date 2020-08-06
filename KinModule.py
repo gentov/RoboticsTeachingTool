@@ -622,8 +622,8 @@ class KinModule(Mod):
         self.interactivePane.create_text(self.interactive_text_x, self.interactive_text_y,
                                          text="A basic 2D example for geometric inverse. Find the equations\n"
                                               "for theta 1 and theta 2 and then report the elbow up and\n"
-                                              "elbow down solutions for l1=l2=5 and x=(5/2)*2^(1/2),\n"
-                                              "y=(5/2)*2^(1/2) + 5. Round decimals to three places.\n"
+                                              "elbow down solutions for l1=l2=5 and x=3.5355,\n"
+                                              "y=8.5355. Round decimals to three places.\n"
                                               "The solution plus or minus .01 are counted as correct.",
                                          font=self.font,
                                          anchor='n')
