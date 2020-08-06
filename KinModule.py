@@ -52,7 +52,7 @@ class KinModule(Mod):
         super().__init__(gui, "Robot Kinematics", description)
         self.XPAD = 20
         self.font = ('Comic Sans MS', 11, 'bold italic')
-        self.button_font = ('Comic Sans MS', 6)
+        self.button_font = ('Comic Sans MS', 11)
         self.current_page = 0
         self.page_titles = ['Robot Kinematics',
                             'Frame Transformations',
@@ -67,8 +67,7 @@ class KinModule(Mod):
                             'Inverse Kinematics Example 1',
                             'Inverse Kinematics Example 2',
                             'Velocity Kinematics',
-                            'Singularities',
-                            'Congratulations!']
+                            'Singularities']
         self.page_loads = {'Robot Kinematics': self.intro_page,
                            'Frame Transformations': self.frame_trans_page,
                            'Rotations': self.rot_page,
@@ -82,10 +81,10 @@ class KinModule(Mod):
                            'Inverse Kinematics Example 1': self.ik1_page,
                            'Inverse Kinematics Example 2': self.ik2_page,
                            'Velocity Kinematics': self.velkin_page,
-                           'Singularities': self.sing_page,
-                           'Congratulations!': self.congrats_page}
+                           'Singularities': self.sing_page}
 
         self.blue_purple_bg = load_image("images/BluePurpleGreenStyle2.jpg", True, 500, 500)
+        self.intro_pic = load_image("images/armInAction Zoomed.jpg", True, 450, 450)
         self.basic_frames = load_image("images/BasicFrames.jpg")
         self.basic_rotations = load_image("images/rotations.png")
         self.trans_matrix = load_image("images/TransMatFrames.png")
@@ -97,14 +96,15 @@ class KinModule(Mod):
         self.planar2D = load_image("images/2DPlanar.png")
         self.RRR3D = load_image("images/3DRRR.png")
         self.cos = load_image("images/lawOfcosines.png", True, 440, 400)
-        self.sincos = load_image("images/sincos.png", True, 470, 120)
-        self.atan2_im = load_image("images/atan2.png", True, 480, 125)
-        self.D = load_image("images/D.png", True, 400, 250)
+        self.sincos = load_image("images/sincos.png", True, 381, 79)
+        self.atan2_im = load_image("images/atan2.png", True, 436, 74)
+        self.D = load_image("images/D.png", True, 363, 241)
         self.ikin_ex1 = load_image("images/2DPlanarIKin.png")
-        self.ikin_ex2 = load_image("images/3DIKin.png", True, 400, 400)
+        self.ikin_ex2 = load_image("images/3DIKin.png", True, 461, 259)
         self.vkin_eq = load_image("images/velKin.png", True, 400, 110)
         self.vikin_eq = load_image("images/velIKin.png")
         self.jacobian = load_image("images/Jacobian.png")
+        self.singular = load_image("images/singular.png")
 
         self.interactive_text_x = 255
         self.interactive_text_y = 100
@@ -112,7 +112,7 @@ class KinModule(Mod):
         self.active_str_vars = list()
         self.active_entries = list()
 
-        self.debug = True
+        self.debug = False
 
         self.backButton = None
         self.nextButton = None
@@ -144,6 +144,10 @@ class KinModule(Mod):
                                               "\nkinematics and singularities are covered.",
                                          font=self.font,
                                          anchor='n')
+        self.visualizingPane.update()
+        w = self.visualizingPane.winfo_width()
+        h = self.visualizingPane.winfo_height()
+        self.visualizingPane.create_image(w / 2, h / 2, image=self.intro_pic, anchor=tk.CENTER)
 
     def frame_trans_page(self):
         if not self.debug:
@@ -219,7 +223,7 @@ class KinModule(Mod):
                                               "same way to the other columns for the new Y and Z. Rotation",
                                          font=self.font,
                                          anchor='n')
-        self.visualizingPane.create_text(self.interactive_text_x, 15,
+        self.visualizingPane.create_text(self.interactive_text_x, 10,
                                          text="\nmatrices have some unique properties that make them a part"
                                               "\nof the Special Orthogonal group. This group of matrices have"
                                               "\nmutually orthogonal column vectors of unit length. Because\n"
@@ -306,10 +310,10 @@ class KinModule(Mod):
                     entry = self.active_entries[count]
                     ans = ans_T[i][j]
                     check = check_T[i][j]
-                    print(f"EntryVal: {entry.get()}  Answer: {ans}")
-                    self.check_entry(entry, ans, check)
+                    # print(f"EntryVal: {entry.get()}  Answer: {ans}")
+                    check_T[i][j] = self.check_entry(entry, ans, check)
                     count += 1
-            if check_T:
+            if all(check_T[0]) and all(check_T[1]) and all(check_T[2]):
                 self.nextButton.config(state='normal')
         except Exception as e:
             print(f'Error in callback       {str(e)}')
@@ -321,6 +325,7 @@ class KinModule(Mod):
         else:
             check = False
             entry['bg'] = 'firebrick1'
+        return check
 
     def dh_page(self):
         self.interactivePane.create_text(self.interactive_text_x, self.interactive_text_y - 45,
@@ -401,6 +406,8 @@ class KinModule(Mod):
         self.visualizingPane.create_image(3 * w / 5, .86 * h, image=self.dh_show, anchor=tk.CENTER)
 
     def fk1_page(self):
+        if not self.debug:
+            self.nextButton["state"] = 'disabled'
         self.interactivePane.create_text(self.interactive_text_x, self.interactive_text_y,
                                          text="Fill in the DH table for this 2DOF RR Planar robot. Then write\n"
                                               "out the transformation matrix corresponding to the first row of\n"
@@ -423,8 +430,11 @@ class KinModule(Mod):
         self.active_entries = list()
         default_str = ['-', '-', '-', '-', '-', '-', '-', '-']
 
-        check_dh = [[False, False, False, False],
-                    [False, False, False, False]]
+        check = [[False, False, False, False],
+                 [False, False, False, False],
+                 [False, False, False, False],
+                 [False, False, False, False],
+                 [False, False, False, False]]
         for i in range(0, 8):
             v = tk.StringVar()
             e = tk.Entry(self.interactivePane, textvariable=v,
@@ -434,12 +444,9 @@ class KinModule(Mod):
             row_rel = [.5, .55]
             e.place(anchor=tk.S, relx=col_rel[i % len(col_rel)], rely=row_rel[int(np.floor(i / len(col_rel)))])
             v.set(default_str[i])
-            v.trace('w', lambda a, b, c: self.check_dh1(a, b, c, check_dh))
+            v.trace('w', lambda a, b, c: self.check_dh1(a, b, c, check))
             self.active_str_vars.append(v)
 
-        check_T = [[False, False, False, False],
-                   [False, False, False, False],
-                   [False, False, False, False]]
         default_str = ['RXx', 'RYx', 'RZx', 'Px', 'RXy', 'RYy', 'RZy', 'Py', 'RXz', 'RYz', 'RZz', 'Pz']
         for i in range(0, 12):
             v = tk.StringVar()
@@ -451,7 +458,13 @@ class KinModule(Mod):
             row_rel = [.63, .68, .73]
             e.place(anchor=tk.S, relx=col_rel[i % len(col_rel)], rely=row_rel[int(np.floor(i / len(col_rel)))])
             v.set(default_str[i])
-            v.trace('w', lambda a, b, c: self.check_fk_ex1(a, b, c, check_T))
+            v.trace('w', lambda a, b, c: self.check_fk_ex1(a, b, c, check))
+
+        # self.visualizingPane.create_text(w*.97, h*.97,
+        #                                  text="[1]M. Spenko, 'Manipulator Kinematics', Illinois Institute of Technology, "
+        #                                       "2020",
+        #                                  font=('Comic Sans MS', 5, 'bold italic'),
+        #                                  anchor='se')
 
     def check_dh1(self, a, b, c, check_T):
         ans_T = [('t1', '0', 'l1', '0'),
@@ -462,31 +475,34 @@ class KinModule(Mod):
                 entry = self.active_entries[count]
                 check = check_T[i][j]
                 ans = ans_T[i][j]
-                self.check_entry(entry, ans, check)
+                check_T[i][j] = self.check_entry(entry, ans, check)
                 count += 1
-        if check_T:
+        if all(check_T[0]) and all(check_T[1]) and all(check_T[2]) and all(check_T[3]) and all(check_T[4]):
             self.nextButton.config(state='normal')
 
     def check_fk_ex1(self, a, b, c, correct_bool_matrix):
-        ans_T = [('1', '0', '0', '5'),
+        ans_T = [('1', '0', '0', '10'),
                  ('0', '1', '0', '0'),
                  ('0', '0', '1', '0')]
         count = 0
         for i in range(0, 3):
             for j in range(0, 4):
                 entry = self.active_entries[8 + count]
-                check = correct_bool_matrix[i][j]
+                check = correct_bool_matrix[i + 2][j]
                 ans = ans_T[i][j]
-                self.check_entry(entry, ans, check)
+                correct_bool_matrix[i+2][j] = self.check_entry(entry, ans, check)
                 count += 1
-        if correct_bool_matrix:
+        if all(correct_bool_matrix[0]) and all(correct_bool_matrix[1]) and all(correct_bool_matrix[2]) and \
+                all(correct_bool_matrix[3]) and all(correct_bool_matrix[4]):
             self.nextButton.config(state='normal')
 
     def fk2_page(self):
+        if not self.debug:
+            self.nextButton["state"] = 'disabled'
         self.interactivePane.create_text(self.interactive_text_x, self.interactive_text_y,
                                          text="Fill in the DH table for this 3DOF RRR robot. Then write\n"
                                               "out the transformation matrix corresponding to the third row of\n"
-                                              "the table if l1=l2=5, t1=t2=t3=π/2. Write joint variables as\n"
+                                              "the table if l1=l2=5, t1=t2=t3=-π/2. Write joint variables as\n"
                                               "'tn' (i.e. t1, t2) and π as pi.",
                                          font=self.font,
                                          anchor='n')
@@ -505,9 +521,12 @@ class KinModule(Mod):
         self.active_entries = list()
         default_str = ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-']
 
-        check_dh = [[False, False, False, False],
-                    [False, False, False, False],
-                    [False, False, False, False]]
+        check = [[False, False, False, False],
+                 [False, False, False, False],
+                 [False, False, False, False],
+                 [False, False, False, False],
+                 [False, False, False, False],
+                 [False, False, False, False]]
         for i in range(0, 12):
             v = tk.StringVar()
             e = tk.Entry(self.interactivePane, textvariable=v,
@@ -517,12 +536,9 @@ class KinModule(Mod):
             row_rel = [.5, .55, .6]
             e.place(anchor=tk.S, relx=col_rel[i % len(col_rel)], rely=row_rel[int(np.floor(i / len(col_rel)))])
             v.set(default_str[i])
-            v.trace('w', lambda a, b, c: self.check_dh2(a, b, c, check_dh))
+            v.trace('w', lambda a, b, c: self.check_dh2(a, b, c, check))
             self.active_str_vars.append(v)
 
-        check_T = [[False, False, False, False],
-                   [False, False, False, False],
-                   [False, False, False, False]]
         default_str = ['RXx', 'RYx', 'RZx', 'Px', 'RXy', 'RYy', 'RZy', 'Py', 'RXz', 'RYz', 'RZz', 'Pz']
         for i in range(0, 12):
             v = tk.StringVar()
@@ -534,10 +550,21 @@ class KinModule(Mod):
             row_rel = [.66, .71, .76]
             e.place(anchor=tk.S, relx=col_rel[i % len(col_rel)], rely=row_rel[int(np.floor(i / len(col_rel)))])
             v.set(default_str[i])
-            v.trace('w', lambda a, b, c: self.check_fk_ex2(a, b, c, check_T))
+            v.trace('w', lambda a, b, c: self.check_fk_ex2(a, b, c, check))
+
+        # self.visualizingPane.create_text(w * .97, h * .97,
+        #                                  text="[2]A. V J, "
+        #                                       "'How can I draw with a 3 DOF RRR arm , "
+        #                                       "I have done theForward and Inverse KInematics', "
+        #                                       "Aug. 31, 2017. \nAccessed on Aug. 3, 2020. [Online]. "
+        #                                       "Available: https://robotics.stackexchange.com/questions/14085/how-can"
+        #                                       "\n-i-draw-with-a-3-dof-rrr-arm-i-have-done-the-forward-and-inverse-"
+        #                                       "kinemat",
+        #                                  font=('Comic Sans MS', 5, 'bold italic'),
+        #                                  anchor='se')
 
     def check_dh2(self, a, b, c, check_T):
-        ans_T = [('t1', 'l1', '0', 'pi/2'),
+        ans_T = [('t1', 'l1', '0', '-pi/2'),
                  ('t2', '0', 'l2', '0'),
                  ('t3', '0', 'l3', '0')]
 
@@ -547,25 +574,27 @@ class KinModule(Mod):
                 entry = self.active_entries[count]
                 check = check_T[i][j]
                 ans = ans_T[i][j]
-                self.check_entry(entry, ans, check)
+                check_T[i][j] = self.check_entry(entry, ans, check)
                 count += 1
-        if check_T:
+        if all(check_T[0]) and all(check_T[1]) and all(check_T[2]) and all(check_T[3]) and all(check_T[4]) \
+                and all(check_T[5]):
             self.nextButton.config(state='normal')
 
     def check_fk_ex2(self, a, b, c, check_T):
-        ans_T = [('0', '0', '1', '0'),
-                 ('1', '0', '0', '0'),
-                 ('0', '1', '0', '5')]
+        ans_T = [('0', '0', '-1', '0'),
+                 ('0', '-1', '0', '5'),
+                 ('-1', '0', '0', '10')]
 
         count = 0
         for i in range(0, 3):
             for j in range(0, 4):
                 entry = self.active_entries[12 + count]
-                check = check_T[i][j]
+                check = check_T[i + 3][j]
                 ans = ans_T[i][j]
-                self.check_entry(entry, ans, check)
+                check_T[i+3][j] = self.check_entry(entry, ans, check)
                 count += 1
-        if check_T:
+        if all(check_T[0]) and all(check_T[1]) and all(check_T[2]) and all(check_T[3]) and all(check_T[4]) \
+                and all(check_T[5]):
             self.nextButton.config(state='normal')
 
     def cos_page(self):
@@ -619,6 +648,8 @@ class KinModule(Mod):
         self.visualizingPane.create_image(w / 2, (3 * h / 4) - 15, image=self.D, anchor=tk.CENTER)
 
     def ik1_page(self):
+        if not self.debug:
+            self.nextButton["state"] = 'disabled'
         self.interactivePane.create_text(self.interactive_text_x, self.interactive_text_y,
                                          text="A basic 2D example for geometric inverse. Find the equations\n"
                                               "for theta 1 and theta 2 and then report the elbow up and\n"
@@ -635,6 +666,7 @@ class KinModule(Mod):
         self.active_str_vars = list()
         self.active_entries = list()
         default_str = ['0', '0']
+        check = [False, False]
 
         for i in range(0, 2):
             v = tk.StringVar()
@@ -645,10 +677,10 @@ class KinModule(Mod):
             row_rel = [.6, .7]
             e.place(anchor=tk.S, relx=col_rel[i % len(col_rel)], rely=row_rel[int(np.floor(i / len(col_rel)))])
             v.set(default_str[i])
-            v.trace('w', lambda a, b, c: self.check_ik1(a, b, c))
+            v.trace('w', lambda a, b, c: self.check_ik1(a, b, c, check))
             self.active_str_vars.append(v)
 
-    def check_ik1(self, a, b, c):
+    def check_ik1(self, a, b, c, check):
         ans = [5 * np.sqrt(2) / 2, 5 + 5 * np.sqrt(2) / 2, 0]
         try:
             t1 = float(self.active_entries[0].get())
@@ -662,18 +694,27 @@ class KinModule(Mod):
 
                 if ans[i] - err <= tm[i] <= ans[i] + err:
                     self.active_entries[i]['bg'] = 'chartreuse2'
+                    check[i] = True
                 else:
                     self.active_entries[i]['bg'] = 'firebrick1'
+            if all(check):
+                self.nextButton.config(state='normal')
 
         except Exception as e:
             self.active_entries[0]['bg'] = 'firebrick1'
             self.active_entries[1]['bg'] = 'firebrick1'
             if self.active_entries[0].get() == 'pi/4' or self.active_entries[0].get() == 'pi/2':
                 self.active_entries[0]['bg'] = 'chartreuse2'
+                check[0] = True
             if self.active_entries[1].get() == 'pi/2' or self.active_entries[1].get() == '-pi/4':
                 self.active_entries[1]['bg'] = 'chartreuse2'
+                check[1] = True
+            if all(check):
+                self.nextButton.config(state='normal')
 
     def ik2_page(self):
+        if not self.debug:
+            self.nextButton["state"] = 'disabled'
         self.interactivePane.create_text(self.interactive_text_x, self.interactive_text_y,
                                          text="A more complicated 3D example. Find the equations for\n"
                                               "the joint variables. Then find the solution for l1=10,\n"
@@ -689,6 +730,8 @@ class KinModule(Mod):
         self.active_str_vars = list()
         self.active_entries = list()
         default_str = ['0', '0', '0']
+        check = [False, False, False]
+
 
         for i in range(0, 3):
             v = tk.StringVar()
@@ -699,10 +742,10 @@ class KinModule(Mod):
             row_rel = [.6, .7, .8]
             e.place(anchor=tk.S, relx=col_rel[i % len(col_rel)], rely=row_rel[int(np.floor(i / len(col_rel)))])
             v.set(default_str[i])
-            v.trace('w', lambda a, b, c: self.check_ik2(a, b, c))
+            v.trace('w', lambda a, b, c: self.check_ik2(a, b, c, check))
             self.active_str_vars.append(v)
 
-    def check_ik2(self, a, b, c):
+    def check_ik2(self, a, b, c, check):
         ans = [0, 5, 15]
         try:
             t1 = float(self.active_entries[0].get())
@@ -713,22 +756,30 @@ class KinModule(Mod):
                   5 * sin(t2) + 5 * cos(t2) * sin(t3) + 5 * cos(t3) * sin(t2) + 10]
             err = .1
             for i in range(0, 3):
-                print(f'{i} Given {tm[i]}      Soln {ans[i]}')
+                #print(f'{i} Given {tm[i]}      Soln {ans[i]}')
 
                 if ans[i] - err <= tm[i] <= ans[i] + err:
                     self.active_entries[i]['bg'] = 'chartreuse2'
+                    check[i] = True
                 else:
                     self.active_entries[i]['bg'] = 'firebrick1'
+            if all(check):
+                self.nextButton.config(state='normal')
 
         except Exception as e:
             for i in range(0, 3):
                 self.active_entries[i]['bg'] = 'firebrick1'
             if self.active_entries[2].get() == '-pi/2' or self.active_entries[2].get() == 'pi/2':
                 self.active_entries[2]['bg'] = 'chartreuse2'
+                check[2] = True
             if self.active_entries[1].get() == 'pi/2' or self.active_entries[1].get() == '0':
                 self.active_entries[1]['bg'] = 'chartreuse2'
+                check[1] = True
             if self.active_entries[0].get() == 'pi/2':
                 self.active_entries[0]['bg'] = 'chartreuse2'
+                check[0] = True
+            if all(check):
+                self.nextButton.config(state='normal')
 
     def velkin_page(self):
         self.interactivePane.create_text(self.interactive_text_x, self.interactive_text_y - 45,
@@ -782,14 +833,21 @@ class KinModule(Mod):
                                               "coincides with a preceding joint’s rotational axis or when a\n"
                                               "robot is stretched to its maximum length in some direction.\n"
                                               "This is mathematically classified by the determinant of the\n"
-                                              "Jacobian being equal to 0."
+                                              "Jacobian being equal to 0.\n\n\n"
+                                              "     And just like that you're all done! Congratulations!"
                                          ,
                                          font=self.font,
                                          anchor='n')
+        self.visualizingPane.update()
+        w = self.visualizingPane.winfo_width()
+        h = self.visualizingPane.winfo_height()
+        self.visualizingPane.create_image(w / 2, h / 2, image=self.singular, anchor=tk.CENTER)
 
-    def congrats_page(self):
-        place_rainbow_text("Congratulations", self.visualizingPane, 10, 150, 40)
-        place_rainbow_text("NERD", self.visualizingPane, 170, 250, 60)
+        # self.visualizingPane.create_text(w*.97, h*.97,
+        #                                  text="J. Nassour, 'Lecture 203', Chemnitz University of Technology, 2017",
+        #                                  font=('Comic Sans MS', 5, 'bold italic'),
+        #                                  anchor='se')
+
         self.completed = True
 
     def place_alt_title(self, text):
@@ -851,11 +909,14 @@ class KinModule(Mod):
                                                    text="Main Menu",
                                                    font=self.button_font)
             self.nextButton = self.placeNextButton(xpos_right, ypos, self.interactivePane, command=self.load_next_page,
-                                                   text=self.page_titles[next], font=self.button_font)
+                                                   font=self.button_font)
         elif complete:
             prev = self.current_page - 1
+            # This is for text of page titles on buttons
+            # self.backButton = self.placeBackButton(xpos_left, ypos, self.interactivePane, command=self.load_last_page,
+            #                                       text=self.page_titles[prev], font=self.button_font)
             self.backButton = self.placeBackButton(xpos_left, ypos, self.interactivePane, command=self.load_last_page,
-                                                   text=self.page_titles[prev], font=self.button_font)
+                                                   font=self.button_font)
             self.nextButton = self.placeNextButton(xpos_right, ypos, self.interactivePane, command=self.gui.HomePage,
                                                    text="Main Menu",
                                                    font=self.button_font)
@@ -863,9 +924,9 @@ class KinModule(Mod):
             prev = self.current_page - 1
             next = self.current_page + 1
             self.backButton = self.placeBackButton(xpos_left, ypos, self.interactivePane, command=self.load_last_page,
-                                                   text=self.page_titles[prev], font=self.button_font)
+                                                   font=self.button_font)
             self.nextButton = self.placeNextButton(xpos_right, ypos, self.interactivePane, command=self.load_next_page,
-                                                   text=self.page_titles[next], font=self.button_font)
+                                                   font=self.button_font)
 
     """
     Places the button to go to the next page.
