@@ -28,28 +28,27 @@ class PIDModule(Module):
         self.kdEntry = None
         self.kiEntry = None
 
-        self.kp = 1
-        self.kd = 0
-        self.ki = 0.0000
+        self.kp = 25
+        self.kd = .1
+        self.ki = 0.001
 
         self.eint = 0
         self.qd = 25
         self.totalError = 0
         self.prevError = 0
         self.prevTime = 0
-        self.dt = .1
-        self.totalTime = 10
+        self.dt = .05
+        self.totalTime = 3
         self.current = 0
         self.xData = np.linspace(0,self.totalTime,np.floor(self.totalTime/self.dt))
-        self.yData = []
+        self.yData = [0]
         self.fig = None
         self.line = None
         self.ax = None
-        self.drone = SimpleDrone(.1, 0)
+        self.drone = SimpleDrone(.5, 0)
         self.qprev = self.drone.pos
         self.quizResultFont = ('Comic Sans MS', 15, 'bold italic')
 
-        self.drone = SimpleDrone(.2, 0)
         self.axis = None
         self.signalGraph = None
         self.droneGraph = None
@@ -388,8 +387,8 @@ class PIDModule(Module):
         self.f = Figure(figsize=(5, 5), dpi=100)
         self.f.subplots_adjust(hspace=.5)
         self.signalGraph = self.f.add_subplot(211)
-        self.signalGraph.set_ylim([0, 30])
-        self.signalGraph.set_xlim([0, self.totalTime])
+        #self.signalGraph.set_ylim([0, 30])
+        #self.signalGraph.set_xlim([0, self.totalTime])
         self.signalGraph.set_title("Drone Position vs Time")
         self.signalGraph.set_xlabel("Time (s)")
         self.signalGraph.set_ylabel("Y Position (m)")
@@ -424,8 +423,8 @@ class PIDModule(Module):
         self.droneGraph.clear()
         self.f = Figure(figsize=(5, 5), dpi=100)
         self.f.subplots_adjust(hspace=.5)
-        self.signalGraph.set_ylim([0, 30])
-        self.signalGraph.set_xlim([0, self.totalTime])
+        # self.signalGraph.set_ylim([0, 30])
+        #self.signalGraph.set_xlim([0, self.totalTime])
         self.signalGraph.set_title("Drone Position vs Time")
         self.signalGraph.set_xlabel("Time (s)")
         self.signalGraph.set_ylabel("Y Position (m)")
@@ -476,8 +475,8 @@ class PIDModule(Module):
         self.f = Figure(figsize=(5, 5), dpi=100)
         self.f.subplots_adjust(hspace=.5)
         self.signalGraph = self.f.add_subplot(211)
-        self.signalGraph.set_ylim([0, 30])
-        self.signalGraph.set_xlim([0, self.totalTime])
+        #self.signalGraph.set_ylim([0, 30])
+        #self.signalGraph.set_xlim([0, self.totalTime])
         self.signalGraph.set_title("Drone Position vs Time")
         self.signalGraph.set_xlabel("Time (s)")
         self.signalGraph.set_ylabel("Y Position (m)")
@@ -493,7 +492,7 @@ class PIDModule(Module):
         #     self.ani.event_source.stop()
         # except:
         #     pass
-        del self.yData[:]
+        del self.yData[1:]
         for i in self.xData:
             self.PID()
             self.yData.append(self.drone.pos)
