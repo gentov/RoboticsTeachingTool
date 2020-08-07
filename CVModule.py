@@ -22,7 +22,7 @@ class CVModule(Module):
         self.hyst_graph = tk.PhotoImage(file = "images/hysterisis_graph2.png")
         self.butterfly = tk.PhotoImage(file = "images/butterfly_resized.png")
         self.robot_learning = tk.PhotoImage(file = "images/machineLearning_robot.png")
-        self.gaussian_image = tk.PhotoImage(file = "images/gaussian_filtering_img2.png")
+        self.gaussian_image = tk.PhotoImage(file="images/gaussian_filtering_img2.png")
         # tk.Frame.__init__(self)
         # self.tk.Frame.master.bind('<Configure>', self.resize_image)
 
@@ -89,7 +89,7 @@ class CVModule(Module):
         with open('text_blurbs/edge_detection.txt', 'r') as file:
             data = file.read().replace('\n', '')
             paragraph = data
-        with open('cv_gaussian_filter.txt', 'r') as file:
+        with open('text_blurbs/cv_gaussian_filter.txt', 'r') as file:
             data = file.read().replace('\n', '')
             paragraph2 = data
         full_paragraph = paragraph + "\n" + paragraph2
@@ -345,7 +345,7 @@ class CVModule(Module):
         with open('text_blurbs/cv_calibrated_camera.txt', 'r') as file:
             data = file.read().replace('\n', '')
             paragraph = data
-        # with open('text_blurbs/cv_calibrated_camera2.txt', 'r') as file:
+        # with open('cv_calibrated_camera2.txt', 'r') as file:
         #     data = file.read().replace('\n', '')
         #     paragraph2 = data
         paragraph2 = "The algorithm for determining pose estimation is based on \n" \
@@ -371,7 +371,7 @@ class CVModule(Module):
     def calibrated_camera_cont(self):
         self.gui.clearScreen()
         self.makePanes()
-        # with open('text_blurbs/cv_calibrated_camera3.txt', 'r') as file:
+        # with open('cv_calibrated_camera3.txt', 'r') as file:
         #     data = file.read().replace('\n', '')
         #     paragraph = data
         paragraph = "If the pose of one contour defines the pose of another \n" \
