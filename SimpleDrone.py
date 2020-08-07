@@ -7,8 +7,8 @@ class SimpleDrone():
         self.power = 0
         self.gravity = 9.81
         self.gravityForce = self.mass*self.gravity
-        self.minPower = 0
-        self.maxPower = self.mass*self.gravity*2.5  # I want to limit how much power to make 2.5 times weight
+        self.minPower = -100000000000
+        self.maxPower = 100000000 # I want to limit how much power to make 2.5 times weight
 
     def fly(self, power, t):
         if power > self.maxPower:
