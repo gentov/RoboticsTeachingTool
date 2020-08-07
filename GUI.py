@@ -89,7 +89,7 @@ class GUI():
 
     def saveProgress(self):
         # Create progress file
-        progress_file = open("progress.pkl", "wb")
+        progress_file = open("pickle_files/progress.pkl", "wb")
 
         # Make a temporary dictionary with the module name to save completion status
         moduleProgressDict = {}
@@ -101,7 +101,7 @@ class GUI():
         print ("Saved progress to file: progress.pkl")
 
     def loadProgress(self):
-        progress_file = open("progress.pkl", "rb")
+        progress_file = open("pickle_files/progress.pkl", "rb")
         moduleProgressDict = pickle.load(progress_file)
         for key, value in moduleProgressDict.items():
             self.moduleDict[key].completed = value

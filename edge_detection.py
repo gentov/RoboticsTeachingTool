@@ -13,7 +13,7 @@ class EdgeDecectionandGaussianBlur():
 
 
     def edge_detection(self):
-        img = cv2.imread('single_rose.jpg',0)
+        img = cv2.imread('images/single_rose.jpg',0)
         edges = cv2.Canny(img,self.minval,self.maxval)
         return edges
         #
@@ -25,7 +25,7 @@ class EdgeDecectionandGaussianBlur():
 
     def gaussian_blur(self):
         #sigmaY is the same as sigmaX
-        img = cv2.imread('single_rose.jpg', 0)
+        img = cv2.imread('images/single_rose.jpg', 0)
         blur = cv2.GaussianBlur(img, (self.kernalX, self.kernalY), self.sigmaX)
         return blur
 

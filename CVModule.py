@@ -10,25 +10,25 @@ import cv2
 class CVModule(Module):
     def __init__(self, gui=None, title=None):
         super(CVModule, self).__init__(gui=gui, title=title)
-        self.cv_overview = tk.PhotoImage(file="cv_home_example.png")
-        self.cv_connections = tk.PhotoImage(file="cv_overview_resized.png")
-        self.edge_detect = tk.PhotoImage(file="edge_pepper_cropped5.png")
-        self.img_for_ed_interactive = tk.PhotoImage(file="single_rose_medium_square.png")
-        self.img_for_pg_intro = tk.PhotoImage(file="perspective4.png")
-        self.lr_example = tk.PhotoImage(file="lr_example4.png")
-        self.fmse_eqns = tk.PhotoImage(file="fmse_eqns4.png")
-        self.sobel_eqns = tk.PhotoImage(file = "sobel_eqns2.png")
-        self.non_max = tk.PhotoImage(file = "nonmaxsupress2.png")
-        self.hyst_graph = tk.PhotoImage(file = "hysterisis_graph2.png")
-        self.butterfly = tk.PhotoImage(file = "butterfly_resized.png")
-        self.robot_learning = tk.PhotoImage(file = "machineLearning_robot.png")
-        self.gaussian_image = tk.PhotoImage(file = "gaussian_filtering_img2.png")
+        self.cv_overview = tk.PhotoImage(file="images/cv_home_example.png")
+        self.cv_connections = tk.PhotoImage(file="images/cv_overview_resized.png")
+        self.edge_detect = tk.PhotoImage(file="images/edge_pepper_cropped5.png")
+        self.img_for_ed_interactive = tk.PhotoImage(file="images/single_rose_medium_square.png")
+        self.img_for_pg_intro = tk.PhotoImage(file="images/perspective4.png")
+        self.lr_example = tk.PhotoImage(file="images/lr_example4.png")
+        self.fmse_eqns = tk.PhotoImage(file="images/fmse_eqns4.png")
+        self.sobel_eqns = tk.PhotoImage(file = "images/sobel_eqns2.png")
+        self.non_max = tk.PhotoImage(file = "images/nonmaxsupress2.png")
+        self.hyst_graph = tk.PhotoImage(file = "images/hysterisis_graph2.png")
+        self.butterfly = tk.PhotoImage(file = "images/butterfly_resized.png")
+        self.robot_learning = tk.PhotoImage(file = "images/machineLearning_robot.png")
+        self.gaussian_image = tk.PhotoImage(file = "images/gaussian_filtering_img2.png")
         # tk.Frame.__init__(self)
         # self.tk.Frame.master.bind('<Configure>', self.resize_image)
 
-        self.quizQuestionMark = tk.PhotoImage(file="quizQuestionMark.png")
-        self.quizPassedImage = tk.PhotoImage(file="passedQuiz.png")
-        self.quizFailedImage = tk.PhotoImage(file="failedQuiz.png")
+        self.quizQuestionMark = tk.PhotoImage(file="images/quizQuestionMark.png")
+        self.quizPassedImage = tk.PhotoImage(file="images/passedQuiz.png")
+        self.quizFailedImage = tk.PhotoImage(file="images/failedQuiz.png")
         self.radioVarCVQ1 = tk.StringVar()
         self.radioVarCVQ2 = tk.StringVar()
 
@@ -38,7 +38,7 @@ class CVModule(Module):
     def introPage(self):
         self.gui.clearScreen()
         self.makePanes()
-        with open('cv_intro.txt', 'r') as file:
+        with open('text_blurbs/cv_intro.txt', 'r') as file:
             data = file.read().replace('\n', '')
             paragraph = data
         font = ('Comic Sans MS', 11, 'bold italic')
@@ -59,7 +59,7 @@ class CVModule(Module):
     def connection(self):
         self.gui.clearScreen()
         self.makePanes()
-        with open('connections.txt', 'r') as file:
+        with open('text_blurbs/connections.txt', 'r') as file:
             data = file.read().replace('\n', '')
             paragraph = data
         font = ('Comic Sans MS', 11, 'bold italic')
@@ -86,7 +86,7 @@ class CVModule(Module):
     def edge_detection(self):
         self.gui.clearScreen()
         self.makePanes()
-        with open('edge_detection.txt', 'r') as file:
+        with open('text_blurbs/edge_detection.txt', 'r') as file:
             data = file.read().replace('\n', '')
             paragraph = data
         with open('cv_gaussian_filter.txt', 'r') as file:
@@ -109,7 +109,7 @@ class CVModule(Module):
     def gaussian_intro(self):
         self.gui.clearScreen()
         self.makePanes()
-        with open('cv_gaussian_filter2.txt', 'r') as file:
+        with open('text_blurbs/cv_gaussian_filter2.txt', 'r') as file:
             d = file.read().replace('\n', '')
             data = d.replace("SPACEPLEASE", '\n')
             paragraph2 = data
@@ -125,7 +125,7 @@ class CVModule(Module):
     def sobel_intro(self):
         self.gui.clearScreen()
         self.makePanes()
-        with open('cv_sobel.txt', 'r') as file:
+        with open('text_blurbs/cv_sobel.txt', 'r') as file:
             data = file.read().replace('\n', '')
             paragraph = data
         font = ('Comic Sans MS', 11, 'bold italic')
@@ -144,7 +144,7 @@ class CVModule(Module):
     def non_maximum_supression_intro(self):
         self.gui.clearScreen()
         self.makePanes()
-        with open('nonmaximum_supression.txt', 'r') as file:
+        with open('text_blurbs/nonmaximum_supression.txt', 'r') as file:
             data = file.read().replace('\n', '')
             paragraph = data
         font = ('Comic Sans MS', 11, 'bold italic')
@@ -163,7 +163,7 @@ class CVModule(Module):
     def hyst_thresh(self):
         self.gui.clearScreen()
         self.makePanes()
-        with open('hysterisis_thresh.txt', 'r') as file:
+        with open('text_blurbs/hysterisis_thresh.txt', 'r') as file:
             data = file.read().replace('\n', '')
             paragraph = data
         font = ('Comic Sans MS', 11, 'bold italic')
@@ -208,7 +208,7 @@ class CVModule(Module):
 
         self.second_visualizingPane.create_image(250, 100, image=self.imgtk, anchor=tk.CENTER)
 
-        with open('gaussian_instructions.txt', 'r') as file:
+        with open('text_blurbs/gaussian_instructions.txt', 'r') as file:
             data = file.read().replace('\n', '')
             paragraph = data
 
@@ -245,7 +245,7 @@ class CVModule(Module):
 
         second_visualizingPane.create_image(250, 100, image=self.imgtk, anchor=tk.CENTER)
 
-        with open('ed_instructions.txt', 'r') as file:
+        with open('text_blurbs/ed_instructions.txt', 'r') as file:
             data = file.read().replace('\n', '')
             paragraph = data
 
@@ -308,10 +308,10 @@ class CVModule(Module):
     def projective_geometry(self):
         self.gui.clearScreen()
         self.makePanes()
-        with open('pe_intro.txt', 'r') as file:
+        with open('text_blurbs/pe_intro.txt', 'r') as file:
             data = file.read().replace('\n', '')
             paragraph = data
-        with open('analyticgeometric.txt', 'r') as file:
+        with open('text_blurbs/analyticgeometric.txt', 'r') as file:
             data = file.read().replace('\n', '')
             paragraph2 = data
         font = ('Comic Sans MS', 11, 'bold italic')
@@ -325,10 +325,10 @@ class CVModule(Module):
     def uncalibrated_camera(self):
         self.gui.clearScreen()
         self.makePanes()
-        with open('cv_uncalibrated_camera.txt', 'r') as file:
+        with open('text_blurbs/cv_uncalibrated_camera.txt', 'r') as file:
             data = file.read().replace('\n', '')
             paragraph = data
-        with open('cv_uncalibrated_camera2.txt', 'r') as file:
+        with open('text_blurbs/cv_uncalibrated_camera2.txt', 'r') as file:
             data = file.read().replace('\n', '')
             paragraph2 = data
         font = ('Comic Sans MS', 11, 'bold italic')
@@ -342,10 +342,10 @@ class CVModule(Module):
     def calibrated_camera(self):
         self.gui.clearScreen()
         self.makePanes()
-        with open('cv_calibrated_camera.txt', 'r') as file:
+        with open('text_blurbs/cv_calibrated_camera.txt', 'r') as file:
             data = file.read().replace('\n', '')
             paragraph = data
-        # with open('cv_calibrated_camera2.txt', 'r') as file:
+        # with open('text_blurbs/cv_calibrated_camera2.txt', 'r') as file:
         #     data = file.read().replace('\n', '')
         #     paragraph2 = data
         paragraph2 = "The algorithm for determining pose estimation is based on \n" \
@@ -371,7 +371,7 @@ class CVModule(Module):
     def calibrated_camera_cont(self):
         self.gui.clearScreen()
         self.makePanes()
-        # with open('cv_calibrated_camera3.txt', 'r') as file:
+        # with open('text_blurbs/cv_calibrated_camera3.txt', 'r') as file:
         #     data = file.read().replace('\n', '')
         #     paragraph = data
         paragraph = "If the pose of one contour defines the pose of another \n" \
@@ -389,7 +389,7 @@ class CVModule(Module):
         "(d) Use (P, R) as correspondence set. \n" \
         "(e) Estimate pose with this correspondence set \n" \
         "(f) Transform contours, goto (b)"
-        with open('cv_calibrated_camera4.txt', 'r') as file:
+        with open('text_blurbs/cv_calibrated_camera4.txt', 'r') as file:
             data = file.read().replace('\n', '')
             paragraph2 = data
         font = ('Comic Sans MS', 11, 'bold italic')
@@ -403,7 +403,7 @@ class CVModule(Module):
     def ml_intro(self):
         self.gui.clearScreen()
         self.makePanes()
-        with open('MLintro.txt', 'r') as file:
+        with open('text_blurbs/MLintro.txt', 'r') as file:
             data = file.read().replace('\n', '')
             paragraph = data
         # with open('cv_calibrated_camera4.txt', 'r') as file:
@@ -421,7 +421,7 @@ class CVModule(Module):
     def ml_data_explain(self):
         self.gui.clearScreen()
         self.makePanes()
-        with open('MLdata_explain.txt', 'r') as file:
+        with open('text_blurbs/MLdata_explain.txt', 'r') as file:
             data = file.read().replace('\n', '')
             paragraph = data
         self.visualizingPane.create_image(250, 250, image=self.lr_example, anchor=tk.CENTER)
@@ -476,7 +476,7 @@ class CVModule(Module):
     def ml_calculating_weights(self):
         self.gui.clearScreen()
         self.makePanes()
-        with open('ML_fmse.txt', 'r') as file:
+        with open('text_blurbs/ML_fmse.txt', 'r') as file:
             data = file.read().replace('\n', '')
             paragraph = data
         self.visualizingPane.create_image(250, 250, image=self.fmse_eqns, anchor=tk.CENTER)
@@ -494,7 +494,7 @@ class CVModule(Module):
     def ml_data_aug(self):
         self.gui.clearScreen()
         self.makePanes()
-        with open('ml_data_augmentation.txt', 'r') as file:
+        with open('text_blurbs/ml_data_augmentation.txt', 'r') as file:
             data = file.read().replace('\n', '')
             paragraph = data
 
@@ -524,10 +524,10 @@ class CVModule(Module):
         statement = self.data_a.get()
         print(statement)
 
-        image = cv2.imread('butterfly.jpg', 1)
+        image = cv2.imread('images/butterfly.jpg', 1)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        image1 = cv2.imread('roses.jpg', 1)
-        image2 = cv2.imread('single_rose.jpg', 1)
+        image1 = cv2.imread('images/roses.jpg', 1)
+        image2 = cv2.imread('images/single_rose.jpg', 1)
 
         all_images = [image, image1, image2]
 
