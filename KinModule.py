@@ -703,11 +703,15 @@ class KinModule(Mod):
         except Exception as e:
             self.active_entries[0]['bg'] = 'firebrick1'
             self.active_entries[1]['bg'] = 'firebrick1'
-            if self.active_entries[0].get() == 'pi/4' or self.active_entries[0].get() == 'pi/2':
+            if self.active_entries[0].get() == 'pi/4' and self.active_entries[1].get() == 'pi/4':
                 self.active_entries[0]['bg'] = 'chartreuse2'
-                check[0] = True
-            if self.active_entries[1].get() == 'pi/2' or self.active_entries[1].get() == '-pi/4':
                 self.active_entries[1]['bg'] = 'chartreuse2'
+                check[0] = True
+                check[1] = True
+            if self.active_entries[0].get() == 'pi/2' and self.active_entries[1].get() == '-pi/4':
+                self.active_entries[0]['bg'] = 'chartreuse2'
+                self.active_entries[1]['bg'] = 'chartreuse2'
+                check[0] = True
                 check[1] = True
             if all(check):
                 self.nextButton.config(state='normal')
@@ -769,15 +773,20 @@ class KinModule(Mod):
         except Exception as e:
             for i in range(0, 3):
                 self.active_entries[i]['bg'] = 'firebrick1'
-            if self.active_entries[2].get() == '-pi/2' or self.active_entries[2].get() == 'pi/2':
-                self.active_entries[2]['bg'] = 'chartreuse2'
-                check[2] = True
-            if self.active_entries[1].get() == 'pi/2' or self.active_entries[1].get() == '0':
-                self.active_entries[1]['bg'] = 'chartreuse2'
-                check[1] = True
-            if self.active_entries[0].get() == 'pi/2':
+            if self.active_entries[0].get() == 'pi/2' and self.active_entries[2].get() == '-pi/2' and self.active_entries[1].get() == 'pi/2':
                 self.active_entries[0]['bg'] = 'chartreuse2'
+                self.active_entries[1]['bg'] = 'chartreuse2'
+                self.active_entries[2]['bg'] = 'chartreuse2'
                 check[0] = True
+                check[1] = True
+                check[2] = True
+            if self.active_entries[0].get() == 'pi/2' and self.active_entries[2].get() == 'pi/2' and self.active_entries[1].get() == '0':
+                self.active_entries[1]['bg'] = 'chartreuse2'
+                self.active_entries[0]['bg'] = 'chartreuse2'
+                self.active_entries[2]['bg'] = 'chartreuse2'
+                check[0] = True
+                check[1] = True
+                check[2] = True
             if all(check):
                 self.nextButton.config(state='normal')
 
