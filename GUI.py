@@ -18,7 +18,7 @@ class GUI():
             "Filters": FilterModule(gui = self, title = "Filters"),
             "Computer Vision": CVModule(gui=self, title="Computer Vision")
         }
-        self.moduleDict["PID"].completed = True
+        # self.moduleDict["PID"].completed = True
         
     def HomePage(self):
         self.clearScreen()
