@@ -1,1 +1,1 @@
-Now try out complete edge detection! See how different values for minval and maxval affect the output image.  The origional image is on top and the filtered image on the bottom.  Make sure to click the button to recalculate the image with the new values.
+Now try out complete edge detection! See how different values for minval and maxval affect the output image.  The original image is on top and the filtered image on the bottom.  Make sure to click the button to recalculate the image with the new values.

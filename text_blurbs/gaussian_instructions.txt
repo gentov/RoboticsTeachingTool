@@ -1,1 +1,1 @@
-Now try out gaussian filtering! See how different values for KernalX, KernalY, (both must be odd numbers) and sigma affect the output image.  The origional image is on top and the filtered image on the bottom.  Make sure to click the button to recalculate the image with the new values.
+Now try out gaussian filtering! See how different values for KernalX, KernalY, (both must be odd numbers) and sigma affect the output image.  The original image is on top and the filtered image on the bottom.  Make sure to click the button to recalculate the image with the new values.
