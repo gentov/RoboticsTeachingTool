@@ -58,7 +58,7 @@ class KalmanFilter(Module):
         canvas = tk.Canvas(self.gui.win, width = 1000, height = 500, bg = 'grey')
         canvas.grid(row = 0, column = 0)
         self.placeBackToMenuButton(canvas)
-        self.placeSaveButton(canvas)
+        #self.placeSaveButton(canvas)
         self.placeNextButton(.85, .75, pane=canvas,
                              text="KF Prediction", font=self.font, command = self.kalmanPrediction)
         title = "The Kalman Filter: "
@@ -84,9 +84,11 @@ class KalmanFilter(Module):
         disclaimer = "Note: The matrices Q and R are matrices " \
                       "we can not design. Usually, we must find the values of these " \
                       "matrices experimentally."
-        canvas.create_text(100, 55, text = title, font = self.bigFont)
-        canvas.create_text(500, 250, text=theKalmanEquations, font=self.font)
-        canvas.create_text(450, 400, text=disclaimer, font=self.smallFont)
+        canvas.create_text(100, 50, text = title, font = self.bigFont)
+        canvas.create_text(500, 240, text=theKalmanEquations, font=self.font)
+        canvas.create_text(450, 360, text=disclaimer, font=self.smallFont)
+        self.placeBackButton(.05, .75, pane=canvas,
+                             text="", font=self.font, command = self.mainModule.kalmanFilterToy.kalmanToyQuiz)
 
     def kalmanPrediction(self):
         self.gui.clearScreen()
@@ -257,12 +259,12 @@ class KalmanFilter(Module):
                                       "you will fill in each of the matrices in the Kalman Filter. The\n" \
                                       "noise matrices P, Q, and R, have been done for you. When \n" \
                                       "you think you've got it right, go ahead and hit the 'Check my \n" \
-                                      "work! button, and if your matrix looks good, you can move on,\n" \
+                                      "work!' button, and if your matrix looks good, you can move on,\n" \
                                       "otherwise, you'll have to try again! Take a look at the image\n" \
                                       "on the right if you need a refresher!\n" \
                                       " We'll start with the F matrix. Assume that our state is: \n" \
-                                      "                             [X]\n" \
-                                      "                             [v]\n" \
+                                      "                                                [X_n]\n" \
+                                      "                                                  [v]\n" \
                                       "and our state transition equation is: X_n+1 = X_n + v*dt "
         self.interactivePane.create_text(260, 150, text = assignmentExplanation, font = self.font)
         self.visualizingPane.create_image(250, 250, image=self.fMatrixHelp, anchor=tk.CENTER)
@@ -283,6 +285,8 @@ class KalmanFilter(Module):
                                           self.checkMatrix(tableCanvas, self.F, rows = 2, columns = 2,
                                                            nextPage = self.formKalmanHMatrix))
         checkAssignmentButton.place(relx = .5, rely = .7, anchor = tk.CENTER)
+        self.placeBackButton(.05, .75, pane=self.interactivePane, command=self.kalmanMatricesQuiz,
+                             text="Quiz", font=self.font)
 
     def formKalmanHMatrix(self):
         self.gui.clearScreen()
@@ -290,7 +294,7 @@ class KalmanFilter(Module):
         assignmentExplanation =       "Now we'll try the H matrix. In this case, we will\n" \
                                       "be measuring the position using a GPS. When you \n" \
                                       "think you've got it right, go ahead and hit the 'Check my \n" \
-                                      "work! button, and if your matrix looks good, you can move on,\n" \
+                                      "work!' button, and if your matrix looks good, you can move on,\n" \
                                       "otherwise, you'll have to try again! Take a look at the image\n" \
                                       "on the right if you need a refresher!\n "
 
@@ -321,7 +325,7 @@ class KalmanFilter(Module):
         self.makePanes()
         assignmentExplanation =       "Good Job! Now let's do the state vector. In this case, we \n" \
                                       "can assume we start at X = 0, v = 0. When you think you've \n " \
-                                      "got it right, go ahead and hit the 'Check my work! button, \n" \
+                                      "got it right, go ahead and hit the 'Check my work!' button, \n" \
                                       "and if your matrix looks good you can move on, otherwise, \n" \
                                       "you'll have to try again! Take a look at the image on the right \n" \
                                       "if you need a refresher!\n "

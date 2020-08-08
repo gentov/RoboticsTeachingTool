@@ -61,6 +61,8 @@ class KalmanFilterToy(Module):
         self.axis.set_ylim([0, 10])
         self.axis.set_xlim([0, 12])
         self.axis.set_title("Car Position (Y vs X)")
+        self.axis.set_xlabel("Car X")
+        self.axis.set_ylabel("Car Y")
         figureCanvas = FigureCanvasTkAgg(f, master=self.visualizingPane)
         figureCanvas.get_tk_widget().grid(row=0, column=0)
 
@@ -323,7 +325,8 @@ class KalmanFilterToy(Module):
         self.axis.set_ylim([0, 10])
         self.axis.set_xlim([0, len(self.xData) + 2])
         self.axis.set_title("Car Position (Y vs X)")
-
+        self.axis.set_xlabel("Car X")
+        self.axis.set_ylabel("Car Y")
         # move the car
         self.drawCar(self.xData[self.plotIterator], 1.5, self.axis)
 
@@ -347,7 +350,8 @@ class KalmanFilterToy(Module):
         self.axis.set_xlim([0, len(self.xData) + 2])
         self.axis.set_title("Car Position (Y vs X)")
 
-
+        self.axis.set_xlabel("Car X")
+        self.axis.set_ylabel("Car Y")
         # move the car
         self.drawCar(self.xData[self.plotIterator], 1.5, self.axis)
 
@@ -408,11 +412,14 @@ class KalmanFilterToy(Module):
         f = Figure(figsize=(5, 5), dpi=100)
         self.axis = f.add_subplot(111)
         self.axis.set_title("Car Position (Y vs X)")
+
         del self.yMovingAvgData[:]
         del self.xMovingAvgData[:]
         self.axis.set_xlim([0, len(self.xData) + 1])
         figureCanvas = FigureCanvasTkAgg(f, master=self.visualizingPane)
         figureCanvas.get_tk_widget().grid(row=0, column=0)
+        self.axis.set_xlabel("Car X")
+        self.axis.set_ylabel("Car Y")
         self.ani = animation.FuncAnimation(f, self.moveCarMovingAverage, interval=500)
         poorFilteringExplanation = \
             "The blue dots represent the average position of the car, using \n" \
@@ -438,6 +445,8 @@ class KalmanFilterToy(Module):
         self.axis = f.add_subplot(111)
         self.axis.set_xlim([0, len(self.xData) + 1])
         self.axis.set_title("Car Position (Y vs X)")
+        self.axis.set_xlabel("Car X")
+        self.axis.set_ylabel("Car Y")
         figureCanvas = FigureCanvasTkAgg(f, master=self.visualizingPane)
         figureCanvas.get_tk_widget().grid(row=0, column=0)
         self.ani = animation.FuncAnimation(f, self.moveCarKalmanToy, interval=500)
