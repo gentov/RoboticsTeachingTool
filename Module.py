@@ -35,11 +35,14 @@ class Module():
         self.gui.win.update()
         for char in characterArray:
             animatedText += char
-            canvasOfText.delete(tk.ALL)
-            canvasOfText.create_text(x, y, text=animatedText,
-                                             font=font)
-            self.gui.win.update()
-            time.sleep(.003)
+            try:
+                canvasOfText.delete(tk.ALL)
+                canvasOfText.create_text(x, y, text=animatedText,
+                                                 font=font)
+                self.gui.win.update()
+                time.sleep(.003)
+            except:
+                pass
 
     def showText(self, x, y, text, canvasOfText, font):
         canvasOfText.create_text(x, y, text=text, font=font, width = 450)

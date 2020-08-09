@@ -47,7 +47,7 @@ class PIDModule(Module):
         self.totalError = 0
         self.prevError = 0
         self.prevTime = 0
-        self.dt = .1
+        self.dt = .01
         self.totalTime = 1
         self.current = 0
         self.xData = np.linspace(0, self.totalTime, 100)
@@ -55,7 +55,7 @@ class PIDModule(Module):
         self.fig = None
         self.line = None
         self.ax = None
-        self.drone = SimpleDrone(.5, 0)
+        self.drone = SimpleDrone(.005, 0)
         self.qprev = self.drone.pos
         self.quizResultFont = ('Comic Sans MS', 15, 'bold italic')
 
@@ -159,7 +159,7 @@ class PIDModule(Module):
         self.makePanes()
         self.radioVarControlQ1.set(-1)  # I think this makes it so that none are selected. Nice.
         self.radioVarControlQ2.set(-1)  # I think this makes it so that none are selected. Nice.
-        self.interactivePane.create_text(260, 50, text=quizPrompt, font=self.font)
+        self.interactivePane.create_text(200, 50, text=quizPrompt, font=self.font)
 
         self.visualizingPane.create_image(250, 250, image=self.quizQuestionMark, anchor=tk.CENTER)
 
@@ -320,13 +320,13 @@ class PIDModule(Module):
         self.interactivePane.create_text(210, 230, text=q2Formatted, font=self.font)
         A2 = tk.Radiobutton(self.interactivePane, text="A) 1/(s+4+K)",
                             padx=2, value="A2", bg="grey", variable=self.radioVarControlQ2)
-        A2.place(relx=.1, rely=.45)
+        A2.place(relx=.1, rely=.5)
         B2 = tk.Radiobutton(self.interactivePane, text="B) s/(s+2+K)",
                             padx=2, value="B2", bg="grey", variable=self.radioVarControlQ2)
-        B2.place(relx=.1, rely=.5)
+        B2.place(relx=.1, rely=.55)
         C2 = tk.Radiobutton(self.interactivePane, text="C) K/(s+4+K)",
                             padx=2, value="C2", bg="grey", variable=self.radioVarControlQ2)
-        C2.place(relx=.1, rely=.55)
+        C2.place(relx=.1, rely=.6)
         correctAnswers = [[self.radioVarControlQ1, "C1"], [self.radioVarControlQ2, "C2"]]
         self.placeBackToMenuButton(self.visualizingPane)
         self.placeNextButton(.675, .75, pane=self.interactivePane,
@@ -338,20 +338,22 @@ class PIDModule(Module):
     def explainPIDControl(self):
         self.gui.clearScreen()
         self.makePanes()
+        font = ('Comic Sans MS', 11, 'bold italic')
+        self.placeNextButton(.7, .7, pane=self.interactivePane,
+                             text="Kp\nTerm", font=font, command=self.explainP)
+        self.placeBackButton(.1, .7, pane=self.interactivePane, command=self.ControlQuiz,
+                             text="Quiz", font=font)
         paragraph = "PID control is a way to command a system to setpoints using error as feedback. It is very " \
                     "commonly used as it is simple and sufficient to command a robot to positions in most motion " \
                     "control problems. PID is short for Proportional Integral Derivative, which all process system " \
                     "error differently and add to create the control signal. The top image is the control block " \
                     "diagram and below is the PID equation. Let's look at the proportional term (Kp) first."
         formattedPara = self.formatParagraph(paragraph, self.cpl)
-        font = ('Comic Sans MS', 11, 'bold italic')
+
         self.visualizingPane.create_image(250, 150, image=self.pidControlBlock, anchor=tk.CENTER)
         self.visualizingPane.create_image(250, 400, image=self.pidEq, anchor=tk.CENTER)
         self.animateText(250, 150, formattedPara, self.interactivePane, font)
-        self.placeNextButton(.7, .7, pane=self.interactivePane,
-                             text="Kp\nTerm", font=font, command=self.explainP)
-        self.placeBackButton(.1, .7, pane=self.interactivePane, command=self.ControlQuiz,
-                             text="Quiz", font=font)
+
 
     def explainP(self):
         self.gui.clearScreen()
@@ -485,7 +487,7 @@ class PIDModule(Module):
         self.droneGraph.set_ylabel("Y Position (m)")
         figureCanvas = FigureCanvasTkAgg(self.f, master=self.visualizingPane)
         figureCanvas.get_tk_widget().grid(row=0, column=0)
-        self.drawDrone(5, self.droneGraph)
+        self.drawDrone(0, self.droneGraph)
         print("configured")
         self.animateText(250, 120, formattedPara, self.interactivePane, font)
 
@@ -527,6 +529,7 @@ class PIDModule(Module):
         self.prevTime = 0
         self.drone.pos = 0
         self.qprev = self.drone.pos
+        self.drone.velocity = 0
         print(self.kp)
         print(self.ki)
         print(self.kd)
@@ -601,14 +604,18 @@ class PIDModule(Module):
         q = self.drone.pos
 
         # calculate the derivative of position
-        qdot = (q - self.qprev) / self.dt
-        self.qprev = q
+        # qdot = (q - self.qprev) / self.dt
+        # self.qprev = q
 
         # Calculate error from current position to desired position
         e = self.qd - q
 
         # Calculate difference between desired and current velocity
-        edot = qdotd - qdot
+        # edot = qdotd - qdot
+
+        edot = (e - self.prevError)
+
+        self.prevError = e
 
         # Calculate integral of error
         self.eint = self.eint + e * self.dt
