@@ -18,7 +18,7 @@ class PIDModule(Module):
         self.pidGraph = tk.PhotoImage(file="images/pidcontroller.png")
         self.pidEq = tk.PhotoImage(file="images/PIDEquation.png")
         self.pidControlBlock = tk.PhotoImage(file="images/pidcontrolblock.png")
-        self.pGraph = tk.PhotoImage(file="images/PController.png")
+        self.pGraph = tk.PhotoImage(file="images/proportionalController.png")
         self.piGraph = tk.PhotoImage(file="images/PI.png")
         self.motionImage = tk.PhotoImage(file="images/drawingRobot.png")
         self.complianceImage = tk.PhotoImage(file="images/impedance.png")
