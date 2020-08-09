@@ -41,6 +41,7 @@ class PIDModule(Module):
         self.kd = 0.5
         self.ki = 0.05
 
+        self.qddes = 0
         self.eint = 0
         self.qd = 10
         self.totalError = 0
@@ -175,7 +176,7 @@ class PIDModule(Module):
         C1.place(relx=.1, rely=.4)
 
         # QUESTION 2
-        self.interactivePane.create_text(250, 265, text=question2, font=self.font)
+        self.interactivePane.create_text(235, 265, text=question2, font=self.font)
         A2 = tk.Radiobutton(self.interactivePane, text="A) Motion",
                             padx=20, value="A2", bg="grey", variable=self.radioVarControlQ2)
         A2.place(relx=.1, rely=.55)
@@ -197,10 +198,10 @@ class PIDModule(Module):
     def controlBlockDiagrams(self):
         self.gui.clearScreen()
         self.makePanes()
-        font = ('Comic Sans MS', 11, 'bold italic')
+        font = ('Comic Sans MS', 10, 'bold italic')
         self.placeNextButton(.7, .7, pane=self.interactivePane,
                              text="Step Response", font=font, command=self.simpBlockDiagrams)
-        self.placeBackButton(.1, .7, pane=self.interactivePane, command=self.gui.HomePage,
+        self.placeBackButton(.1, .7, pane=self.interactivePane, command=self.controlTypeQuiz,
                              text="Back", font=font)
 
         paragraph = "Control system block diagrams are an easy and intuitive way to understand how a system works. In " \
@@ -211,8 +212,8 @@ class PIDModule(Module):
                     "that show how the intersecting signals interact. For example if the sensors are measuring the " \
                     "current position, then you can subtract it from the position before the controller to get the " \
                     "error. If simplified this control block diagram can show the transfer function of the system. A " \
-                    "transfer function is just a mathematical function that shows the output given an imput."
-        formattedPara = self.formatParagraph(paragraph, self.cpl)
+                    "transfer function is just a mathematical function that shows the output given an input."
+        formattedPara = self.formatParagraph(paragraph, 55)
         self.visualizingPane.create_image(250, 250, image=self.controlSysDiagImage, anchor=tk.CENTER)
         self.animateText(250, 175, formattedPara, self.interactivePane, font)
 
@@ -228,7 +229,7 @@ class PIDModule(Module):
                     "this is in the frequency domain. So to find the transfer function in the time domain, " \
                     "you will need to take the inverse laplace transform of the transfer function. Two blocks in " \
                     "series can be simplified by just multiplying the contents of the block. To remove a feedback " \
-                    "loop, you must be the equation G(s)/(1+G(s)*H(s)). In some cases, the feedback H(s) will " \
+                    "loop, you must use the equation G(s)/(1+G(s)*H(s)). In some cases, the feedback H(s) will " \
                     "just be an arrow, this is called Unity feedback and to simplify you treat H(s) as 1. Using " \
                     "this transfer function, you can find a lot of information about the system such as the rise " \
                     "time, percentage overshoot, etc."
@@ -239,7 +240,7 @@ class PIDModule(Module):
     def stepResponse(self):
         self.gui.clearScreen()
         self.makePanes()
-        font = ('Comic Sans MS', 11, 'bold italic')
+        font = ('Comic Sans MS', 10, 'bold italic')
         self.placeNextButton(.7, .7, pane=self.interactivePane,
                              text="Quiz", font=font, command=self.ControlQuiz)
         self.placeBackButton(.1, .7, pane=self.interactivePane, command=self.controlBlockDiagrams,
@@ -257,7 +258,7 @@ class PIDModule(Module):
                     "time to be very fast " \
                     "while also having as little overshoot as possible."
 
-        formattedPara = self.formatParagraph(paragraph, self.cpl)
+        formattedPara = self.formatParagraph(paragraph, 55)
         self.visualizingPane.create_image(250, 250, image=self.stepResponseImage, anchor=tk.CENTER)
         self.animateText(250, 150, formattedPara, self.interactivePane, font)
 
@@ -323,7 +324,7 @@ class PIDModule(Module):
         B2 = tk.Radiobutton(self.interactivePane, text="B) s/(s+2+K)",
                             padx=2, value="B2", bg="grey", variable=self.radioVarControlQ2)
         B2.place(relx=.1, rely=.5)
-        C2 = tk.Radiobutton(self.interactivePane, text="C) K/(s+2+K)",
+        C2 = tk.Radiobutton(self.interactivePane, text="C) K/(s+4+K)",
                             padx=2, value="C2", bg="grey", variable=self.radioVarControlQ2)
         C2.place(relx=.1, rely=.55)
         correctAnswers = [[self.radioVarControlQ1, "C1"], [self.radioVarControlQ2, "C2"]]
@@ -346,7 +347,7 @@ class PIDModule(Module):
         font = ('Comic Sans MS', 11, 'bold italic')
         self.visualizingPane.create_image(250, 150, image=self.pidControlBlock, anchor=tk.CENTER)
         self.visualizingPane.create_image(250, 400, image=self.pidEq, anchor=tk.CENTER)
-        self.animateText(275, 150, formattedPara, self.interactivePane, font)
+        self.animateText(250, 150, formattedPara, self.interactivePane, font)
         self.placeNextButton(.7, .7, pane=self.interactivePane,
                              text="Kp\nTerm", font=font, command=self.explainP)
         self.placeBackButton(.1, .7, pane=self.interactivePane, command=self.ControlQuiz,
@@ -360,12 +361,12 @@ class PIDModule(Module):
                              text="Ki\nTerm", font=font, command=self.explainPI)
         self.placeBackButton(.1, .7, pane=self.interactivePane, command=self.explainPIDControl,
                              text="PID\nIntro", font=font)
-        paragraph = "The proportional term is comprised of" \
-                    "the error between the desired setpoint." \
+        paragraph = "The proportional term is comprised of " \
+                    "the error between the desired setpoint " \
                     "and the current position, and a constant gain," \
-                    "Kp. This term is meant to close the distance" \
-                    "to the setpoint quickly. So the larger the error" \
-                    "the faster the rise time." \
+                    "Kp. This term is meant to close the distance " \
+                    "to the setpoint quickly. So the larger the error " \
+                    "the faster the rise time. " \
                     "However, the problem with just P control, is that it requires an error to keep the response at a " \
                     "certain setpoint. Another way to look at this is that the proportional term is only concerned " \
                     "with the present. What if we also took the past errors into account?"
@@ -385,8 +386,8 @@ class PIDModule(Module):
                     "data. Let's say for example that we integrate the error from the start to the current time. " \
                     "Eventually, when the proportional term does not have enough of an error to power itself, " \
                     "the memory will keep the signal steady, instead of oscillating like a P controller does. " \
-                    "This can have it's drawbacks though. If the system overshoots it will take a little longer " \
-                    "for the system to correct and overtime with noise it could cause some instability as it " \
+                    "This can have its drawbacks though. If the system overshoots it will take a little longer " \
+                    "for the system to correct and over time with noise it could cause some instability as it " \
                     "drifts slowly from the set-point until the P term kicks back in. Let's see what else we can " \
                     "do to reduce the overshoot."
         formattedPara = self.formatParagraph(paragraph, self.cpl)
@@ -486,7 +487,7 @@ class PIDModule(Module):
         figureCanvas.get_tk_widget().grid(row=0, column=0)
         self.drawDrone(5, self.droneGraph)
         print("configured")
-        self.animateText(250, 100, formattedPara, self.interactivePane, font)
+        self.animateText(250, 120, formattedPara, self.interactivePane, font)
 
     def drawDrone(self, y, axis):
         self.dronePic = patches.Rectangle((-1, y), 2, 1, linewidth=1, edgecolor='black',
@@ -502,10 +503,30 @@ class PIDModule(Module):
 
     def runPID(self):
         print("Running PID")
-        self.kp = float(self.kpText.get())
-        self.kd = float(self.kiText.get())
-        self.ki = float(self.kdText.get())
+        try:
+            self.kp = float(self.kpText.get())
+        except:
+            self.kp = 0
+            self.kpText.set("0")
+
+        try:
+            self.kd = float(self.kdText.get())
+        except:
+            self.kd = 0
+            self.kdText.set("0")
+
+        try:
+            self.ki = float(self.kiText.get())
+        except:
+            self.ki = 0
+            self.kiText.set("0")
+        self.eint = 0
+        self.qd = 10
+        self.totalError = 0
+        self.prevError = 0
+        self.prevTime = 0
         self.drone.pos = 0
+        self.qprev = self.drone.pos
         print(self.kp)
         print(self.ki)
         print(self.kd)
@@ -607,12 +628,12 @@ class PIDModule(Module):
         self.makePanes()
         self.radioVarControlQ1.set(-1)
         self.radioVarControlQ2.set(-1)
-        self.interactivePane.create_text(260, 50, text=quizPrompt, font=self.font)
+        self.interactivePane.create_text(250, 50, text=quizPrompt, font=self.font)
 
         self.visualizingPane.create_image(250, 250, image=self.quizQuestionMark, anchor=tk.CENTER)
 
         # QUESTION 1
-        self.interactivePane.create_text(250, 90, text=question1, font=self.font)
+        self.interactivePane.create_text(240, 90, text=question1, font=self.font)
         A1 = tk.Radiobutton(self.interactivePane, text="A) To add stability",
                             padx=20, value="A1", bg="grey", variable=self.radioVarControlQ1)
         A1.place(relx=.1, rely=.2)
@@ -627,22 +648,43 @@ class PIDModule(Module):
         self.interactivePane.create_text(250, 230, text=q2Formatted, font=self.font)
         A2 = tk.Radiobutton(self.interactivePane, text="A) Too much error accumulated in Integral term",
                             padx=20, value="A2", bg="grey", variable=self.radioVarControlQ2)
-        A2.place(relx=.1, rely=.55)
+        A2.place(relx=.1, rely=.6)
         B2 = tk.Radiobutton(self.interactivePane, text="B) The Kd gain wasn't high enough",
                             padx=20, value="B2", bg="grey", variable=self.radioVarControlQ2)
-        B2.place(relx=.1, rely=.6)
+        B2.place(relx=.1, rely=.65)
         C2 = tk.Radiobutton(self.interactivePane, text="C) The Kp gain was too high",
                             padx=20, value="C2", bg="grey", variable=self.radioVarControlQ2)
-        C2.place(relx=.1, rely=.65)
+        C2.place(relx=.1, rely=.70)
         correctAnswers = [[self.radioVarControlQ1, "B1"], [self.radioVarControlQ2, "A2"]]
         self.placeBackToMenuButton(self.visualizingPane)
         self.placeNextButton(.675, .75, pane=self.interactivePane,
                              text="Submit Quiz", font=self.font,
-                             command=lambda: self.checkTest(correctAnswers, self.PIDQuiz, self.gui.HomePage))
+                             command=lambda: self.checkTestLast(correctAnswers, self.PIDQuiz, self.gui.HomePage))
         self.placeBackButton(.075, .75, pane=self.interactivePane, command=self.dronePID,
                              text="Drone", font=self.font)
-        self.completed = True
 
+    def checkTestLast(self, correctAnswers, previousPage, nextPage):
+        for answer in correctAnswers:
+            if (answer[0].get() == answer[1]):
+                pass
+            else:
+                print("Quiz Failed.")
+                self.quizFailed(previousPage)
+                return
+        print("Quiz Passed.")
+        self.quizPassedLast(nextPage)
+        pass
+
+    def quizPassedLast(self, nextPage):
+        self.completed = True
+        self.gui.clearScreen()
+        canvas = tk.Canvas(self.gui.win, width=1000, height=500, bg='grey')
+        canvas.grid(row=0, column=0)
+        canvas.create_image(500, 250, image=self.quizPassedImage, anchor=tk.CENTER)
+        canvas.create_text(500, 50, text="Quiz Passed!", font=self.quizResultFont)
+        self.placeBackToMenuButton(canvas)
+        self.placeNextButton(.7, .7, pane=canvas, command=nextPage, text="Home",
+                             font=self.font)
 
     def runModule(self):
         self.gui.clearScreen()
@@ -650,14 +692,14 @@ class PIDModule(Module):
         self.introPage()
 
     def checkRight(self):
-        if (self.drone.pos > 9.7) and (self.drone.pos < 10.3):
+        if (self.drone.pos > 9.5) and (self.drone.pos < 10.5):
             return True
         else:
             return False
 
     def setSuggestedGains(self):
         self.kpText.set("10")
-        self.kdText.set(".5")
+        self.kdText.set(".2")
         self.kiText.set(".05")
 
     def formatParagraph(self, paragraph, charsPerLine):
