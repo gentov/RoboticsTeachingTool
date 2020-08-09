@@ -8,7 +8,7 @@ Instructions for RBE500 Teaching Tool:
     a. Download https://bootstrap.pypa.io/get-pip.py 
     b. Open command promt/terminal 
     c. Run  $ python get-pip.py
-d. To ensure pip in installed, run $ pip –version
+d. To ensure pip in installed, run $ pip –-version
 5. Install all required packages
     a. $ pip install Pillow
     b. $ pip install opencv-python
